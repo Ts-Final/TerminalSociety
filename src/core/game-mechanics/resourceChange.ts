@@ -1,6 +1,6 @@
 import {player} from "../player";
-import {calcResourceAffect as calc} from "./resourceAffect.ts";
 import {ResourceTypes} from "../GameDataBase/resource.ts";
+import {Effect} from "./effect.ts";
 
 
 /**
@@ -12,9 +12,9 @@ import {ResourceTypes} from "../GameDataBase/resource.ts";
 export function canResourceChange(res: ResourceTypes, value: number, produce: boolean) {
   const Res = player.resource[res] // same pointer 同一个指针
   if (produce) {
-    return Res.amount + value * (1 + calc(res, 'pro').v) <= Res.maximum
+    return Res.amount + value * (1 + Effect.calcResource(res, 'pro').value) <= Res.maximum
   } else {
-    return Res.amount - value * (1 - calc(res, "consume").v) >= 0
+    return Res.amount - value * (1 - Effect.calcResource(res, "consume").value) >= 0
   }
 }
 
@@ -23,11 +23,11 @@ export function doResourceChange(res: ResourceTypes,
                                  produce: boolean,) {
   const Res = player.resource[res] // same pointer 同一个指针
   if (produce) {
-    Res.amount += value * (1 + calc(res, 'pro').v)
-    Res.change += value * (1 + calc(res, 'pro').v)
+    Res.amount += value * (1 + Effect.calcResource(res, 'pro').value)
+    Res.change += value * (1 + Effect.calcResource(res, 'pro').value)
   } else {
-    Res.amount -= value * (1 - calc(res, 'consume').v)
-    Res.change -= value * (1 - calc(res, 'consume').v)
+    Res.amount -= value * (1 - Effect.calcResource(res, 'consume').value)
+    Res.change -= value * (1 - Effect.calcResource(res, 'consume').value)
   }
 }
 

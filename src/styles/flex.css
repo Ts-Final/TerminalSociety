@@ -27,3 +27,9 @@
 .flex-nowrap {
   flex-wrap: nowrap;
 }
+.flex-avg >div {
+  flex: 1 0
+}
+.flex-avg {
+  display: flex;
+}

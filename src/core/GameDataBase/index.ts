@@ -3,7 +3,8 @@ import {Researches} from "./research.ts";
 import {How2Play, version} from "./how2play/how2play.ts";
 import {Market} from "./market";
 import {Tabs} from "./tabs.ts";
-import {News} from "./news.ts";
+import {News} from "./news/news.ts";
+import {Employees} from "./employee/employee.ts";
 
 export const GameDataBase = {
   Tasks,
@@ -13,4 +14,5 @@ export const GameDataBase = {
   version,
   Tabs,
   News,
+  Employees,
 }

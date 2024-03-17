@@ -5,6 +5,7 @@ import {parseResourceName} from "../../core/game-mechanics/parse.ts";
 import {player} from "../../core/player";
 import {gameUpdateDisplays} from "../../core/gameUpdate/updateDisplay.ts";
 import {displayEnum} from "../../core/GameDataBase/display.ts";
+import {Numbers} from "../../core/functions/Numbers.ts";
 
 const resAmount: Ref<{ [key in ResourceTypes]: number }> = ref({
   energy: 0,
@@ -41,18 +42,36 @@ function update() {
 
 }
 
+function divs() {
+  let v = []
+  for (const resKey in resAmount.value) {
+    const key = resKey as ResourceTypes
+    if (player.resource[resKey].amount >= player.resource[resKey].maximum) {
+      // 满了
+      v.push(parseResourceName(key) +
+          ": " + resAmount.value[key] + "(Max)")
+    } else {
+      v.push(parseResourceName(key) + ": " +
+          Numbers.formatInt(resAmount.value[key]) + "(" +
+          Numbers.formatInt(resChange.value[key]) + "/s)")
+    }
+  }
+  return v
+}
+
 gameUpdateDisplays[displayEnum.baseLayouts].push(update)
 </script>
 
 <template>
   <div class="flex-row flex-nowrap space-around"
        style="color: #b8dcee;margin-bottom: 5px;border-bottom: #7cdcf4 1px solid">
-    <div>{{ parseResourceName('energy') }}:{{ resAmount.energy }} ({{ resChange.energy }}/s)</div>
-    <div>{{ parseResourceName('iron') }}:{{ resAmount.iron }} ({{resChange.iron }}/s)</div>
-    <div>{{ parseResourceName('copper') }}:{{ resAmount.copper }} ({{resChange.copper }}/s)</div>
-    <div>{{ parseResourceName('coal') }}:{{ resAmount.coal }} ({{resChange.coal }}/s)</div>
-    <div>{{ parseResourceName('water') }}:{{ resAmount.water }} ({{resChange.water }}/s)</div>
-    <div>{{ parseResourceName('air') }}:{{ resAmount.air }} ({{resChange.air }}/s)</div>
+<!--    <div>{{ parseResourceName('energy') }}:{{ resAmount.energy }} ({{ resChange.energy }}/s)</div>
+    <div>{{ parseResourceName('iron') }}:{{ resAmount.iron }} ({{ resChange.iron }}/s)</div>
+    <div>{{ parseResourceName('copper') }}:{{ resAmount.copper }} ({{ resChange.copper }}/s)</div>
+    <div>{{ parseResourceName('coal') }}:{{ resAmount.coal }} ({{ resChange.coal }}/s)</div>
+    <div>{{ parseResourceName('water') }}:{{ resAmount.water }} ({{ resChange.water }}/s)</div>
+    <div>{{ parseResourceName('air') }}:{{ resAmount.air }} ({{ resChange.air }}/s)</div>-->
+    <div v-for="v in divs()" v-html="v"></div>
   </div>
 </template>
 

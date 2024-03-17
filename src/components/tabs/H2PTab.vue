@@ -34,7 +34,7 @@ EventHub.addHandler(GameEvent.UPDATE_H2P, function () {
 <template>
   <div class="h2p-wrapper" v-if="onUpdate">
     <div id="h2p-list">
-      <div style="width: 100%; padding: 5px; font-size: 0.9rem; text-align: left">
+      <div class="h2p-help-text">
         欢迎使用指引模块。<br>
         您可以在这里查阅一些和游戏机制有关的东西
         （比如部分教学内容，如果没有找到就是作者忘记写了（请务必通过各种渠道提醒作者）<br>
@@ -65,16 +65,31 @@ EventHub.addHandler(GameEvent.UPDATE_H2P, function () {
   border-left: 1px solid #7cdcf4;
 }
 
+.h2p-help-text {
+  width: calc(100% - 10px);
+  padding: 5px;
+  font-size: 0.9rem;
+  text-align: left
+}
+
+/* h2p-button */
 .h2p-button {
   text-align: center;
   cursor: pointer;
   height: 2rem;
-  border-bottom: 1px solid #7cdcf4;
+  justify-content: center;
+  display: flex;
+  align-items: center;
+}
+.h2p-button:hover {
+  box-shadow: #7cdcf4 0 0 0.3rem inset;
 }
 
+/* h2p-layout */
 #h2p-list {
   display: flex;
   width: 15%;
+  max-width: 180px;
   height: 100%;
   flex-direction: column;
   word-break: normal;

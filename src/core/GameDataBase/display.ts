@@ -1,3 +1,9 @@
+/**
+ * 全部Tab的储存
+ * 同步需要更改：
+ * @borrows initListener as i
+ *
+ */
 export enum displayEnum {
   baseLayouts ,
   resourceGeneral,
@@ -12,4 +18,7 @@ export enum displayEnum {
   marketPrice,
   marketExchange,
   marketCompany,
+  employWork,
+  employFight,
+  employHire,
 }

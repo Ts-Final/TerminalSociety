@@ -23,7 +23,7 @@ export function purchaseUpgrade(id:number,canPurchase:boolean) {
   if (!upgrade) {
     throw new ValueNotFoundError(`什么upg id ${id}`)
   }
-  player.market.upgrades[id-1][1] = true
+  player.market.upgrades[id][1] = true
   for (let i = 0; i < upgrade.costResource.length; i++) {
     let [resType, value] = upgrade.costResource[i]
     doResourceChange(resType, value, false)

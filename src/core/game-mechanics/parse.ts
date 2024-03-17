@@ -1,6 +1,5 @@
-import {ResAffectTypes, ResourceTypes} from "../GameDataBase/resource.ts";
-import {NotImplementedError, ValueNotFoundError} from "../functions/errors.ts";
-import {affectSource} from "./resourceAffect.ts";
+import {resourceEffectTypes, ResourceTypes} from "../GameDataBase/resource.ts";
+import {ValueNotFoundError} from "../functions/errors.ts";
 import {countryEnum} from "../GameDataBase/situation/country.ts";
 
 export function parseResourceName(key: ResourceTypes) {
@@ -22,24 +21,7 @@ export function parseResourceName(key: ResourceTypes) {
   }
 }
 
-/**
- * 将各种影响（只做了research但无关紧要）编译成文字（？
- * @example
- * parseAffectName('research','太阳能扩张') -> "研究:太阳能扩张"
- *
- * @param type
- * @param name
- */
-export function parseAffectName(type: affectSource, name: string) {
-  switch (type) {
-    case "research":
-      return `研究:${name}`;
-    case "NMP":
-      throw new NotImplementedError()
-  }
-}
-
-export function parseAffectType(type: ResAffectTypes) {
+export function parseAffectType(type: resourceEffectTypes) {
   switch (type) {
     case "maxMult":
       return "最大 +"
@@ -52,7 +34,7 @@ export function parseAffectType(type: ResAffectTypes) {
   }
 }
 
-export function parseAffectValue(v: number, type: ResAffectTypes = "pro"): string {
+export function parseAffectValue(v: number, type: resourceEffectTypes = "pro"): string {
   switch (type) {
     case "pro":
       return Math.floor(v * 100) + "%"
@@ -74,12 +56,17 @@ export function parseAffectValue(v: number, type: ResAffectTypes = "pro"): strin
  * 务必使用v-html
  * @param type 国家名字
  */
-export function parseCountryName(type:keyof typeof countryEnum) {
+export function parseCountryName(type: number) {
   switch (type) {
-    case "xi": return "锡"
-    case "agleta":return "阿各塔"
-    case "fatery":return "法谭"
-    case "teLin":return "特林"
-    case "tsFinal": return `<span class="rainbow-text">Ts.Final</span>`
+    case countryEnum.xi:
+      return "锡"
+    case countryEnum.agleta:
+      return "阿各塔"
+    case countryEnum.fatery:
+      return "法谭"
+    case countryEnum.teLin:
+      return "特林"
+    case countryEnum.tsFinal:
+      return `<span class="rainbow-text">Ts.Final</span>`
   }
 }

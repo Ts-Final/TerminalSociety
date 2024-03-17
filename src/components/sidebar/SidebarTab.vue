@@ -12,9 +12,11 @@ const {Tab} = defineProps<{ Tab: LB_TAB }>()
 const hasSubTab = Tab.subTabs != undefined
 const unlocked = ref(false)
 const onUpdate = ref(true)
+const chosen = ref(false)
 
 function update() {
   unlocked.value = Tab.unlocked || unlocked.value || player.dev
+  chosen.value = Tab.frame.includes(player.display)
 }
 
 gameUpdateDisplays[displayEnum.baseLayouts].push(update)
@@ -28,7 +30,7 @@ EventHub.addHandler(GameEvent.UPDATE_TAB, function () {
 
 <template>
   <div class="sidebar-tab" v-if="unlocked && onUpdate"
-       :class="{'sidebar-no-subtab': !hasSubTab}">
+       :class="{'sidebar-no-subtab': !hasSubTab, chosen:chosen}">
     <div class="sidebar-tab-name" style="border: none"
          @click="changeTab(Tab.frame[0])">
       <span style="align-self: center;border:none">{{ Tab.name }}</span>
@@ -112,6 +114,15 @@ EventHub.addHandler(GameEvent.UPDATE_TAB, function () {
   border-bottom: 1rem transparent solid;
   border-top: 1rem transparent solid;
   border-left: 0 #7cdcf4 solid;
+}
+.sidebar-tab::before {
+  content: "";
+  transition: all 0.15s linear;
+  border-left: none;
+}
+.chosen::before {
+  content: "";
+  border-left: 5px solid;
 }
 
 .sidebar-tab:hover::after {

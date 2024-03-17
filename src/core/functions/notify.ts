@@ -6,7 +6,7 @@ export const notify = (function (){
   const enterAnimation = "notify-a-enter"
   const leaveAnimation = "notify-a-leave"
 
-  function showNotify(message:string, duration : number,elClass:string='notify-normal') {
+  function showNotify(message:string, duration : number, elClass:string='notify-normal') {
     const container = document.getElementById('notifyContainer')
     if (!container) {
       throw new ValueNotFoundError("Notify Container not found")

@@ -3,6 +3,8 @@ import {GameDataBase} from "../GameDataBase";
 import {ResourceTypes} from "../GameDataBase/resource.ts";
 import {randomElements, randomNumber} from "../functions/random.ts";
 import {player} from "./index.ts";
+import {Numbers} from "../functions/Numbers.ts";
+import {notify} from "../functions/notify.ts";
 
 
 /**
@@ -10,23 +12,26 @@ import {player} from "./index.ts";
  * ```
  * player.market.exchange
  * ```
- * @borrows {player.market.exchange}
+ * @borrows player.market.exchange as exchange
  */
 export function generateExchange() {
   let v: [string, ResourceTypes, number, number, number][] = []
 
-  v.push(["???", "energy", 1000, 0, 0.2])
+  v.push(["???", "energy", 0, 0, 0.2])
   for (const company of GameDataBase.Market.Company) {
     const sellResourceTypes = randomElements(company.allResource)
 
     for (let i = 0; i < sellResourceTypes.length; i++) {
       const resKey = sellResourceTypes[i]
       const isADV = resKey in company.advantage
-      let amount = isADV ? randomNumber(...company.advPow) : randomNumber(0.95, 1.05)
+      let amount = isADV ? Numbers.round(randomNumber(...company.advPow))
+        : Numbers.round(randomNumber(0.95, 1.05))
       amount *= company.baseAmount
       let price = player.market.basePrice[resKey as ResourceTypes]
       price *= randomNumber(0.9, 1.05)
+      price = Numbers.round(price,3)
 
+      /* Anti-undefined check <- whats dis lol */
       let arr = [company.name, resKey, amount, 0, price]
       let fail = false
       arr.forEach((v) => fail = fail || v == undefined)
@@ -48,11 +53,11 @@ export function generateExchange() {
  */
 export function generateBasePrice() {
   return {
-    energy: randomNumber(0.5, 0.7),
-    iron: randomNumber(12, 16),
-    water: randomNumber(2, 3),
-    coal: randomNumber(8, 11),
-    copper: randomNumber(15, 19),
+    energy: Numbers.round(randomNumber(0.5, 0.7),2),
+    iron: Numbers.round(randomNumber(12, 16),2),
+    water: Numbers.round(randomNumber(2, 3),2),
+    coal: Numbers.round(randomNumber(8, 11),2),
+    copper: Numbers.round(randomNumber(15, 19),2),
     air: 0,
   }
 }
@@ -60,9 +65,10 @@ export function generateBasePrice() {
 export function generateMarket() {
   player.market.exchange = generateExchange()
   player.market.basePrice = generateBasePrice()
+  notify.normal("市场交易已刷新",1000)
 }
 
-export const market = {
+export const __player_market = {
   affect: 0,
   /**
    * Unlocked, bought
@@ -94,11 +100,11 @@ export const market = {
   exchange: [] as [string, ResourceTypes, number, number, number][],
 
   basePrice: {
-    energy: randomNumber(0.5, 0.7),
-    iron: randomNumber(12, 16),
-    water: randomNumber(2, 3),
-    coal: randomNumber(8, 11),
-    copper: randomNumber(15, 19),
+    energy: Numbers.round(randomNumber(0.5, 0.7),2),
+    iron: Numbers.round(randomNumber(12, 16),2),
+    water: Numbers.round(randomNumber(2, 3),2),
+    coal: Numbers.round(randomNumber(8, 11),2),
+    copper: Numbers.round(randomNumber(15, 19),2),
     air: 0,
   }
 

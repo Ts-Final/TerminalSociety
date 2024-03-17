@@ -42,11 +42,11 @@ gameUpdateDisplays[displayEnum.resourceDetail].push(update)
     <div class="res-detail-top">
       <div class="res-detail-btn" v-for="resKey in Object.keys(player.resource)"
            :key="resKey" @click="changeChosen(resKey)"
-           :class="{chosen:chosenResource===resKey}">
+           :class="{chosen:chosenResource === resKey}">
         {{ parseResourceName(resKey as ResourceTypes) }}
       </div>
     </div>
-    <div class="res-detail">
+    <div class="res-detail flex-avg">
       <div class="res-detail-list  left-border right-border">
         <div class="res-detail-first-row">生产加成</div>
         <div v-for="aff in chosenAffect.pro" class="res-detail-row">

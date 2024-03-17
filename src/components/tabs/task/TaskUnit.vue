@@ -8,14 +8,14 @@ import {gameUpdateDisplays} from "../../../core/gameUpdate/updateDisplay.ts";
 import {displayEnum} from "../../../core/GameDataBase/display.ts";
 
 const {task} = defineProps<{task: Task}>()
-const taskP = ref(player.task[task.id-1])
+const activated = ref(false)
 const unlocked = ref(false)
 function changeActivate() {
-  taskP.value[0] = !taskP.value[0]
+  player.task[task.id][0] = !player.task[task.id][0]
 }
 function update() {
-  taskP.value = player.task[task.id-1]
-  unlocked.value = player.task[task.id-1][1]
+  activated.value = player.task[task.id][0]
+  unlocked.value = player.task[task.id][1]
 }
 
 gameUpdateDisplays[displayEnum.task].push(update)
@@ -27,8 +27,8 @@ gameUpdateDisplays[displayEnum.task].push(update)
     <div class="flex-row space-around">
       <span class="name">{{ task.name }}</span>
       <button type="button" @click="changeActivate" class="btn"
-              :class="{'btn-ON':taskP[0], 'btn-OFF':!taskP[0]}">
-        <span v-if="taskP[0]">ON</span>
+              :class="{'btn-ON':activated, 'btn-OFF':!activated}">
+        <span v-if="activated">ON</span>
         <span v-else>OFF</span>
       </button>
     </div>

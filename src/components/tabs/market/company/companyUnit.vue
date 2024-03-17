@@ -7,7 +7,7 @@ import {ResourceTypes} from "../../../../core/GameDataBase/resource.ts";
 const {company} = defineProps<{company: com}>()
 
 function allResource(resKey:ResourceTypes) {
-  const isADV = resKey in company.advantage
+  const isADV = company.advantage.includes(resKey)
   let resKey1 = parseResourceName(resKey)
   return isADV ? `<span style="color: #f7f12c;">${resKey1}</span>` : resKey1
 }

@@ -4,6 +4,7 @@
  * @param source
  * @param target
  */
+/*
 export function deepSet(source: any, target: any) {
   for (let key of Object.keys(source as object)) {
     if (source[key] == null) {
@@ -24,5 +25,19 @@ export function deepSet(source: any, target: any) {
       }
     }
 
+  }
+}
+*/
+export function deepSet(source:any, target:any) {
+  if (!(typeof source == 'object')) {throw new Error()}
+  for (const key in source) {
+    if (key in target) {
+      if (typeof source[key] == "object") {
+        deepSet(source[key],target[key])
+      } else {
+        target[key] = source[key]
+      }
+    }
+    else {Object.defineProperty(target,key, {value:source[key]})}
   }
 }

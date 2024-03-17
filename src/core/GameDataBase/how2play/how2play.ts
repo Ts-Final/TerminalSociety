@@ -39,10 +39,10 @@ export const How2Play: how2play[] = [
     <p class="small-title">
     （以下排名不分先后，部分名字暂时以缩写代替）<br>
     部分带有点的为名字缩写或比较泛用代号，个人名义<br>
-    <span class="rainbow-text">（游戏都没做完你就致谢了？）</span>
+    <span class="rainbow-text-color">（游戏都没做完你就致谢了？）</span>
     </p>
     <p class="small-title size-1.25rem shadow">Creator</p>
-    <p class="small-title rainbow-text">Ts.Final</p>
+    <p class="small-title rainbow-text-color">Ts.Final</p>
     <p class="small-title size-1.25rem shadow">Ts.Inc Assistants</p>
     <div class="credit-3col">
       <p>Kun.</p>
@@ -57,7 +57,6 @@ export const How2Play: how2play[] = [
       <p>Arcaea中文维基</p>
       <p>一直等待本游戏的各位</p>
       <p>Felleta Inc.</p>
-      <p>Vue Vite</p>
       <p>作者的电脑</p>
     </div>
     <p class="small-title size-1.5rem rainbow-text">Thank for your playing!</p>
@@ -88,9 +87,14 @@ export const How2Play: how2play[] = [
     id:3,
     title: "市场",
     info: `
-    你游最没做好的东西。<br>
-    按下 Alt+M 可以刷新当前交易、价格（正常是每天刷新，但是由于是用的随机所以有概率导致运气差到没有，提供补偿措施吧。<br>
-    这个也没想好怎么写。 
+    <div class="text-italic small-title">纷繁复杂的资本……沉浮其中的代价是什么？</div>
+    市场机制允许你购买一些乱七八糟的东西，通过交易（资源）等途径获取资金，至于怎么花取决于你。<br>
+    每天0点，市场资源价格和可交易的资源会刷新。请注意这是离线加载的，如果0点时在线会错过刷新（会优化，在路上了<br>
+    如果你觉得今天的东西太抽象了，可以按Alt+M以刷新市场价格和资源。请注意这是补救措施，在一定时间后会删除此功能。<br>
+    <br>
+    <div class="small-title">交易</div>
+    每家公司在每天刷新的时候会提供一些物资的交易。你可以无限卖出（做好功能之后会限制），但每日购买是限量的。<br>
+    
     `,
     get unlocked() {
       return player.resource.air.max_record >= 20

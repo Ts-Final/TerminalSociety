@@ -61,6 +61,13 @@ export const Tabs: LB_TAB[] = [
     },
     subTabs: [
       {
+        name: "许可",
+        frame: displayEnum.marketUpgrade,
+        get unlocked() {
+          return player.resource.energy.max_record >= 500
+        }
+      },
+      {
         name: "价格",
         frame: displayEnum.marketPrice,
         unlocked: true
@@ -75,12 +82,19 @@ export const Tabs: LB_TAB[] = [
         frame: displayEnum.marketCompany,
         unlocked: true
       },
+    ]
+  },
+  {
+    name:"雇佣",
+    frame: [displayEnum.employWork],
+    get unlocked(): boolean {
+      return player.resource.energy.max_record >= 500
+    },
+    subTabs: [
       {
-        name: "许可",
-        frame: displayEnum.marketUpgrade,
-        get unlocked() {
-          return player.resource.energy.max_record >= 500
-        }
+        name:"职员",
+        frame: displayEnum.employWork,
+        unlocked: true
       }
     ]
   },

@@ -1,5 +1,3 @@
-import {ResourceTypeEnum} from "../GameDataBase/resource.ts";
-
 type resDict = {
   amount: number;
   max_record: number;
@@ -58,7 +56,7 @@ function getResourceDict(): resDict {
 /**
  * jinitaimei
  */
-export const resource: { [key in ResourceTypeEnum]: resDict } = {
+export const __player_resource: { [x: string]: resDict } = {
   energy: getResourceDict(),
   iron: getResourceDict(),
   copper: getResourceDict(),

@@ -1,6 +1,11 @@
 import {Research} from "../GameDataBase/research.ts";
-import {player} from "../player";
+import {Effect} from "./effect.ts";
+import {Numbers} from "../functions/Numbers.ts";
+import {Progress} from "./progress.ts";
 
-export function calcLevelTime(research:Research) {
-  return research.time * (research.timePow ** player.research[research.id-1][3])
+
+export function calcLevelTime(research: Research) {
+  return Numbers.round(research.time *
+    (research.timePow ** Progress.research(research.id).level) /
+    Effect.calcResearchProgress())
 }

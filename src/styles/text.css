@@ -1,12 +1,14 @@
 .rainbow-text {
-  background-image: linear-gradient(to right, red, orange, yellow, #7cdcf4, indigo, violet, red, orange, yellow, #7cdcf4, indigo, violet,red);
+  background-image: linear-gradient(to right, red, orange, yellow, #7cdcf4,  violet, red, orange, yellow, #7cdcf4, violet,red);
   background-size: 200% 100%;
-  animation: infinite linear 4s rainbow-text-bg;
+  animation: infinite linear 4s a-rainbow-text;
   background-clip: text;
-  color: #00000000
+  -webkit-background-clip: text;
+  color: transparent;
 
 }
-@keyframes rainbow-text-bg {
+
+@keyframes a-rainbow-text {
   0% {
     background-position: 0 0;
   }
@@ -14,6 +16,25 @@
     background-position: -100% 0;
   }
 }
+.rainbow-text-color {
+  animation: infinite linear 10s a-rainbow-text-color;
+
+}
+@keyframes a-rainbow-text-color {
+  0% {
+    color: #7cdcf4;
+  }
+  20% {
+    color: greenyellow;
+  }
+  40% {
+    color: #c35ee7;
+  }
+  60%{color: #943430}
+  80%{color: #bbb516}
+  100%{color: #7cdcf4}
+}
+
 .none-display {
   display: none;
 }
@@ -24,14 +45,18 @@
 
 .center-text {
   text-align: center;
-  align-self: center;
 }
 
 .text-disabled {
   text-decoration: line-through 2px;
   font-style: italic;
 }
+
 .text-bg-swap {
   color: #7cdcf4;
   background-image: var(--bgi);
+}
+
+.text-italic {
+  font-style: italic;
 }

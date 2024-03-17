@@ -3,20 +3,22 @@
   margin: 5px 5px 0 5px;
   padding: 2px;
   color: #b8dcee;
-  max-height: min-content;
+  max-height: max-content;
 }
 
 .medium-size {
-  min-width: 200px;
-  max-width: 250px;
+  /*min-width: 200px;*/
+  /*max-width: 250px;*/
+  width: var(--medium-width);
 }
 
 .gameUnit-popout {
   opacity: 0;
-  width: 75%;
+  min-width: 75%;
+  max-width: 120%;
   position: absolute;
   transform: translate(-50%, 4px);
-  transition: all 0.2s linear;
+  transition: opacity 0.2s linear;
   left: 50%;
   top: 100%;
   z-index: 10;

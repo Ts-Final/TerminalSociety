@@ -1,5 +1,6 @@
 import {countryEnum} from "../situation/country.ts";
 import {ResourceTypes} from "../resource.ts";
+import {effectShort} from "../../game-mechanics/effect.ts";
 
 export interface upg {
   id:number
@@ -8,7 +9,8 @@ export interface upg {
   costResource: [ResourceTypes, number][]
   costMoney: number
   unlock: boolean
-  country: keyof typeof countryEnum
+  country: number
+  effects: effectShort[]
 }
 
 export const Upgrade: upg[] = [
@@ -19,6 +21,7 @@ export const Upgrade: upg[] = [
     costMoney: 100,
     costResource: [],
     unlock: true,
-    country: "teLin"
+    country: countryEnum.teLin,
+    effects: []
   }
 ]

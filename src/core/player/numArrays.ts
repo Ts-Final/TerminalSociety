@@ -9,7 +9,9 @@ import {getNumArray} from "./generator.ts";
  * }
  * ```
  */
-export const task = getNumArray<[boolean, boolean]>(GameDataBase.Tasks.length, [false, false])
+export const __player_task = getNumArray<
+  [boolean, boolean]>(
+  GameDataBase.Tasks.length, [false, false])
 /**
  * ```
  * {
@@ -20,4 +22,21 @@ export const task = getNumArray<[boolean, boolean]>(GameDataBase.Tasks.length, [
  * }
  * ```
  */
-export const research = getNumArray<[boolean, boolean, number, number]>(GameDataBase.Researches.length, [false, false, 0, 0])
+export const __player_research = getNumArray<
+  [boolean, boolean, number, number]>(
+  GameDataBase.Researches.length, [false, false, 0, 0])
+
+export const __player_employee = {
+  /**
+   * {
+   *   0: unlocked,
+   *   1: equipped,
+   *   2: unlocked time,
+   *   3: letters,
+   *   4: level,
+   * }
+   */
+  work: getNumArray<
+    [boolean, boolean,number,number,number]>(
+    GameDataBase.Employees.work.length, [true, false,0,0,1])
+}

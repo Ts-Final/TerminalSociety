@@ -3,7 +3,7 @@
 import {Ref, ref} from "vue";
 import {GameDataBase} from "../../core/GameDataBase";
 import {randomElement} from "../../core/functions/random.ts";
-import {NewsTick} from "../../core/GameDataBase/news.ts";
+import {NewsTick} from "../../core/GameDataBase/news/news.ts";
 import {EventHub, GameEvent} from "../../core/gameUpdate/eventHub.ts";
 
 const span: Ref<HTMLSpanElement | undefined> = ref()
@@ -14,7 +14,7 @@ const contain: Ref<HTMLDivElement | undefined> = ref()
  * 在news还不够多的时候先1吧
  */
 const recentNews: NewsTick[] = []
-const recentNewsMax = 1
+const recentNewsMax = 3
 
 /*function update() {
   if (!span.value) {
@@ -86,11 +86,11 @@ EventHub.addHandler(GameEvent.UPDATE_NEWS, changeNextNews)
 
 <style scoped>
 .news {
-  position: absolute;
+  position: relative;
   top: 0;
   left: 0;
   width: 100%;
-  height: 1.5rem;
+  min-height: 1.5rem;
   background-image: var(--bgi);
   display: flex;
   align-items: center;

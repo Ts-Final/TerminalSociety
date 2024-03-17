@@ -8,18 +8,18 @@ import News from "./components/small/news.vue";
 
 <template>
   <div class="full app-wrapper">
+    <News />
     <RightTab class="blue-border" style=""/>
 
     <Teleport to="body">
       <Sidebar/>
       <div class="flex-col" id="notifyContainer"></div>
-      <News/>
     </Teleport>
   </div>
 </template>
 
 <style>
-body, :root {
+body, :root, #app {
   background-image: linear-gradient(60deg, #0d1418 0%, #11161b 100%);
   width: 100%;
   height: 100%;
@@ -28,12 +28,10 @@ body, :root {
 }
 
 .app-wrapper {
-  position: absolute;
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   left: 0;
   flex-wrap: nowrap;
-  top: var(--news-height);
 }
 
 #notifyContainer {
