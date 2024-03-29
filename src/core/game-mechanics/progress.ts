@@ -28,6 +28,23 @@ export const Progress = {
       level: e[4]
     }
   },
+  task(id:number) {
+    let e = player.task[id]
+    return {
+      unlocked: e[0],
+      activated: e[1]
+    }
+  },
+  Research(id:number) {
+    return {
+      levelUp() {
+        player.research[id][3] += 1
+      },
+      change() {
+        player.research[id][0] = !player.research[id][0]
+      }
+    }
+  },
   research(id:number) {
     let e = player.research[id]
     return {
@@ -37,11 +54,4 @@ export const Progress = {
       level:e[3],
     }
   },
-  task(id:number) {
-    let e = player.task[id]
-    return {
-      unlocked: e[0],
-      activated: e[1]
-    }
-  }
 }

@@ -28,11 +28,13 @@ export function researchToEffect(r: Research, lv: number): effect {
     if (eff.length == 2) {
       e.push({
         target: eff[0],
-        factor: Numbers.round(eff[1] * ((lv + 1) / r.maxLevel), 4)
+        factor: Numbers.round(eff[1] * (lv / r.maxLevel), 4)
       })
     } else if (eff.length == 3) {
-      e.push({target: eff[0], type: eff[1],
-        factor: Numbers.round(eff[2] * ((lv+1) / r.maxLevel), 4)})
+      e.push({
+        target: eff[0], type: eff[1],
+        factor: Numbers.round(eff[2] * (lv / r.maxLevel), 4)
+      })
     }
   }
   return {

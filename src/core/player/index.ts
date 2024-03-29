@@ -3,6 +3,7 @@ import {__player_task, __player_employee, __player_research, } from "./numArrays
 import {__player_market} from "./market.ts";
 import {GameDataBase} from "../GameDataBase";
 import {__player_country} from "./country.ts";
+import {__player_options} from "./options.ts";
 
 
 export const player = {
@@ -19,6 +20,7 @@ export const player = {
   saveTime: 0,
   dailyFreshTime: 0,
   dev: false,
+  options: __player_options
 
 }
 

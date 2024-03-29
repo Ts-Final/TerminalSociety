@@ -2,10 +2,11 @@
 import {LB_TAB} from "../../core/GameDataBase/tabs.ts";
 import {player} from "../../core/player";
 import {ref} from "vue";
-import {gameUpdateDisplays} from "../../core/gameUpdate/updateDisplay.ts";
+
 import {displayEnum} from "../../core/GameDataBase/display.ts";
 import {changeTab} from "../../core/game-mechanics/display.ts";
 import {EventHub, GameEvent} from "../../core/gameUpdate/eventHub.ts";
+import {gameLoop} from "../../core/gameUpdate/gameLoop.ts";
 
 const {Tab} = defineProps<{ Tab: LB_TAB }>()
 
@@ -15,13 +16,13 @@ const onUpdate = ref(true)
 const chosen = ref(false)
 
 function update() {
-  unlocked.value = Tab.unlocked || unlocked.value || player.dev
+  unlocked.value = Tab.unlocked || unlocked.value
   chosen.value = Tab.frame.includes(player.display)
 }
 
-gameUpdateDisplays[displayEnum.baseLayouts].push(update)
+gameLoop.displayHandlers[displayEnum.baseLayouts].push(update)
 
-EventHub.addHandler(GameEvent.UPDATE_TAB, function () {
+EventHub.on(GameEvent.UPDATE_TAB, function () {
   onUpdate.value = false
   onUpdate.value = true
 })

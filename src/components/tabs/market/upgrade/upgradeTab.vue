@@ -5,8 +5,8 @@ import {player} from "../../../../core/player";
 import UpgradeUnit from "./upgradeUnit.vue";
 import {GameDataBase} from "../../../../core/GameDataBase";
 
-import {gameUpdateDisplays} from "../../../../core/gameUpdate/updateDisplay.ts";
 import {displayEnum} from "../../../../core/GameDataBase/display.ts";
+import {gameLoop} from "../../../../core/gameUpdate/gameLoop.ts";
 
 const money = ref(0)
 
@@ -14,7 +14,7 @@ function update() {
   money.value = player.money
 }
 
-gameUpdateDisplays[displayEnum.marketUpgrade].push(update)
+gameLoop.displayHandlers[displayEnum.marketUpgrade].push(update)
 </script>
 
 <template>

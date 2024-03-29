@@ -4,38 +4,37 @@ import {player} from "../../../core/player";
 import {ref} from "vue";
 
 import {parseResourceName} from "../../../core/game-mechanics/parse.ts";
-import {gameUpdateDisplays} from "../../../core/gameUpdate/updateDisplay.ts";
 import {displayEnum} from "../../../core/GameDataBase/display.ts";
+import {gameLoop} from "../../../core/gameUpdate/gameLoop.ts";
 
 const {task} = defineProps<{task: Task}>()
 const activated = ref(false)
 const unlocked = ref(false)
 function changeActivate() {
   player.task[task.id][0] = !player.task[task.id][0]
+  update()
 }
 function update() {
   activated.value = player.task[task.id][0]
   unlocked.value = player.task[task.id][1]
 }
 
-gameUpdateDisplays[displayEnum.task].push(update)
+gameLoop.displayHandlers[displayEnum.task].push(update)
 
 </script>
 
 <template>
-  <div class="flex-col medium-size gameUnit blue-border" v-if="unlocked">
+  <div class="flex-col medium-size gameUnit style-border" v-if="unlocked">
     <div class="flex-row space-around">
-      <span class="name">{{ task.name }}</span>
+      <span class="name" v-html="task.name"></span>
       <button type="button" @click="changeActivate" class="btn"
               :class="{'btn-ON':activated, 'btn-OFF':!activated}">
         <span v-if="activated">ON</span>
         <span v-else>OFF</span>
       </button>
     </div>
-    <div class="border1-top">
-      {{task.des}}
-    </div>
-    <div class="gameUnit-popout blue-border">
+    <div class="border1-top" v-html="task.des"/>
+    <div class="gameUnit-popout style-border">
       <div class="flex-row space-around">
         <div v-if="task.produce.length>0" style="margin-left: 2px">
           <div>资源生产：</div>

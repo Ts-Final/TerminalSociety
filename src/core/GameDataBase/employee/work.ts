@@ -9,6 +9,7 @@ export interface employeeWork {
   maxLevel: number
   rarity: number
   skill(lv:number): effectShort[]
+  gain: 'limited'|'normal'|'special'
 }
 
 
@@ -38,6 +39,7 @@ export const __EmployeeWork: employeeWork[] = [
     name2: `Kobe Bryant`,
     des: "孩子们，我回来了",
     maxLevel: 5,
+    gain: 'normal',
     rarity: 1,
     skill:(lv:number) => [
       ["research", 0.01 * lv],
@@ -46,10 +48,11 @@ export const __EmployeeWork: employeeWork[] = [
   },
   {
     id:1,
-    name:"星",
+    name:`<span class="rainbow-text-color">星</span>`,
     des:'你明白，这世上唯一还能一起玩耍的人，也就只有这位了。或者，更应该向那些人致以再见，送去离别的挥手。',
     rarity: 5,
     maxLevel: 5,
+    gain: 'special',
     skill: (lv:number) => [
       ['energy','pro',0.01 * lv],
       ['energy','maxAdd',100 * lv]

@@ -4,6 +4,7 @@ import {employeeWorkSkillToAffect} from "../GameDataBase/employee/work.ts";
 import {GameDataBase} from "../GameDataBase";
 import {Numbers} from "../functions/Numbers.ts";
 import {EventHub, GameEvent} from "../gameUpdate/eventHub.ts";
+import {Progress} from "./progress.ts";
 
 export const Employee = {
   equip(id: number) {
@@ -74,10 +75,12 @@ export const Employee = {
     }
     return v
   },
-  rarityClass(rarity:number) {
-    switch (rarity) {
-      case 1: return `#7cdcf4`
-      case 2: return `#1c10a0`
+  newEmployee(id:number) {
+    if (id > player.employee.work.length) {throw new Error(`wtf employee id ${id}`)}
+    if (!Progress.employee(id).unlocked) {
+      this.unlockEmployee(id)
+    } else {
+      player.employee.work[id][3] += 1
     }
   }
 }

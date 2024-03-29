@@ -38,5 +38,13 @@ export const __player_employee = {
    */
   work: getNumArray<
     [boolean, boolean,number,number,number]>(
-    GameDataBase.Employees.work.length, [true, false,0,0,1])
+    GameDataBase.Employees.work.length, [true, false,0,0,1]),
+  voucher: {
+    0: 0, // 100
+    1: 0, // 200
+    2: 0, // 500
+    3: 0, // 1000
+  }
 }
+
+export const  __player_tabUnlocks = getNumArray(GameDataBase.Tabs.length, false)

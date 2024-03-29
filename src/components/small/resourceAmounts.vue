@@ -3,9 +3,10 @@ import {Ref, ref} from "vue";
 import {ResourceTypes} from "../../core/GameDataBase/resource.ts";
 import {parseResourceName} from "../../core/game-mechanics/parse.ts";
 import {player} from "../../core/player";
-import {gameUpdateDisplays} from "../../core/gameUpdate/updateDisplay.ts";
+
 import {displayEnum} from "../../core/GameDataBase/display.ts";
 import {Numbers} from "../../core/functions/Numbers.ts";
+import {gameLoop} from "../../core/gameUpdate/gameLoop.ts";
 
 const resAmount: Ref<{ [key in ResourceTypes]: number }> = ref({
   energy: 0,
@@ -59,7 +60,7 @@ function divs() {
   return v
 }
 
-gameUpdateDisplays[displayEnum.baseLayouts].push(update)
+gameLoop.displayHandlers[displayEnum.baseLayouts].push(update)
 </script>
 
 <template>

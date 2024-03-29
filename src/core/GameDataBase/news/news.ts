@@ -1,3 +1,5 @@
+import {player} from "../../player";
+
 export interface NewsTick {
   content: string
   id: number
@@ -34,7 +36,20 @@ export const News: NewsTick[] = [
     id: 4,
     content: `就这个战斗<span class='news-ZHANDOU-SHUANG'>爽</span>`,
     unlocked(): boolean {
-      return false
+      return player.options.laugh
+    }
+  },
+  {
+    id:5,
+    content: "有的时候会想起一些儿时的回忆。从最开始认识瑕亘，还有许多陪着自己走向现在的人，却不知道他们现在又在何处。" +
+      "当然，有时也不得不减去那欢愉的过往，和没有意义的昨天。",
+    unlocked():boolean {return false}
+  },
+  {
+    id:6,
+    content: "114514",
+    unlocked(): boolean {
+      return player.resource.energy.max_record >= 5e4
     }
   }
 ]

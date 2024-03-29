@@ -3,8 +3,8 @@ import {Ref, ref} from "vue";
 import {player} from "../../../../core/player";
 import {ResourceTypes} from "../../../../core/GameDataBase/resource.ts";
 import {parseAffectValue, parseResourceName} from "../../../../core/game-mechanics/parse.ts";
-import {gameUpdateDisplays} from "../../../../core/gameUpdate/updateDisplay.ts";
 import {displayEnum} from "../../../../core/GameDataBase/display.ts";
+import {gameLoop} from "../../../../core/gameUpdate/gameLoop.ts";
 
 /**
  * volar-complainer
@@ -32,7 +32,7 @@ function update() {
   chosenAffect.value.maxAdd = affects.maxAdd
 }
 
-gameUpdateDisplays[displayEnum.resourceDetail].push(update)
+gameLoop.displayHandlers[displayEnum.resourceDetail].push(update)
 
 
 </script>
@@ -42,36 +42,36 @@ gameUpdateDisplays[displayEnum.resourceDetail].push(update)
     <div class="res-detail-top">
       <div class="res-detail-btn" v-for="resKey in Object.keys(player.resource)"
            :key="resKey" @click="changeChosen(resKey)"
-           :class="{chosen:chosenResource === resKey}">
-        {{ parseResourceName(resKey as ResourceTypes) }}
+           :class="{chosen:chosenResource === resKey}"
+           v-html="parseResourceName(resKey as ResourceTypes)">
       </div>
     </div>
     <div class="res-detail flex-avg">
       <div class="res-detail-list  left-border right-border">
         <div class="res-detail-first-row">生产加成</div>
         <div v-for="aff in chosenAffect.pro" class="res-detail-row">
-          <div>{{ aff[0] }}</div>
+          <div v-html="aff[0]"></div>
           <div>+{{ parseAffectValue(aff[1], 'pro') }}</div>
         </div>
       </div>
       <div class="res-detail-list right-border">
         <div class="res-detail-first-row">消耗减少</div>
         <div v-for="aff in chosenAffect.consume" class="res-detail-row">
-          <div>{{ aff[0] }}</div>
+          <div v-html="aff[0]"></div>
           <div>-{{ parseAffectValue(aff[1], 'consume') }}</div>
         </div>
       </div>
       <div class="res-detail-list right-border">
         <div class="res-detail-first-row">最大（加算）</div>
         <div v-for="aff in chosenAffect.maxAdd" class="res-detail-row">
-          <div>{{ aff[0] }}</div>
+          <div v-html="aff[0]"></div>
           <div>+{{ parseAffectValue(aff[1], 'maxAdd') }}</div>
         </div>
       </div>
       <div class="res-detail-list right-border">
         <div class="res-detail-first-row">最大（乘算）</div>
         <div v-for="aff in chosenAffect.maxMult" class="res-detail-row">
-          <div>{{ aff[0] }}</div>
+          <div v-html="aff[0]"></div>
           <div>+{{ parseAffectValue(aff[1], 'maxMult') }}</div>
         </div>
       </div>

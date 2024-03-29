@@ -1,18 +1,17 @@
 <script setup lang="ts">
 
 import {employeeWork, employeeWorkSkillToAffect} from "../../../../core/GameDataBase/employee/work.ts";
-import {computed, ref} from "vue";
-import {gameUpdateDisplays} from "../../../../core/gameUpdate/updateDisplay.ts";
+import {ref} from "vue";
 import {displayEnum} from "../../../../core/GameDataBase/display.ts";
 import EffectLines from "../../../small/effect/EffectLines.vue";
 import {Progress} from "../../../../core/game-mechanics/progress.ts";
 import {Employee} from "../../../../core/game-mechanics/employee.ts";
+import {gameLoop} from "../../../../core/gameUpdate/gameLoop.ts";
 
 const {employee} = defineProps<{ employee: employeeWork }>()
 const eff = employeeWorkSkillToAffect(employee, Progress.employee(employee.id).level)
 
 const unlocked = ref(false)
-const shown = computed(() => unlocked.value)
 const level = ref(0)
 const letters = ref(0)
 const req = ref(0)
@@ -34,12 +33,12 @@ function onDragStart(e: DragEvent) {
   }
 }
 
-gameUpdateDisplays[displayEnum.employWork].push(update)
+gameLoop.displayHandlers[displayEnum.employWork].push(update)
 </script>
 
 <template>
   <div class="gameUnit flex-col medium-size" style="border: 2px solid"
-       v-if="shown " draggable="true" :class="`rarity-${employee.rarity}`"
+       v-if="unlocked" draggable="true" :class="`rarity-${employee.rarity}`"
        @dragstart="onDragStart">
     <div class="flex-row space-around">
       <div v-html="employee.name"/>
@@ -52,7 +51,7 @@ gameUpdateDisplays[displayEnum.employWork].push(update)
            @click="Employee.upgradeEmployee(employee.id)">升级
       </div>
     </div>
-    <div class="gameUnit-popout" style="border: 2px solid inherit;">
+    <div class="gameUnit-popout" style="border: 2px solid;">
       <div>
         {{ employee.des }}
       </div>
@@ -103,6 +102,10 @@ gameUpdateDisplays[displayEnum.employWork].push(update)
   animation: a-rarity-5 4s infinite linear;
 }
 
+.rarity-5 > .gameUnit-popout {
+  animation: inherit;
+}
+
 @keyframes a-rarity-5 {
   0% {
     border-color: #16cc3a;
@@ -114,10 +117,10 @@ gameUpdateDisplays[displayEnum.employWork].push(update)
     border-color: #370ecb;
   }
   75% {
-    border-color: #f6f104
+    border-color: #f6f104;
   }
   100% {
-    border-color: #16cc3a
+    border-color: #16cc3a;
   }
 }
 </style>

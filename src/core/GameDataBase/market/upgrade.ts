@@ -15,7 +15,7 @@ export interface upg {
 
 export const Upgrade: upg[] = [
   {
-    id:1,
+    id:0,
     name:"挖掘许可",
     des:"有了这个就可以持有矿场了。",
     costMoney: 100,

@@ -4,6 +4,8 @@
   padding: 2px;
   color: #b8dcee;
   max-height: max-content;
+  min-width: 250px;
+  max-width: 350px;
 }
 
 .medium-size {

@@ -94,7 +94,7 @@ export const Tabs: LB_TAB[] = [
       {
         name:"职员",
         frame: displayEnum.employWork,
-        unlocked: true
+        unlocked: true,
       }
     ]
   },
@@ -104,5 +104,17 @@ export const Tabs: LB_TAB[] = [
     get unlocked(): boolean {
       return true
     }
+  },
+  {
+    name: "设置",
+    frame: [displayEnum.optionVisual],
+    get unlocked(): boolean { return true },
+    subTabs: [
+      {
+        name: "渲染",
+        frame: displayEnum.optionVisual,
+        get unlocked(): boolean {return true}
+      }
+    ]
   }
 ]

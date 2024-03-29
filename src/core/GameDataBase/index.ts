@@ -5,6 +5,7 @@ import {Market} from "./market";
 import {Tabs} from "./tabs.ts";
 import {News} from "./news/news.ts";
 import {Employees} from "./employee/employee.ts";
+import {displayEnum} from "./display.ts";
 
 export const GameDataBase = {
   Tasks,
@@ -15,4 +16,5 @@ export const GameDataBase = {
   Tabs,
   News,
   Employees,
+  displayEnum
 }

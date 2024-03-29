@@ -15,10 +15,10 @@ const onUpdate = ref(true)
 
 function update() {
   onUpdate.value = false
-  setTimeout(()=> onUpdate.value = true,30)
+  setTimeout(()=> onUpdate.value = true,10)
 }
 
-EventHub.addHandler(GameEvent.CHANGE_EMPLOYEE,update)
+EventHub.on(GameEvent.CHANGE_EMPLOYEE,update)
 
 function prevent(e: Event) {
   e.preventDefault()
@@ -28,7 +28,6 @@ const equip = {
   onDrop(e: DragEvent) {
     if (e.dataTransfer) {
       Employee.equip(Number(e.dataTransfer.getData("employ/employWork")))
-      update()
     } else {
       setTimeout(() => equip.onDrop(e), 50)
     }
@@ -42,7 +41,6 @@ const notEquip = {
   onDrop(e: DragEvent) {
     if (e.dataTransfer) {
       Employee.unEquip(Number(e.dataTransfer.getData("employ/employWork")))
-      update()
     } else {
       setTimeout(() => equip.onDrop(e), 50)
     }
@@ -64,8 +62,8 @@ function employeeEffects() {
 </script>
 
 <template>
-  <div class="flex-row full" v-if="onUpdate">
-    <div class="employee-equipped flex-col"
+  <div class="flex-row full">
+    <div class="employee-equipped flex-col" v-if="onUpdate"
          @drop="equip.onDrop"
          @dragenter="prevent"
          @dragover="prevent">
@@ -79,7 +77,7 @@ function employeeEffects() {
         将你的雇员拖动到这里<br>以启用加成
       </div>
     </div>
-    <div class="employee-all"
+    <div class="employee-all" v-if="onUpdate"
          @drop="notEquip.onDrop"
          @dragenter="prevent"
          @dragover="prevent">
@@ -93,7 +91,7 @@ function employeeEffects() {
 
 <style scoped>
 .employee-equipped {
-  border-right: 1px solid var(--border);
+  border-right: 1px solid var(--border-color);
   flex: 1 1;
   color: #7cdcf4;
 }

@@ -14,7 +14,7 @@ function allResource(resKey:ResourceTypes) {
 </script>
 
 <template>
-  <div class="gameUnit medium-size blue-border flex-col">
+  <div class="gameUnit medium-size style-border flex-col">
     <div class="flex-row space-around">
       <div>{{company.name}}</div>
       <div v-html="parseCountryName(company.country)"></div>
@@ -26,7 +26,7 @@ function allResource(resKey:ResourceTypes) {
               v-html="allResource(resKey)"></span>
       </div>
     </div>
-    <div class="gameUnit-popout flex-col blue-border">
+    <div class="gameUnit-popout flex-col style-border">
       <div>
         {{company.des}}
       </div>

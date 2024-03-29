@@ -6,7 +6,7 @@ import {ResourceTypes} from "../../../../core/GameDataBase/resource.ts";
 
 <template>
   <div class="full flex-row" style="justify-content: center;">
-    <div class="flex-col table blue-border">
+    <div class="flex-col table style-border">
       <div class="flex-row bpt-line">
         <p>资源类型</p>
         <p>基础价格/1</p>

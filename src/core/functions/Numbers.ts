@@ -19,5 +19,8 @@ export const Numbers = {
     } else {
       return v
     }
+  },
+  integer(x:number) {
+    return this.round(x,0)
   }
 }

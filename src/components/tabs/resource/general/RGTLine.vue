@@ -3,8 +3,8 @@ import {ref} from "vue";
 import {player} from "../../../../core/player";
 import {ResourceTypes} from "../../../../core/GameDataBase/resource.ts";
 import {parseResourceName} from "../../../../core/game-mechanics/parse.ts";
-import {gameUpdateDisplays} from "../../../../core/gameUpdate/updateDisplay.ts";
 import {displayEnum} from "../../../../core/GameDataBase/display.ts";
+import {gameLoop} from "../../../../core/gameUpdate/gameLoop.ts";
 
 const {ResKey} = defineProps<{ResKey:ResourceTypes}>()
 
@@ -22,7 +22,7 @@ function update() {
   max_record.value = player.resource[ResKey].max_record
 }
 
-gameUpdateDisplays[displayEnum.resourceGeneral].push(update)
+gameLoop.displayHandlers[displayEnum.resourceGeneral].push(update)
 
 </script>
 

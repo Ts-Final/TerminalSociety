@@ -4,9 +4,9 @@ import ResourceAmounts from "../../../small/resourceAmounts.vue";
 import {ref} from "vue";
 import {player} from "../../../../core/player";
 import ExchangeUnit from "./exchangeUnit.vue";
-import {gameUpdateDisplays} from "../../../../core/gameUpdate/updateDisplay.ts";
 import {displayEnum} from "../../../../core/GameDataBase/display.ts";
 import {EventHub, GameEvent} from "../../../../core/gameUpdate/eventHub.ts";
+import {gameLoop} from "../../../../core/gameUpdate/gameLoop.ts";
 
 const money = ref(0)
 
@@ -22,14 +22,14 @@ function update() {
   money.value = player.money
 }
 
-gameUpdateDisplays[displayEnum.marketExchange].push(update)
+gameLoop.displayHandlers[displayEnum.marketExchange].push(update)
 
 const onUpdate = ref(true)
 function refresh () {
   onUpdate.value = false
   onUpdate.value = true
 }
-EventHub.addHandler(GameEvent.MARKET_UPDATE, refresh)
+EventHub.on(GameEvent.MARKET_UPDATE, refresh)
 
 </script>
 

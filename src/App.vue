@@ -9,7 +9,7 @@ import News from "./components/small/news.vue";
 <template>
   <div class="full app-wrapper">
     <News />
-    <RightTab class="blue-border" style=""/>
+    <RightTab class="style-border" style=""/>
 
     <Teleport to="body">
       <Sidebar/>
@@ -25,6 +25,7 @@ body, :root, #app {
   height: 100%;
   margin: 0;
   overflow: hidden;
+  font-family: sans-serif;
 }
 
 .app-wrapper {
@@ -42,4 +43,16 @@ body, :root, #app {
   margin: 5px;
 }
 
+:root {
+  --left-bar-width: 8rem;
+  --z-topbar: 10;
+  --z-modal: 20;
+  --bgi:linear-gradient(60deg, #0d1418 0%, #11161b 100%);
+  --border-color: #7cdcf4;
+  --sidebar-tab-height: 2.5rem;
+  --sidebar-tab-tri: 1.5rem;
+  --news-height: 2rem;
+  --medium-width: 220px;
+  --text-color: #7cdcf4;
+}
 </style>

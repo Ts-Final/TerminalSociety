@@ -1,9 +1,12 @@
 export const enum GameEvent  {
-  UPDATE,
+  UPDATE_FULL,
   UPDATE_DISPLAY,
   UPDATE_NEWS,
   UPDATE_H2P,
   UPDATE_TAB,
+
+  // Options
+  OPTION_CHANGE,
 
   // Market
   MARKET_UPDATE,

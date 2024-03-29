@@ -2,7 +2,9 @@
 export function deepClone<T>(source: T): T {
   let newObject: any;
   let isArray: boolean;
-  if ((source as any).length) {
+  if (typeof source != 'object' || !source) {
+    return source
+  } else if ((source as any).length) {
     newObject = [];
     isArray = true;
   } else {

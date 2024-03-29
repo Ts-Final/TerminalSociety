@@ -17,6 +17,7 @@ export function canPurchaseUpgrade(id:number) {
   }
   return canPurchase
 }
+
 export function purchaseUpgrade(id:number,canPurchase:boolean) {
   if (!canPurchase) {return}
   const upgrade = GameDataBase.Market.Upgrade.find((v)=>v.id == id)

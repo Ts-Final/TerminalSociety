@@ -1,8 +1,7 @@
-
 /**
  * 返回一个可以虚空get的东西
  */
-export function getAllowProxy<T extends object>(target:T):T {
+export function getAllowProxy<T extends object>(target: T): T {
   return new Proxy(
     target,
     {

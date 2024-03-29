@@ -4,9 +4,10 @@ import {GameDataBase} from "../../core/GameDataBase";
 import {ref} from "vue";
 import {player} from "../../core/player";
 
-import {gameUpdateDisplays} from "../../core/gameUpdate/updateDisplay.ts";
+
 import {displayEnum} from "../../core/GameDataBase/display.ts";
 import {EventHub, GameEvent} from "../../core/gameUpdate/eventHub.ts";
+import {gameLoop} from "../../core/gameUpdate/gameLoop.ts";
 
 const h2p = ref(1)
 const h2pInfo = ref("")
@@ -23,9 +24,9 @@ function update() {
   h2pTitle.value = h2pData.title
 }
 
-gameUpdateDisplays[displayEnum.h2p].push(update)
+gameLoop.displayHandlers[displayEnum.h2p].push(update)
 
-EventHub.addHandler(GameEvent.UPDATE_H2P, function () {
+EventHub.on(GameEvent.UPDATE_H2P, function () {
   onUpdate.value = false
   onUpdate.value = true
 })
@@ -40,9 +41,10 @@ EventHub.addHandler(GameEvent.UPDATE_H2P, function () {
         （比如部分教学内容，如果没有找到就是作者忘记写了（请务必通过各种渠道提醒作者）<br>
         左侧的文字可以按。
       </div>
-      <div class="h2p-button" :class="{'none-display':!h2p.unlocked}"
+      <div class="h2p-button" :style="{display: h2p.unlocked? 'flex':'none'}"
            v-for="h2p in GameDataBase.How2Play.sort((v1,v2)=>v1.id-v2.id)"
-           @click="player.how2play = h2p.id" :key="h2p.id">
+           @click="player.how2play = h2p.id;EventHub.dispatch(GameEvent.UPDATE_H2P)"
+           :key="h2p.id">
         {{ h2p.title }}
       </div>
     </div>
@@ -78,7 +80,6 @@ EventHub.addHandler(GameEvent.UPDATE_H2P, function () {
   cursor: pointer;
   height: 2rem;
   justify-content: center;
-  display: flex;
   align-items: center;
 }
 .h2p-button:hover {

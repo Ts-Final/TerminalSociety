@@ -1,20 +1,14 @@
-import {load, save} from "./game-mechanics/save.ts";
+import {GameStorage} from "./game-mechanics/GameStorage.ts";
 import {initListener} from "./functions/eventListener.ts";
-import {EventHub} from "./gameUpdate/eventHub.ts";
-import {GameEvent} from "./gameUpdate/gameEvent.ts";
 import {GameDataBase} from "./GameDataBase";
 import {player} from "./player";
 import {Effect} from "./game-mechanics/effect.ts";
 import {researchToEffect} from "./GameDataBase/research.ts";
 import {employeeWorkSkillToAffect} from "./GameDataBase/employee/work.ts";
 import {Progress} from "./game-mechanics/progress.ts";
+import {Base64} from "./functions/base64.ts";
+import {gameIntervals} from "./game-mechanics/gameIntervals.ts";
 
-
-function initIntervals() {
-  setInterval(() => EventHub.dispatch(GameEvent.UPDATE), 1000)
-  setInterval(() => EventHub.update(), 33)
-  setInterval(save, 10e3)
-}
 
 export function isLocal() {
   const href = window.location.href
@@ -22,24 +16,26 @@ export function isLocal() {
 }
 
 export function init() {
-  load(isLocal())
-  initIntervals()
+  GameStorage.load(isLocal())
+  gameIntervals.start()
   initListener()
   initEffects()
 }
 
 function initEffects() {
   for (const research of GameDataBase.Researches) {
-    if (player.research[research.id][3] >= research.maxLevel) {
+    if (Progress.research(research.id).level >= research.maxLevel) {
       Effect.registerEffect(
-        researchToEffect(research, player.research[research.id][3]))
+        researchToEffect(research, Progress.research(research.id).level))
     }
   }
   for (const ew of GameDataBase.Employees.work) {
     if (player.employee.work[ew.id][1]) {
       Effect.registerEffect(
-        employeeWorkSkillToAffect(ew,Progress.employee(ew.id).level)
+        employeeWorkSkillToAffect(ew, Progress.employee(ew.id).level)
       )
     }
   }
 }
+
+window.dev.base64 = Base64

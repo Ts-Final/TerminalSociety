@@ -12,8 +12,10 @@ import ResearchTab from "./research/researchTab.vue";
 
 import {ref} from "vue";
 import {player} from "../../core/player";
-import {gameUpdateDisplays} from "../../core/gameUpdate/updateDisplay.ts";
+
 import {displayEnum} from "../../core/GameDataBase/display.ts";
+import {gameLoop} from "../../core/gameUpdate/gameLoop.ts";
+import OptionVisual from "./options/OptionVisual.vue";
 
 const displayRef = ref(0)
 
@@ -21,7 +23,7 @@ function update() {
   displayRef.value = player.display
 }
 
-gameUpdateDisplays[displayEnum.baseLayouts].push(update)
+gameLoop.displayHandlers[displayEnum.baseLayouts].push(update)
 </script>
 
 <template>
@@ -41,6 +43,8 @@ gameUpdateDisplays[displayEnum.baseLayouts].push(update)
     <EmployeeTab v-else-if="displayRef == displayEnum.employWork"/>
 
     <H2PTab v-else-if="displayRef == displayEnum.h2p"/>
+
+    <OptionVisual v-else-if="displayRef == displayEnum.optionVisual"/>
   </div>
 
 </template>
@@ -52,5 +56,17 @@ gameUpdateDisplays[displayEnum.baseLayouts].push(update)
   width: calc(100% - var(--left-bar-width));
   border-left: none;
   flex: 1 1
+}
+.right-tab > div {
+  animation: a-right-tab-op linear 0.1s;
+  animation-fill-mode: both;
+}
+@keyframes a-right-tab-op {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 </style>

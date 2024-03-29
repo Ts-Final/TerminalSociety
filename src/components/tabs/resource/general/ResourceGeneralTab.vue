@@ -7,14 +7,14 @@ import {ResourceTypes} from "../../../../core/GameDataBase/resource.ts";
 <template>
   <div class="res-general-wrapper">
     <div class="RGT border-list">
-      <div class="RGT-line blue-border">
+      <div class="RGT-line style-border">
         <p>资源类型</p>
         <p>当前数量</p>
         <p>上限</p>
         <p>变化/s</p>
         <p>最大</p>
       </div>
-      <RGTLine class="RGT-line blue-border no-top-border"
+      <RGTLine class="RGT-line style-border no-top-border"
                v-for="res in Object.keys(player.resource)"
                :ResKey="res as ResourceTypes" :key="res"/>
     </div>
@@ -46,10 +46,3 @@ import {ResourceTypes} from "../../../../core/GameDataBase/resource.ts";
   height: 100%;
 }
 </style>
-
-<script lang="ts">
-
-export default {
-  name: "ResourceGeneralTop",
-}
-</script>

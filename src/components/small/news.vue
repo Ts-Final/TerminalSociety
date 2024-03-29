@@ -5,36 +5,23 @@ import {GameDataBase} from "../../core/GameDataBase";
 import {randomElement} from "../../core/functions/random.ts";
 import {NewsTick} from "../../core/GameDataBase/news/news.ts";
 import {EventHub, GameEvent} from "../../core/gameUpdate/eventHub.ts";
+import {displayEnum} from "../../core/GameDataBase/display.ts";
+import {player} from "../../core/player";
+import {gameLoop} from "../../core/gameUpdate/gameLoop.ts";
+
 
 const span: Ref<HTMLSpanElement | undefined> = ref()
 const contain: Ref<HTMLDivElement | undefined> = ref()
+
+const enabled = ref(true)
 
 /**
  * Length max: 10
  * 在news还不够多的时候先1吧
  */
 const recentNews: NewsTick[] = []
-const recentNewsMax = 3
-
-/*function update() {
-  if (!span.value) {
-    return
-  }
-  if (moved.value > moveLength.value) {
-    span.value.style.opacity = "0"
-    currentNews.value = randomValueFromArray(GameDataBase.News.filter((v) => v.unlocked())).content
-    transform.value = `translateX(calc(${1920}px ))`
-    moveLength.value = 1920 + span.value?.offsetWidth
-    moved.value = 0
-    span.value.style.opacity = "1"
-    console.trace(moveLength.value)
-  } else {
-    moved.value += 3
-    transform.value = `translateX(calc(${window.innerWidth - moved.value}px ))`
-  }
-}
-
-gameUpdateDisplays[displayEnum.baseLayouts].push(update)*/
+const recentNewsMax = 1
+let id: NodeJS.Timeout|undefined;
 
 function changeNextNews() {
   if (span.value == undefined) {
@@ -70,16 +57,26 @@ function setDuration() {
 
   span.value.style['transitionDuration'] = duration + "s"
 
-  setTimeout(changeNextNews, duration * 1000)
+  id = setTimeout(changeNextNews, duration * 1000)
 }
 
 changeNextNews()
-EventHub.addHandler(GameEvent.UPDATE_NEWS, changeNextNews)
+EventHub.on(GameEvent.UPDATE_NEWS, changeNextNews)
+gameLoop.displayHandlers[displayEnum.baseLayouts].push(function () {
+  enabled.value = player.options.news
+})
+EventHub.on(GameEvent.OPTION_CHANGE,function (){
+  enabled.value = player.options.news
+  if (enabled.value && id) {
+    clearTimeout(id)
+    changeNextNews()
+  }
+})
 
 </script>
 
 <template>
-  <div class="news" ref="contain">
+  <div class="news" ref="contain" v-if="enabled">
     <span class="news-ticker" ref="span"></span>
   </div>
 </template>

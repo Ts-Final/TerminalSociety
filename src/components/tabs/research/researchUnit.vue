@@ -4,10 +4,10 @@ import {player} from "../../../core/player";
 import {ref} from "vue";
 import {calcLevelTime} from "../../../core/game-mechanics/research.ts";
 import {parseResourceName} from "../../../core/game-mechanics/parse.ts";
-import {gameUpdateDisplays} from "../../../core/gameUpdate/updateDisplay.ts";
 import {displayEnum} from "../../../core/GameDataBase/display.ts";
 import EffectLines from "../../small/effect/EffectLines.vue";
 import {Progress} from "../../../core/game-mechanics/progress.ts";
+import {gameLoop} from "../../../core/gameUpdate/gameLoop.ts";
 
 const {research} = defineProps<{ research: Research }>()
 const activated = ref(false)
@@ -32,6 +32,7 @@ function update() {
     onUpdate.value = true
   }
   finished.value = Progress.research(research.id).level >= research.maxLevel
+  started.value = Progress.research(research.id).started
   timeToUpg.value = calcLevelTime(research)
   percent.value = 100 * started.value / timeToUpg.value + "%"
   shown.value = unlocked.value && !finished.value
@@ -41,12 +42,12 @@ function update() {
   }
 }
 
-gameUpdateDisplays[displayEnum.research].push(update)
+gameLoop.displayHandlers[displayEnum.research].push(update)
 
 </script>
 
 <template>
-  <div class="flex-col medium-size blue-border gameUnit" v-if="shown">
+  <div class="flex-col medium-size style-border gameUnit" v-if="shown">
     <div class="show">
       <div class="res-detail-first-row">
         <span class="name">{{ research.name }}</span>
@@ -69,7 +70,7 @@ gameUpdateDisplays[displayEnum.research].push(update)
         {{ research.des }}
       </div>
     </div>
-    <div class="gameUnit-popout blue-border" v-if="onUpdate">
+    <div class="gameUnit-popout style-border" v-if="onUpdate">
       <div v-if="research.cost.length > 0" style="color: #7cdcf4">
         <div>资源消耗：</div>
         <div v-for="rP in research.cost">{{ parseResourceName(rP[0]) }}：{{ rP[1] }}/s</div>
@@ -78,7 +79,7 @@ gameUpdateDisplays[displayEnum.research].push(update)
       <div v-if="research.effect.length >0" style="color: #7cdcf4">
         <div v-if="research.maxLevel > 1">下一级研究效果：</div>
         <div v-else>研究效果：</div>
-        <EffectLines :eff="researchToEffect(research,level)"/>
+        <EffectLines :eff="researchToEffect(research,level + 1)"/>
       </div>
       <br>
       <p class="itl">{{ research.itl }}</p>
