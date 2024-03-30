@@ -1,22 +1,23 @@
 import {GameDataBase} from "../GameDataBase";
 import {getNumArray} from "./generator.ts";
+import {TaskData} from "../GameDataBase/task.ts";
 
 /**
  * ```
  * {
- *   0:activated,
- *   1:unlocked
+ *   0:unlocked
+ *   1:activated,
  * }
  * ```
  */
 export const __player_task = getNumArray<
   [boolean, boolean]>(
-  GameDataBase.Tasks.length, [false, false])
+  TaskData.length, [false, false])
 /**
  * ```
  * {
- *   0:activated,
- *   1:unlocked,
+ *   0:unlocked,
+ *   1:activated,
  *   2:started,
  *   3:level
  * }

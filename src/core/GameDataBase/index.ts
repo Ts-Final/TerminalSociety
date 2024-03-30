@@ -18,3 +18,4 @@ export const GameDataBase = {
   Employees,
   displayEnum
 }
+window.GameDB = GameDataBase

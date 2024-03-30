@@ -1,10 +1,10 @@
-import {getNumArray} from "./generator.ts";
-import {GameDataBase} from "../GameDataBase";
-import {ResourceTypes} from "../GameDataBase/resource.ts";
-import {randomElements, randomNumber} from "../functions/random.ts";
-import {player} from "./index.ts";
-import {Numbers} from "../functions/Numbers.ts";
-import {notify} from "../functions/notify.ts";
+import {getNumArray} from "./__player/generator.ts";
+import {GameDataBase} from "./GameDataBase";
+import {ResourceTypes} from "./GameDataBase/resource.ts";
+import {randomElements, randomNumber} from "./functions/random.ts";
+import {Numbers} from "./functions/Numbers.ts";
+import {notify} from "./functions/notify.ts";
+import {player} from "./player.ts";
 
 
 /**
@@ -63,8 +63,8 @@ export function generateBasePrice() {
 }
 
 export function generateMarket() {
-  player.market.exchange = generateExchange()
-  player.market.basePrice = generateBasePrice()
+  __player_market.exchange = generateExchange()
+  __player_market.basePrice = generateBasePrice()
   notify.normal("市场交易已刷新",1000)
 }
 

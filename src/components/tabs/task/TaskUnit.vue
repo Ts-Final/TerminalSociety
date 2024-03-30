@@ -1,51 +1,36 @@
 <script setup lang="ts">
-import {Task} from "../../../core/GameDataBase/task.ts";
-import {player} from "../../../core/player";
-import {ref} from "vue";
+import {TaskClass} from "../../../core/GameDataBase/task.ts";
 
 import {parseResourceName} from "../../../core/game-mechanics/parse.ts";
-import {displayEnum} from "../../../core/GameDataBase/display.ts";
-import {gameLoop} from "../../../core/gameUpdate/gameLoop.ts";
 
-const {task} = defineProps<{task: Task}>()
-const activated = ref(false)
-const unlocked = ref(false)
-function changeActivate() {
-  player.task[task.id][0] = !player.task[task.id][0]
-  update()
-}
-function update() {
-  activated.value = player.task[task.id][0]
-  unlocked.value = player.task[task.id][1]
-}
-
-gameLoop.displayHandlers[displayEnum.task].push(update)
+const {Task} = defineProps<{Task: TaskClass }>()
+const {unlocked, activated} = Task.useBase()
 
 </script>
 
 <template>
   <div class="flex-col medium-size gameUnit style-border" v-if="unlocked">
     <div class="flex-row space-around">
-      <span class="name" v-html="task.name"></span>
-      <button type="button" @click="changeActivate" class="btn"
+      <span class="name" v-html="Task.name"></span>
+      <button type="button" @click="Task.trigger" class="btn"
               :class="{'btn-ON':activated, 'btn-OFF':!activated}">
         <span v-if="activated">ON</span>
         <span v-else>OFF</span>
       </button>
     </div>
-    <div class="border1-top" v-html="task.des"/>
+    <div class="border1-top" v-html="Task.des"/>
     <div class="gameUnit-popout style-border">
       <div class="flex-row space-around">
-        <div v-if="task.produce.length>0" style="margin-left: 2px">
+        <div v-if="Task.produce.length>0" style="margin-left: 2px">
           <div>资源生产：</div>
-          <div v-for="rP in task.produce">{{ parseResourceName(rP[0]) }}：+{{ rP[1] }}/s</div>
+          <div v-for="rP in Task.produce">{{ parseResourceName(rP[0]) }}：+{{ rP[1] }}/s</div>
         </div>
-        <div v-if="task.cost.length>0" style="margin-left: 2px">
+        <div v-if="Task.cost.length>0" style="margin-left: 2px">
           <div>资源消耗：</div>
-          <div v-for="rP in task.cost">{{ parseResourceName(rP[0]) }}：-{{ rP[1] }}/s</div>
+          <div v-for="rP in Task.cost">{{ parseResourceName(rP[0]) }}：-{{ rP[1] }}/s</div>
         </div>
       </div>
-      <p class="itl">{{ task.itl }}</p>
+      <p class="itl">{{ Task.itl }}</p>
     </div>
   </div>
 

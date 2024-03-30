@@ -57,7 +57,18 @@ function getResourceDict(): resDict {
  * jinitaimei
  */
 export const __player_resource: { [x: string]: resDict } = {
-  energy: getResourceDict(),
+  energy: {
+    amount: 0,
+    maximum: 1e4,
+    change: 0,
+    max_record: 0,
+    affects: {
+      pro: [] as [string, number][],
+      consume: [] as [string, number][],
+      maxAdd: [] as [string, number][],
+      maxMult: [] as [string, number][],
+    },
+  },
   iron: getResourceDict(),
   copper: getResourceDict(),
   air: getResourceDict(),

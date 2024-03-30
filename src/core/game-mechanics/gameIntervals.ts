@@ -7,6 +7,7 @@ type intervalObj = {
   stop(): void,
   restart(): void,
 }
+
 export const gameIntervals = (function () {
   const all: intervalObj[] = []
   const interval = (fn: Function, timeout: number | (() => number)) => {
@@ -40,8 +41,9 @@ export const gameIntervals = (function () {
       this.all.forEach((i) => i.stop())
     },
     all: all,
-    gameLoop: interval(() => EventHub.dispatch(GameEvent.UPDATE_FULL), 1000),
-    update: interval(() => EventHub.update(), () => player.options.updateRate),
+    gameLoop: interval(() => EventHub.dispatch(GameEvent.UPDATE), 1000),
+    update: interval(() => EventHub.ui.dispatch(GameEvent.UPDATE),
+      () => player.options.updateRate),
     save: interval(GameStorage.save.bind(GameStorage), 10e3),
   }
 })()

@@ -1,14 +1,9 @@
 <script setup lang="ts">
-import {Ref, ref} from "vue";
-import {ResourceTypes} from "../../core/GameDataBase/resource.ts";
-import {parseResourceName} from "../../core/game-mechanics/parse.ts";
-import {player} from "../../core/player";
-
-import {displayEnum} from "../../core/GameDataBase/display.ts";
+import {computed} from "vue";
+import {Resources} from "../../core/GameDataBase/resource.ts"
 import {Numbers} from "../../core/functions/Numbers.ts";
-import {gameLoop} from "../../core/gameUpdate/gameLoop.ts";
 
-const resAmount: Ref<{ [key in ResourceTypes]: number }> = ref({
+/*const resAmount: Ref<{ [key in ResourceTypes]: number }> = ref({
   energy: 0,
   iron: 0,
   coal: 0,
@@ -60,19 +55,29 @@ function divs() {
   return v
 }
 
-gameLoop.displayHandlers[displayEnum.baseLayouts].push(update)
+gameLoop.displayHandlers[displayEnum.baseLayouts].push(update)*/
+function divs() {
+  let v = []
+  for (const res of Resources.all) {
+    v.push(computed(function () {
+      if (res.refs.amount.value >= res.refs.maximum.value) {
+        return res.parseName() + `(Max)`
+      }
+
+      return res.parseName() + `(${res.refs.change.value}/s)`
+
+    }))
+  }
+  return v
+}
 </script>
 
 <template>
   <div class="flex-row flex-nowrap space-around"
        style="color: #b8dcee;margin-bottom: 5px;border-bottom: #7cdcf4 1px solid">
-<!--    <div>{{ parseResourceName('energy') }}:{{ resAmount.energy }} ({{ resChange.energy }}/s)</div>
-    <div>{{ parseResourceName('iron') }}:{{ resAmount.iron }} ({{ resChange.iron }}/s)</div>
-    <div>{{ parseResourceName('copper') }}:{{ resAmount.copper }} ({{ resChange.copper }}/s)</div>
-    <div>{{ parseResourceName('coal') }}:{{ resAmount.coal }} ({{ resChange.coal }}/s)</div>
-    <div>{{ parseResourceName('water') }}:{{ resAmount.water }} ({{ resChange.water }}/s)</div>
-    <div>{{ parseResourceName('air') }}:{{ resAmount.air }} ({{ resChange.air }}/s)</div>-->
-    <div v-for="v in divs()" v-html="v"></div>
+    <div v-for="v in divs()">
+      {{ v }}
+    </div>
   </div>
 </template>
 

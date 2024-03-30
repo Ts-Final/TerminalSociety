@@ -8,7 +8,7 @@ import ResourceAmounts from "../../small/resourceAmounts.vue";
 <template>
   <ResourceAmounts class="full-w flex-row" />
   <div class="full-w flex-row flex-wrap">
-    <TaskUnit :task="task" v-for="task in GameDataBase.Tasks" :key="task.id"/>
+    <TaskUnit :Task="task" v-for="task in GameDataBase.Tasks.all" :key="task.id"/>
   </div>
 </template>
 

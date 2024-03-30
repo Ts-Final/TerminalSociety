@@ -25,7 +25,7 @@ let id: NodeJS.Timeout|undefined;
 
 function changeNextNews() {
   if (span.value == undefined) {
-    setTimeout(changeNextNews, 500)
+    setTimeout(changeNextNews, 50)
     return
   }
 

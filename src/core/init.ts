@@ -19,7 +19,7 @@ export function init() {
   GameStorage.load(isLocal())
   gameIntervals.start()
   initListener()
-  initEffects()
+  // initEffects()
 }
 
 function initEffects() {

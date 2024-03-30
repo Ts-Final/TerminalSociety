@@ -4,13 +4,13 @@ import "./base.css"
 import RightTab from "./components/tabs/RightTab.vue";
 import Sidebar from "./components/sidebar/Sidebar.vue";
 import News from "./components/small/news.vue";
+import TaskTab from "./components/tabs/task/TaskTab.vue";
 </script>
 
 <template>
   <div class="full app-wrapper">
-    <News />
-    <RightTab class="style-border" style=""/>
-
+<!--    <News />-->
+    <RightTab/>
     <Teleport to="body">
       <Sidebar/>
       <div class="flex-col" id="notifyContainer"></div>

@@ -7,4 +7,4 @@ import {init} from "./core/init.ts";
 createApp(App).mount('#app')
 
 init()
-console.log(version)
+// console.log(version)

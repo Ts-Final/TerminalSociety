@@ -19,7 +19,7 @@ export function initListener() {
         GameStorage.clearSave()
         notify.error("Save deleted", 1000)
       } else if (e.code === "KeyN" && e.altKey) {
-        EventHub.dispatch(GameEvent.UPDATE_NEWS)
+        EventHub.dispatch(GameEvent.UPDATE)
       } else if (e.code === "ArrowUp") {
         changeTab(Numbers.cycle(1, 14, player.display - 1))
       } else if (e.code === "ArrowDown") {
@@ -31,7 +31,7 @@ export function initListener() {
   )
 }
 
-if (isLocal()) {
+if (false) {
   window.onerror = function (event,
                              source,
                              lineno,

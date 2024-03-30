@@ -14,19 +14,19 @@ import {EventHub, GameEvent} from "./eventHub.ts";
 
 import {displayEnum} from "../GameDataBase/display.ts";
 import {getAllowProxy} from "../functions/getAllowProxy.ts";
-import {generateMarket} from "../player/market.ts";
+import {generateMarket} from "../market.ts";
 
 export const gameLoop = {
   fullUpdate() {
-    resetResourceChange()
+    // resetResourceChange()
 
-    this.updateFreshTime()
-    this.updateTasks()
-    this.updateResearch()
-    this.updateMarketUpgrade()
-    this.updateH2p()
-
-    this.updateResource()
+    // this.updateFreshTime()
+    // this.updateTasks()
+    // this.updateResearch()
+    // this.updateMarketUpgrade()
+    // this.updateH2p()
+    //
+    // this.updateResource()
   },
   updateMarketUpgrade() {
     for (let i = 0; i < GameDataBase.Market.Upgrade.length; i++) {
@@ -122,7 +122,7 @@ export const gameLoop = {
       }
     }
     if (different(v, GameStats.h2pUnlocks)) {
-      EventHub.dispatch(GameEvent.UPDATE_H2P)
+      EventHub.dispatch(GameEvent.UPDATE)
     }
   },
   updateTasks() {
@@ -183,6 +183,6 @@ export const gameLoop = {
   displayHandlers: getAllowProxy<{ [x: number]: Function[] }>({})
 }
 
-EventHub.on(GameEvent.UPDATE_FULL, gameLoop.fullUpdate.bind(gameLoop))
-EventHub.on(GameEvent.UPDATE_DISPLAY,gameLoop.updateDisplay.bind(gameLoop))
-EventHub.on(GameEvent.MARKET_UPDATE,generateMarket)
+EventHub.logic.on(GameEvent.UPDATE, gameLoop.fullUpdate.bind(gameLoop))
+EventHub.ui.on(GameEvent.UPDATE,gameLoop.updateDisplay.bind(gameLoop))
+EventHub.logic.on(GameEvent.MARKET_UPDATE,generateMarket)

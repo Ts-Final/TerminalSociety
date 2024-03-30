@@ -22,7 +22,7 @@ function update() {
 
 gameLoop.displayHandlers[displayEnum.baseLayouts].push(update)
 
-EventHub.on(GameEvent.UPDATE_TAB, function () {
+EventHub.ui.on(GameEvent.UPDATE, function () {
   onUpdate.value = false
   onUpdate.value = true
 })

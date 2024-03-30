@@ -1,16 +1,10 @@
-import {onMounted, onUnmounted, ref, Ref} from "vue"
+import {onMounted, onUnmounted, Ref, ref} from "vue"
 import {EventHub, GameEvent} from "../gameUpdate/eventHub.ts"
 
 export interface GameDataInterface {
   id: number
   name: string
-
   unlock(): boolean
-}
-
-// this is just used to shit the value, doesnt valuable.
-function shit(value: any) {
-  return value == value
 }
 
 export function noEmpty<T>(value: T | undefined): T {
@@ -18,7 +12,8 @@ export function noEmpty<T>(value: T | undefined): T {
   return value
 }
 
-abstract class GameDataClassAbstract {
+abstract class GameDataClassAbstract implements GameDataInterface {
+  static all: GameDataInterface[] = []
   unlock: () => boolean
   id: number
   name: string
@@ -34,28 +29,22 @@ abstract class GameDataClassAbstract {
     this.refs = {
       unlocked: ref(this.unlock())
     }
+    EventHub.logic.on(GameEvent.UPDATE,
+      this.updateLogic.bind(this),this)
   }
 
-  abstract get unlocked():boolean
+  abstract get unlocked(): boolean
   abstract set unlocked(value: boolean)
 
-  useBase() {
-    onMounted(() => EventHub.ui.on(GameEvent.UPDATE, this.updateVisual, this))
-    onUnmounted(() => EventHub.ui.offAll(this))
-    return this.refs
-  }
-
   abstract updateLogic(): void
+
   abstract updateVisual(): void
 
 }
 
 export class GameDataClass extends GameDataClassAbstract {
-  refs: { unlocked: Ref<boolean> };
-
-  get unlocked(): boolean {
-    return false
-  }
+  // all the DataClass instances
+  static all = [] as GameDataClass[]
 
   constructor(data: GameDataInterface) {
     super(data);
@@ -68,36 +57,55 @@ export class GameDataClass extends GameDataClassAbstract {
     }
   }
 
+  get unlocked(): boolean {
+    return false
+  }
+
+  /**
+   * Generate from a list of data
+   */
+  static _fromData<T extends typeof GameDataClass>(
+    classObj: T,
+    ...data: GameDataInterface[]
+  ): T {
+    for (let i = 0; i < data.length; i++) {
+      let ins = new classObj(data[i])
+      classObj.all.push(ins)
+    }
+    return classObj
+  }
+
+  /* The all values below should be re-declared in extending class */
+
+  /**
+   * The function to create Assessor to the game Object
+   * */
+  static _createAssessor(classObj: typeof GameDataClass) {
+    let all = classObj.all
+    return function (id: number) {
+      return noEmpty(all.find((x) => x.id === id))
+    }
+  }
+
+  static createAssessor() {
+    return this._createAssessor(this)
+  }
+
+  _boundBase(ins: GameDataClass) {
+    onMounted(() => EventHub.ui.on(GameEvent.UPDATE, ins.updateVisual.bind(ins), ins))
+    onUnmounted(() => EventHub.ui.offAll(ins))
+  }
+
+  useBase() {
+    this._boundBase(this)
+    return this.refs
+  }
+
   updateLogic() {
 
   }
 
   updateVisual() {
 
-  }
-
-  /* The all values below should be re-declared in extending class */
-  // all the DataClass instances
-  static all = [] as GameDataClass[]
-
-  /**
-   * Generate from a list of data
-   * @param data
-   */
-  static fromData(...data: GameDataInterface[]) {
-    for (let i = 0; i < data.length; i++) {
-      let ins = new GameDataClass(data[i])
-      GameDataClass.all.push(ins)
-    }
-    return GameDataClass
-  }
-  /**
-   * The function to create Assessor to the game Object
-   * */
-  static _createAssessor() {
-    let all = GameDataClass.all
-    return function (id: number) {
-      return noEmpty(all.find((x) => x.id === id))
-    }
   }
 }

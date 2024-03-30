@@ -1,6 +1,6 @@
 import {player} from "../player";
 import {notify} from "../functions/notify.ts";
-import {generateMarket} from "../player/market.ts";
+import {generateMarket} from "../market.ts";
 import {deepSet} from "../functions/deepSet.ts";
 import {Base64} from "../functions/base64.ts";
 import {Numbers} from "../functions/Numbers.ts";

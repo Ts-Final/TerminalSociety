@@ -10,41 +10,41 @@ import CompanyTab from "./market/company/companyTab.vue";
 import EmployeeTab from "./employ/employee/employeeTab.vue";
 import ResearchTab from "./research/researchTab.vue";
 
-import {ref} from "vue";
-import {player} from "../../core/player";
+// import {ref} from "vue";
+// import {player} from "../../core/player";
+//
+// import {displayEnum} from "../../core/GameDataBase/display.ts";
+// import {gameLoop} from "../../core/gameUpdate/gameLoop.ts";
+// import OptionVisual from "./options/OptionVisual.vue";
+//
+// const displayRef = ref(0)
+//
+// function update() {
+//   displayRef.value = player.display
+// }
 
-import {displayEnum} from "../../core/GameDataBase/display.ts";
-import {gameLoop} from "../../core/gameUpdate/gameLoop.ts";
-import OptionVisual from "./options/OptionVisual.vue";
-
-const displayRef = ref(0)
-
-function update() {
-  displayRef.value = player.display
-}
-
-gameLoop.displayHandlers[displayEnum.baseLayouts].push(update)
+// gameLoop.displayHandlers[displayEnum.baseLayouts].push(update)
 </script>
 
 <template>
   <div class="right-tab">
-    <ResourceGeneralTab v-if="displayRef == displayEnum.resourceGeneral"/>
-    <ResourceDetailTab v-else-if="displayRef == displayEnum.resourceDetail"/>
+<!--    <ResourceGeneralTab v-if="displayRef == displayEnum.resourceGeneral"/>-->
+<!--    <ResourceDetailTab v-else-if="displayRef == displayEnum.resourceDetail"/>-->
 
-    <TaskTab v-else-if="displayRef == displayEnum.task"/>
+<!--    <TaskTab v-else-if="displayRef == displayEnum.task"/>-->
+        <TaskTab />
+<!--    <ResearchTab v-else-if="displayRef == displayEnum.research"/>-->
 
-    <ResearchTab v-else-if="displayRef == displayEnum.research"/>
+<!--    <UpgradeTab v-else-if="displayRef == displayEnum.marketUpgrade"/>-->
+<!--    <BasePriceTab v-else-if="displayRef == displayEnum.marketPrice"/>-->
+<!--    <ExchangeTab v-else-if="displayRef == displayEnum.marketExchange"/>-->
+<!--    <CompanyTab v-else-if="displayRef == displayEnum.marketCompany"/>-->
 
-    <UpgradeTab v-else-if="displayRef == displayEnum.marketUpgrade"/>
-    <BasePriceTab v-else-if="displayRef == displayEnum.marketPrice"/>
-    <ExchangeTab v-else-if="displayRef == displayEnum.marketExchange"/>
-    <CompanyTab v-else-if="displayRef == displayEnum.marketCompany"/>
+<!--    <EmployeeTab v-else-if="displayRef == displayEnum.employWork"/>-->
 
-    <EmployeeTab v-else-if="displayRef == displayEnum.employWork"/>
+<!--    <H2PTab v-else-if="displayRef == displayEnum.h2p"/>-->
 
-    <H2PTab v-else-if="displayRef == displayEnum.h2p"/>
-
-    <OptionVisual v-else-if="displayRef == displayEnum.optionVisual"/>
+<!--    <OptionVisual v-else-if="displayRef == displayEnum.optionVisual"/>-->
   </div>
 
 </template>
