@@ -12,8 +12,8 @@ export interface how2play {
   unlock(): boolean
 }
 
-export const version = "Test 08"
-export const versionCount = 23 // Test-08
+export const version = 'Test-09'
+export const versionCount = 24 // Test-09
 
 let setUpDate = new Date(2022, 5, 28)
 let passedDays = Math.floor((Date.now() - setUpDate.getTime()) / (1000 * 60 * 60 * 24))

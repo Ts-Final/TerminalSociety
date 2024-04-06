@@ -1,5 +1,5 @@
 /**
- * @module
+ * @module constants
  * This module contains those Type annotations, some shit constants.
  */
 
