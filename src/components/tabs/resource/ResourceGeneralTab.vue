@@ -1,7 +1,22 @@
 <script setup lang="ts">
-import RGTLine from "./RGTLine.vue";
-import {player} from "../../../../core/player";
-import {ResourceTypes} from "../../../../core/GameDataBase/resource.ts";
+import {Resources} from "../../../core/GameDataBase/resource.ts";
+
+function divs() {
+  let v = []
+  for (const res of Resources.all) {
+    const {amount, maximum, change, max_record} = res.useBase()
+    v.push({
+      amount,
+      max_record,
+      maximum,
+      change,
+      name: res.parsed
+    })
+  }
+  return v
+}
+
+const v = divs()
 </script>
 
 <template>
@@ -14,9 +29,13 @@ import {ResourceTypes} from "../../../../core/GameDataBase/resource.ts";
         <p>变化/s</p>
         <p>最大</p>
       </div>
-      <RGTLine class="RGT-line style-border no-top-border"
-               v-for="res in Object.keys(player.resource)"
-               :ResKey="res as ResourceTypes" :key="res"/>
+      <div class="RGT-line style-border no-top-border" v-for="res in v">
+        <p>{{ res.name }}</p>
+        <p>{{ res.amount }}</p>
+        <p>{{ res.maximum }}</p>
+        <p>{{ res.change }}</p>
+        <p>{{ res.amount.value }}</p>
+      </div>
     </div>
   </div>
 

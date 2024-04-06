@@ -51,6 +51,7 @@ export {GameEvent}
 export const enum GameEvent {
   /* UI update only, we use gameLoop() another-where */
   UPDATE,
+  CHANGE_TAB,
 
   // Options
   OPTION_CHANGE,
@@ -111,7 +112,7 @@ export class EventHub {
     this.events = []
   }
 
-  on(event: number, fn: Function, target?: any) {
+  on(event: number, fn: Function, target?: any, first?:boolean) {
     let handlers = this._handlers[event]
     if (handlers === undefined) {
       handlers = []
@@ -119,7 +120,11 @@ export class EventHub {
     }
 
     emptyCheck(target)
-    this._handlers[event].push({fn, target})
+    if (first) {
+      handlers.unshift({fn,target})
+    } else {
+      handlers.push({fn, target})
+    }
   }
 
   offAll(target: any) {
@@ -130,7 +135,16 @@ export class EventHub {
     }
   }
 
+  callAll() {
+    for (const key in this._handlers) {
+      for (const handler of this._handlers[key]) {
+        handler.fn()
+      }
+    }
+  }
+
 }
 
 EventHub.logic = new EventHub()
 EventHub.ui = new EventHub()
+window.dev.eventHub = EventHub

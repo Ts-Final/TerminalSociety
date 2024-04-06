@@ -1,33 +1,20 @@
 <script setup lang="ts">
-import {upg} from "../../../../core/GameDataBase/market/upgrade.ts";
-import {player} from "../../../../core/player";
-import {ref} from "vue";
-import {parseCountryName, parseResourceName} from "../../../../core/game-mechanics/parse.ts";
-import {canPurchaseUpgrade, purchaseUpgrade} from "../../../../core/game-mechanics/marketUpgrade.ts";
-import {displayEnum} from "../../../../core/GameDataBase/display.ts";
-import {gameLoop} from "../../../../core/gameUpdate/gameLoop.ts";
+import {UpgradeClass} from "../../../../core/GameDataBase/market/upgrade.ts";
+import {parseResourceName} from "../../../../core/GameDataBase/resource.ts";
+import {Country} from "../../../../core/GameDataBase/situation/country.ts";
 
-const {upgrade} = defineProps<{ upgrade: upg }>()
-const upgP = ref(player.market.upgrades[upgrade.id])
-const shown = ref(false)
-const canPurchase = ref(false)
-const title = ref("")
 
-function update() {
-  upgP.value = player.market.upgrades[upgrade.id]
-  canPurchase.value = canPurchaseUpgrade(upgrade.id)
-  shown.value = upgP.value[0] && !upgP.value[1]
-  title.value = canPurchase.value ? "" : "还买不起。"
-}
+const {upgrade} = defineProps<{ upgrade: UpgradeClass }>()
+const {bought, unlocked, canBuy} = upgrade.useBase()
 
-gameLoop.displayHandlers[displayEnum.marketUpgrade].push(update)
+
 </script>
 
 <template>
-  <div class="gameUnit flex-col medium-size style-border" v-if="shown">
+  <div class="gameUnit flex-col medium-size style-border" v-if="!bought&& unlocked">
     <div class="flex-row space-around">
       <div>{{ upgrade.name }}</div>
-      <div class="op0.5" v-html="parseCountryName(upgrade.country)"></div>
+      <div class="op0.5" v-html="Country(upgrade.country).parsed"></div>
     </div>
     <div class="border1-top">
       {{ upgrade.des }}
@@ -35,12 +22,12 @@ gameLoop.displayHandlers[displayEnum.marketUpgrade].push(update)
     <div class="self-center"
          :class="
          {
-           'btn': canPurchase,
-          'btn-disabled':!canPurchase,
-           'text-disabled':!canPurchase
+           'btn': canBuy,
+          'btn-disabled':!canBuy,
+           'text-disabled':!canBuy
          }"
-    @click="purchaseUpgrade(upgrade.id, canPurchase)"
-    :title="title">购买
+         @click="upgrade.purchase()"
+         :title="canBuy ? '': '东西不够...' ">购买
     </div>
     <div class="gameUnit-popout flex-col style-border">
       <div class="flex-col" v-if="upgrade.costResource.length > 0">

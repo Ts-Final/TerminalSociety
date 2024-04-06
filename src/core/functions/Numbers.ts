@@ -8,7 +8,7 @@ export const Numbers = {
     } else if (percentage) {
       return (v * 100).toFixed(2) + "%"
     } else {
-      return v.toFixed(fD)
+      return v.toFixed(fD).replace(/.0+/,'')
     }
   },
   cycle(min:number,max:number,v:number) {

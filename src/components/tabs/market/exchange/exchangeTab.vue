@@ -1,44 +1,22 @@
 <script setup lang="ts">
 
 import ResourceAmounts from "../../../small/resourceAmounts.vue";
-import {ref} from "vue";
-import {player} from "../../../../core/player";
 import ExchangeUnit from "./exchangeUnit.vue";
-import {displayEnum} from "../../../../core/GameDataBase/display.ts";
-import {EventHub, GameEvent} from "../../../../core/gameUpdate/eventHub.ts";
-import {gameLoop} from "../../../../core/gameUpdate/gameLoop.ts";
+import {Money} from "../../../../core/GameDataBase/market/money.ts";
+import {ExchangeHandler} from "../../../../core/GameDataBase/market/exchange.ts";
 
-const money = ref(0)
+const onUpdate = ExchangeHandler.onUpdate
 
-function toArray(arr: any[]): number[] {
-  let a = []
-  for (let i = 0; i < arr.length; i++) {
-    a.push(i)
-  }
-  return a
-}
-
-function update() {
-  money.value = player.money
-}
-
-gameLoop.displayHandlers[displayEnum.marketExchange].push(update)
-
-const onUpdate = ref(true)
-function refresh () {
-  onUpdate.value = false
-  onUpdate.value = true
-}
-EventHub.on(GameEvent.MARKET_UPDATE, refresh)
+const {money} = Money.refs
 
 </script>
 
 <template>
-  <div class="flex-col full">
+  <div class="flex-col full" v-if="onUpdate">
     <ResourceAmounts class="full-w flex-row"/>
     <div class="full-w center-text" style="margin: 5px;color: #7cdcf4">你拥有{{ money }}的资金。</div>
-    <div class="full-w flex-row flex-wrap" v-if="onUpdate">
-      <ExchangeUnit :index="idx" v-for="idx in toArray(player.market.exchange)"/>
+    <div class="full-w flex-row flex-wrap">
+      <ExchangeUnit :exchange="obj" v-for="obj in ExchangeHandler.allObjects()"/>
     </div>
   </div>
 

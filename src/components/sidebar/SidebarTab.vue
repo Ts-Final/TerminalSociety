@@ -1,4 +1,5 @@
 <script setup lang="ts">
+/*
 import {LB_TAB} from "../../core/GameDataBase/tabs.ts";
 import {player} from "../../core/player";
 import {ref} from "vue";
@@ -26,22 +27,28 @@ EventHub.ui.on(GameEvent.UPDATE, function () {
   onUpdate.value = false
   onUpdate.value = true
 })
+*/
+import {TabClass} from "../../core/GameDataBase/tabs.ts";
+
+const {tab} = defineProps<{ tab: TabClass }>()
+const {unlocked, hide, chosen, unlocks, hidden} = tab.useBase()
+
 
 </script>
 
 <template>
-  <div class="sidebar-tab" v-if="unlocked && onUpdate"
-       :class="{'sidebar-no-subtab': !hasSubTab, chosen:chosen}">
+  <div class="sidebar-tab" v-if="unlocked && !hidden"
+       :class="{'sidebar-no-subtab': !tab.hasSubTab, chosen:chosen}">
     <div class="sidebar-tab-name" style="border: none"
-         @click="changeTab(Tab.frame[0])">
-      <span style="align-self: center;border:none">{{ Tab.name }}</span>
+         @click="tab.show()">
+      <span style="align-self: center;border:none">{{ tab.name }}</span>
     </div>
-    <div class="sidebar-tab-sublist" v-if="hasSubTab">
-      <div v-for="subTab in Tab.subTabs"
-           @click="changeTab(subTab.frame)"
-           class="sidebar-subtab"
-      >
-        {{ subTab.name }}
+    <div class="sidebar-tab-sublist" v-if="tab.hasSubTab">
+      <div v-for="subTab in tab.subTabs">
+        <div class="sidebar-subtab style-color" v-if="unlocks[subTab.row] && !hide[subTab.row]"
+             @click="tab.showSubTab(subTab.row)">
+          {{ subTab.name }}
+        </div>
       </div>
     </div>
   </div>
@@ -93,12 +100,12 @@ EventHub.ui.on(GameEvent.UPDATE, function () {
 }
 
 .sidebar-subtab {
-  border: 1px solid;
-  height: var(--sidebar-tab-height);
+  min-height: var(--sidebar-tab-height);
   text-align: center;
   display: flex;
   justify-content: center;
   align-items: center;
+  border: 1px solid;
   cursor: pointer;
 }
 
@@ -116,11 +123,13 @@ EventHub.ui.on(GameEvent.UPDATE, function () {
   border-top: 1rem transparent solid;
   border-left: 0 #7cdcf4 solid;
 }
+
 .sidebar-tab::before {
   content: "";
   transition: all 0.15s linear;
   border-left: none;
 }
+
 .chosen::before {
   content: "";
   border-left: 5px solid;

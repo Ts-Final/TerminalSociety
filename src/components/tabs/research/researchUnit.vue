@@ -1,57 +1,22 @@
 <script setup lang="ts">
-import {Research, researchToEffect} from "../../../core/GameDataBase/research.ts";
-import {player} from "../../../core/player";
-import {ref} from "vue";
-import {calcLevelTime} from "../../../core/game-mechanics/research.ts";
-import {parseResourceName} from "../../../core/game-mechanics/parse.ts";
-import {displayEnum} from "../../../core/GameDataBase/display.ts";
+import {ResearchClass} from "../../../core/GameDataBase/research.ts";
 import EffectLines from "../../small/effect/EffectLines.vue";
-import {Progress} from "../../../core/game-mechanics/progress.ts";
-import {gameLoop} from "../../../core/gameUpdate/gameLoop.ts";
+import {parseResourceName} from "../../../core/GameDataBase/resource.ts";
 
-const {research} = defineProps<{ research: Research }>()
-const activated = ref(false)
-const unlocked = ref(false)
-const level = ref(0)
-const started = ref(0)
-const finished = ref(false)
+const {research} = defineProps<{ research: ResearchClass }>()
 
-let timeToUpg = ref(0)
-const percent = ref('0')
-const shown = ref(false)
-const onUpdate = ref(true)
-
-function changeActivate() {
-  player.research[research.id][0] = !player.research[research.id][0]
-  activated.value = !activated.value
-}
-
-function update() {
-  if (level.value < player.research[research.id][3]) {
-    onUpdate.value = false
-    onUpdate.value = true
-  }
-  finished.value = Progress.research(research.id).level >= research.maxLevel
-  started.value = Progress.research(research.id).started
-  timeToUpg.value = calcLevelTime(research)
-  percent.value = 100 * started.value / timeToUpg.value + "%"
-  shown.value = unlocked.value && !finished.value
-
-  if (player.dev) {
-    shown.value = !finished.value
-  }
-}
-
-gameLoop.displayHandlers[displayEnum.research].push(update)
-
+const {
+  unlocked, level, activated, timeToUpg, percent,
+  finished
+} = research.useBase()
 </script>
 
 <template>
-  <div class="flex-col medium-size style-border gameUnit" v-if="shown">
+  <div class="flex-col medium-size style-border gameUnit" v-if="unlocked && !finished">
     <div class="show">
       <div class="res-detail-first-row">
         <span class="name">{{ research.name }}</span>
-        <button type="button" @click="changeActivate" class="btn"
+        <button type="button" @click="research.trigger" class="btn"
                 :class="{'btn-ON':activated, 'btn-OFF':!activated}">
           <span v-if="activated">ON</span>
           <span v-else>OFF</span>
@@ -70,7 +35,7 @@ gameLoop.displayHandlers[displayEnum.research].push(update)
         {{ research.des }}
       </div>
     </div>
-    <div class="gameUnit-popout style-border" v-if="onUpdate">
+    <div class="gameUnit-popout style-border">
       <div v-if="research.cost.length > 0" style="color: #7cdcf4">
         <div>资源消耗：</div>
         <div v-for="rP in research.cost">{{ parseResourceName(rP[0]) }}：{{ rP[1] }}/s</div>
@@ -79,7 +44,7 @@ gameLoop.displayHandlers[displayEnum.research].push(update)
       <div v-if="research.effect.length >0" style="color: #7cdcf4">
         <div v-if="research.maxLevel > 1">下一级研究效果：</div>
         <div v-else>研究效果：</div>
-        <EffectLines :eff="researchToEffect(research,level + 1)"/>
+        <EffectLines :eff="research.nextEffect()"/>
       </div>
       <br>
       <p class="itl">{{ research.itl }}</p>

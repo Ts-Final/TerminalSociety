@@ -1,10 +1,10 @@
 import {player} from "../player";
 import {notify} from "../functions/notify.ts";
-import {generateMarket} from "../market.ts";
 import {deepSet} from "../functions/deepSet.ts";
 import {Base64} from "../functions/base64.ts";
 import {Numbers} from "../functions/Numbers.ts";
-import {gameLoop} from "../gameUpdate/gameLoop";
+import {EventHub, GameEvent} from "../eventHub.ts";
+import {Market} from "../GameDataBase/market";
 
 const Key = 'TerminalSociety'
 
@@ -16,10 +16,16 @@ function reverse(x: string) {
   return v
 }
 
-function repeat(x:Function, times:number) {
+function repeat(x: Function, times: number) {
   for (let i = 0; i < times; i++) {
     x()
   }
+}
+
+function nextDay() {
+  let days = Math.floor(Date.now() / (24 * 60 * 60 * 1000));
+  days += 1
+  return days * 24 * 60 * 60 * 1000;
 }
 
 export const GameStorage = {
@@ -28,6 +34,7 @@ export const GameStorage = {
       notify.normal("游戏已保存", 500)
     }
     player.saveTime = Date.now()
+    player.dailyFreshTime = nextDay()
     let v = this.deserialize(JSON.stringify(player))
     localStorage.setItem(Key, v)
     return v
@@ -44,18 +51,18 @@ export const GameStorage = {
       } catch (e) {
         obj = JSON.parse(this.serialize(str))
       } finally {
-        deepSet(obj,player)
+        deepSet(obj, player)
       }
 
       /* Update */
-      let seconds = (Date.now() - player.saveTime) / (24*60*60*1000)
+      let seconds = (Date.now() - player.saveTime) / (24 * 60 * 60 * 1000)
       seconds = Numbers.round(seconds, 0) // update Times
       if (seconds <= 200) {
-        repeat(gameLoop.fullUpdate, seconds)
+        repeat(() => EventHub.logic.dispatch(GameEvent.UPDATE), seconds)
       }
     }
     if (Date.now() >= player.dailyFreshTime) {
-      generateMarket()
+      Market.generate()
     }
     player.dev = isLocal
 

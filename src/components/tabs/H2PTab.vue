@@ -1,15 +1,9 @@
 <script setup lang="ts">
 
-import {GameDataBase} from "../../core/GameDataBase";
-import {ref} from "vue";
-import {player} from "../../core/player";
 
+import {How2PlayClass} from "../../core/GameDataBase/how2play/how2play.ts";
 
-import {displayEnum} from "../../core/GameDataBase/display.ts";
-import {EventHub, GameEvent} from "../../core/gameUpdate/eventHub.ts";
-import {gameLoop} from "../../core/gameUpdate/gameLoop.ts";
-
-const h2p = ref(1)
+/*const h2p = ref(1)
 const h2pInfo = ref("")
 const h2pTitle = ref("")
 const onUpdate = ref(true)
@@ -29,11 +23,13 @@ gameLoop.displayHandlers[displayEnum.h2p].push(update)
 EventHub.on(GameEvent.UPDATE_H2P, function () {
   onUpdate.value = false
   onUpdate.value = true
-})
+})*/
+const {title, info} = How2PlayClass.refs
+const all = How2PlayClass.sorted()
 </script>
 
 <template>
-  <div class="h2p-wrapper" v-if="onUpdate">
+  <div class="h2p-wrapper">
     <div id="h2p-list">
       <div class="h2p-help-text">
         欢迎使用指引模块。<br>
@@ -41,16 +37,15 @@ EventHub.on(GameEvent.UPDATE_H2P, function () {
         （比如部分教学内容，如果没有找到就是作者忘记写了（请务必通过各种渠道提醒作者）<br>
         左侧的文字可以按。
       </div>
-      <div class="h2p-button" :style="{display: h2p.unlocked? 'flex':'none'}"
-           v-for="h2p in GameDataBase.How2Play.sort((v1,v2)=>v1.id-v2.id)"
-           @click="player.how2play = h2p.id;EventHub.dispatch(GameEvent.UPDATE_H2P)"
+      <div class="h2p-button" :style="{display: h2p.refs.unlocked.value ? 'flex':'none'}"
+           @click="h2p.show()" v-for="h2p in all"
            :key="h2p.id">
         {{ h2p.title }}
       </div>
     </div>
     <div id="h2pContent">
-      <div class="h2p-title">{{ h2pTitle }}</div>
-      <div class="h2p-info" v-html="h2pInfo"></div>
+      <div class="h2p-title">{{ title }}</div>
+      <div class="h2p-info" v-html="info"></div>
     </div>
   </div>
 </template>
@@ -82,6 +77,7 @@ EventHub.on(GameEvent.UPDATE_H2P, function () {
   justify-content: center;
   align-items: center;
 }
+
 .h2p-button:hover {
   box-shadow: #7cdcf4 0 0 0.3rem inset;
 }

@@ -19,7 +19,7 @@ export const Progress = {
     return result
   },
   employee(id:number) {
-    let e = player.employee.work[id]
+    let e = player.employee[id]
     return {
       unlocked: e[0],
       equipped: e[1],

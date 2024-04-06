@@ -1,19 +1,17 @@
 import {onMounted, onUnmounted, Ref, ref} from "vue"
-import {EventHub, GameEvent} from "../gameUpdate/eventHub.ts"
+import {EventHub, GameEvent} from "../eventHub.ts"
+import {noEmpty} from "../functions/noEmpty.ts";
 
 export interface GameDataInterface {
   id: number
   name: string
+
   unlock(): boolean
+
 }
 
-export function noEmpty<T>(value: T | undefined): T {
-  if (value == null) throw new Error("value is empty!")
-  return value
-}
-
+/*
 abstract class GameDataClassAbstract implements GameDataInterface {
-  static all: GameDataInterface[] = []
   unlock: () => boolean
   id: number
   name: string
@@ -30,7 +28,7 @@ abstract class GameDataClassAbstract implements GameDataInterface {
       unlocked: ref(this.unlock())
     }
     EventHub.logic.on(GameEvent.UPDATE,
-      this.updateLogic.bind(this),this)
+      this.updateLogic.bind(this), this)
   }
 
   abstract get unlocked(): boolean
@@ -41,19 +39,22 @@ abstract class GameDataClassAbstract implements GameDataInterface {
   abstract updateVisual(): void
 
 }
-
-export class GameDataClass extends GameDataClassAbstract {
-  // all the DataClass instances
-  static all = [] as GameDataClass[]
+*/
+export class GameDataClass implements GameDataInterface {
+  unlock: () => boolean
+  id: number
+  name: string
+  refs: {
+    unlocked: Ref<boolean>
+  }
 
   constructor(data: GameDataInterface) {
-    super(data);
     this.unlock = data.unlock
     this.id = data.id
     this.name = data.name
 
     this.refs = {
-      unlocked: ref(this.unlock())
+      unlocked: ref(false)
     }
   }
 
@@ -62,33 +63,20 @@ export class GameDataClass extends GameDataClassAbstract {
   }
 
   /**
-   * Generate from a list of data
+   * Volar-complainer. SHIT!!!!!
+   *
+   * For the extending classes, define createAccessor() and call this function.
+   *
+   * @param classObj The extending class, which can be used to call its constructor()
+   * @deprecated
    */
-  static _fromData<T extends typeof GameDataClass>(
-    classObj: T,
-    ...data: GameDataInterface[]
-  ): T {
-    for (let i = 0; i < data.length; i++) {
-      let ins = new classObj(data[i])
-      classObj.all.push(ins)
+  static _createAccessor<arg, ins extends GameDataClass>(classObj: { new(data: arg): ins }) {
+    return function (...data: arg[]) {
+      const all = data.map((x) => new classObj(x))
+      const accessor = (id: number) => noEmpty(all.find(x => x.id == id))
+      accessor.all = all
+      return accessor
     }
-    return classObj
-  }
-
-  /* The all values below should be re-declared in extending class */
-
-  /**
-   * The function to create Assessor to the game Object
-   * */
-  static _createAssessor(classObj: typeof GameDataClass) {
-    let all = classObj.all
-    return function (id: number) {
-      return noEmpty(all.find((x) => x.id === id))
-    }
-  }
-
-  static createAssessor() {
-    return this._createAssessor(this)
   }
 
   _boundBase(ins: GameDataClass) {
@@ -100,10 +88,11 @@ export class GameDataClass extends GameDataClassAbstract {
     this._boundBase(this)
     return this.refs
   }
-
-  updateLogic() {
-
+  onLogic() {
+    EventHub.logic.on(GameEvent.UPDATE,this.updateLogic.bind(this),this)
   }
+
+  updateLogic() {}
 
   updateVisual() {
 

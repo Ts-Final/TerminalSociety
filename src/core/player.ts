@@ -1,4 +1,4 @@
-import {ResourceTypes} from "./GameDataBase/resource.ts";
+import {exchangeShort, ResourceTypes} from "./constants.ts";
 
 /*
 * For most of the values we dont set its values here, and in different
@@ -15,10 +15,10 @@ export const player = {
       change: number,
       max_record: number,
       affects: {
-        pro: [string, number][],
-        consume: [string, number][],
-        maxAdd: [string, number][],
-        maxMult: [string, number][],
+        pro: { source: [string, number][], total: number},
+        consume: { source: [string, number][], total: number},
+        maxAdd: { source: [string, number][], total: number},
+        maxMult: { source: [string, number][], total: number},
       },
     }
   },
@@ -36,6 +36,12 @@ export const player = {
   research: [] as [boolean, boolean, number, number][],
   market: {
     affect: 0,
+    /**
+     * {
+     *   0: unlocked,
+     *   1: bought,
+     * }
+     */
     upgrades: [] as [boolean, boolean][],
 
     /**
@@ -59,34 +65,58 @@ export const player = {
      * }
      * ```
      */
-    exchange: [] as [string, ResourceTypes, number, number, number][],
-    basePrice: {
-      energy: 0,
-      iron: 0,
-      water: 0,
-      coal: 0,
-      copper: 0,
-      air: 0,
-    }
+    exchange: [] as exchangeShort[],
+    basePrice: {} as {[key in ResourceTypes]: number}
 
   },
   version: "Test 08 change 1",
-  employee: {
-    work: [] as [boolean, boolean, number, number, number][],
-  },
+    /**
+     * {
+     *   0: unlocked,
+     *   1: equipped,
+     *   2: level,
+     *   3: exp,
+     *   4: join-time
+     * }
+     */
+  employee:  [] as [boolean, boolean, number, number, number][],
+
   // country: __player_country,
-  display: 1,
+  display: [0, 0] as [number, number],
   how2play: 1,
-  money: 0,
+  money: {
+    current: 0,
+    totalSpend: 0,
+    totalEarned: 0,
+
+  },
   saveTime: 0,
   dailyFreshTime: 0,
   dev: false,
   options: {
-    tabShown: [] as boolean[],
     updateRate: 33,
     laugh: false,
     news: true,
   },
+  /**
+   * {
+   *   0: unlocks
+   * }
+   * */
+  tabs: {} as {
+    [x: number]: {
+      unlocks: boolean[],
+      hide: boolean[],
+      lastOpen: number
+    }
+  },
+  news: {
+    seen: [] as number[],
+    totalSeen: 0,
+    stupidThings: {
+      clicks: 0,
+    }
+  }
 
 }
 declare global {

@@ -1,7 +1,10 @@
 import {player} from "../player";
-import {Resources, ResourceTypes} from "./resource.ts";
+import {ResourceClass, Resources} from "./resource.ts";
 import {GameDataClass, GameDataInterface} from "./baseData.ts";
 import {Ref, ref} from "vue";
+import {notify} from "../functions/notify.ts";
+import {ResourceTypes} from "../constants.ts";
+import {noEmpty} from "../functions/noEmpty.ts";
 
 interface TaskDataInterface extends GameDataInterface {
   id: number
@@ -45,7 +48,7 @@ export const TaskData: TaskDataInterface[] = [
     produce: [["air", 1]],
     cost: [["energy", 2]],
     unlock() {
-      return Resources.energy.max_record >= 25
+      return Resources("energy").max_record >= 25
     }
   },
   {
@@ -110,6 +113,7 @@ export class TaskClass
     if (player.task[this.id] == undefined) {
       player.task[this.id] = [false, false]
     }
+    this.onLogic()
   }
 
   get unlocked(): boolean {
@@ -128,12 +132,11 @@ export class TaskClass
     player.task[this.id][1] = value
   }
 
-  static fromData(data: TaskDataInterface[]) {
-    return super._fromData(this, ...data)
-  }
-
-  static createAssessor(): (id: number) => GameDataClass {
-    return super._createAssessor(this)
+  static createAccessor(...data: TaskDataInterface[]) {
+    this.all = data.map((x) => new this(x))
+    const accessor = (id: number) => noEmpty(this.all.find(x => x.id == id))
+    accessor.all = this.all
+    return accessor
   }
 
   trigger() {
@@ -145,16 +148,48 @@ export class TaskClass
     this.refs.activated.value = this.activated
     this.refs.unlocked.value = this.unlocked
   }
+
   updateLogic() {
-    this.unlocked = this.unlock() || this.unlocked
+    if (!this.unlocked) {
+      this.unlocked ||= this.unlock()
+      if (this.unlocked) {
+        notify.success(`解锁生产：${this.name}`, 1000)
+      }
+    }
+    // activate check
+    if (!this.activated) {
+      return
+    }
+
+    // About Resources
+    // these code seems absolutely ugly
+    let canProduce = true
+    for (const [resType, value] of this.produce) {
+      canProduce &&= Resources[resType].canProduce(value)
+    }
+    if (!canProduce) {
+      return;
+    }
+    for (let i = 0; i < this.cost.length; i++) {
+      let [resKey, value] = this.cost[i]
+      canProduce &&= Resources(resKey).canCost(value)
+    }
+    if (!canProduce) {
+      return;
+    }
+
+    for (let [resKey, value] of this.produce) {
+      Resources[resKey].doProduce(value, true)
+    }
+    for (let [resKey, value] of this.cost) {
+      ResourceClass[resKey].doCost(value, true)
+    }
   }
 
   useBase() {
-    console.trace("Task: UseBase")
     this._boundBase(this)
     return this.refs
   }
 }
 
-export const Tasks = TaskClass.fromData(TaskData)
-export const Task = Tasks.createAssessor()
+export const Task = TaskClass.createAccessor(...TaskData)

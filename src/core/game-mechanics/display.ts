@@ -1,5 +1,5 @@
 import {player} from "../player";
-import {EventHub, GameEvent} from "../gameUpdate/eventHub.ts";
+import {EventHub, GameEvent} from "../eventHub.ts";
 
 export function changeTab(tab:number) {
   player.display = tab

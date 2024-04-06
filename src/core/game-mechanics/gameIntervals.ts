@@ -1,4 +1,4 @@
-import {EventHub, GameEvent} from "../gameUpdate/eventHub.ts";
+import {EventHub, GameEvent} from "../eventHub.ts";
 import {player} from "../player";
 import {GameStorage} from "./GameStorage.ts";
 
@@ -41,7 +41,7 @@ export const gameIntervals = (function () {
       this.all.forEach((i) => i.stop())
     },
     all: all,
-    gameLoop: interval(() => EventHub.dispatch(GameEvent.UPDATE), 1000),
+    gameLoop: interval(() => EventHub.logic.dispatch(GameEvent.UPDATE), 1000),
     update: interval(() => EventHub.ui.dispatch(GameEvent.UPDATE),
       () => player.options.updateRate),
     save: interval(GameStorage.save.bind(GameStorage), 10e3),

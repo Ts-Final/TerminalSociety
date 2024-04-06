@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import {TaskClass} from "../../../core/GameDataBase/task.ts";
 
-import {parseResourceName} from "../../../core/game-mechanics/parse.ts";
+
+import {parseResourceName} from "../../../core/GameDataBase/resource.ts";
 
 const {Task} = defineProps<{Task: TaskClass }>()
 const {unlocked, activated} = Task.useBase()

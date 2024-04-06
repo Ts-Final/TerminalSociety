@@ -1,76 +1,51 @@
 <script setup lang="ts">
 import {Ref, ref} from "vue";
-import {player} from "../../../../core/player";
-import {ResourceTypes} from "../../../../core/GameDataBase/resource.ts";
-import {parseAffectValue, parseResourceName} from "../../../../core/game-mechanics/parse.ts";
-import {displayEnum} from "../../../../core/GameDataBase/display.ts";
-import {gameLoop} from "../../../../core/gameUpdate/gameLoop.ts";
+import {parseResourceName, Resources} from "../../../core/GameDataBase/resource.ts";
+import {parseAffectValue} from "../../../core/game-mechanics/parse.ts";
+import {ResourceTypeList, ResourceTypes} from "../../../core/constants.ts";
 
-/**
- * volar-complainer
- */
-const chosenResource: Ref<ResourceTypes> = ref("energy")
 
-type affect = [string, number][]
-type chosenAffectType = {
-  pro: affect,
-  consume: affect,
-  maxAdd: affect,
-  maxMult: affect
-}
-const chosenAffect: Ref<chosenAffectType> = ref({pro: [], consume: [], maxAdd: [], maxMult: [],})
-
-function changeChosen(key: string) {
-  chosenResource.value = key as ResourceTypes
+function changeChosen(key: ResourceTypes) {
+  chosen.value = key
 }
 
-function update() {
-  const affects = player.resource[chosenResource.value as keyof typeof player.resource].affects
-  chosenAffect.value.pro = affects.pro
-  chosenAffect.value.consume = affects.consume
-  chosenAffect.value.maxMult = affects.maxMult
-  chosenAffect.value.maxAdd = affects.maxAdd
-}
-
-gameLoop.displayHandlers[displayEnum.resourceDetail].push(update)
-
-
+const chosen: Ref<ResourceTypes> = ref("energy")
 </script>
 
 <template>
   <div class="res-detail-wrapper">
     <div class="res-detail-top">
-      <div class="res-detail-btn" v-for="resKey in Object.keys(player.resource)"
+      <div class="res-detail-btn" v-for="resKey in ResourceTypeList"
            :key="resKey" @click="changeChosen(resKey)"
-           :class="{chosen:chosenResource === resKey}"
+           :class="{chosen:Resources(chosen).name === resKey}"
            v-html="parseResourceName(resKey as ResourceTypes)">
       </div>
     </div>
     <div class="res-detail flex-avg">
       <div class="res-detail-list  left-border right-border">
         <div class="res-detail-first-row">生产加成</div>
-        <div v-for="aff in chosenAffect.pro" class="res-detail-row">
+        <div v-for="aff in Resources(chosen).refs.affects.pro.value.source" class="res-detail-row">
           <div v-html="aff[0]"></div>
           <div>+{{ parseAffectValue(aff[1], 'pro') }}</div>
         </div>
       </div>
       <div class="res-detail-list right-border">
         <div class="res-detail-first-row">消耗减少</div>
-        <div v-for="aff in chosenAffect.consume" class="res-detail-row">
+        <div v-for="aff in Resources(chosen).refs.affects.consume.value.source" class="res-detail-row">
           <div v-html="aff[0]"></div>
           <div>-{{ parseAffectValue(aff[1], 'consume') }}</div>
         </div>
       </div>
       <div class="res-detail-list right-border">
         <div class="res-detail-first-row">最大（加算）</div>
-        <div v-for="aff in chosenAffect.maxAdd" class="res-detail-row">
+        <div v-for="aff in Resources(chosen).refs.affects.maxAdd.value.source" class="res-detail-row">
           <div v-html="aff[0]"></div>
           <div>+{{ parseAffectValue(aff[1], 'maxAdd') }}</div>
         </div>
       </div>
       <div class="res-detail-list right-border">
         <div class="res-detail-first-row">最大（乘算）</div>
-        <div v-for="aff in chosenAffect.maxMult" class="res-detail-row">
+        <div v-for="aff in Resources(chosen).refs.affects.maxMult.value.source" class="res-detail-row">
           <div v-html="aff[0]"></div>
           <div>+{{ parseAffectValue(aff[1], 'maxMult') }}</div>
         </div>

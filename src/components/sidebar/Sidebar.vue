@@ -1,14 +1,13 @@
 <script setup lang="ts">
-import {GameDataBase} from "../../core/GameDataBase";
 import SidebarTab from "./SidebarTab.vue";
+import {Tab} from "../../core/GameDataBase/tabs.ts";
 </script>
 
 <template>
   <div class="sidebar-wrapper">
     <SidebarTab
-        v-for="tab in GameDataBase.Tabs"
-        :key="tab.name"
-        :Tab="tab"
+        v-for="tab in Tab.all"
+        :tab="tab"
     />
   </div>
 
@@ -24,6 +23,7 @@ import SidebarTab from "./SidebarTab.vue";
   z-index: var(--z-topbar);
   align-items: center;
 }
+
 .sidebar-wrapper :last-child {
   border-bottom: 1px solid;
 }

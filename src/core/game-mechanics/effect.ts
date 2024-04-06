@@ -1,20 +1,15 @@
-import {resourceEffectTypes, ResourceTypes} from "../GameDataBase/resource.ts";
 import {GameStats} from "./gameStats.ts";
-import {GameDataBase} from "../GameDataBase";
 import {NotImplementedError} from "../functions/errors.ts";
 import {Numbers} from "../functions/Numbers.ts";
-
-export type effectSource = 'research' | "employee" | "NMP"
-/**
- * target的影响目标
- */
-export type effectTarget = ResourceTypes | "research"
+import {effectSource, effectTarget, id, resourceEffectTypes} from "../constants.ts";
+import {Employee} from "../GameDataBase/employee/work.ts";
+import {Research} from "../GameDataBase/research.ts";
 
 /**
  * 用于GDB中一些简单的affect效果
  * 与effectSmall不同，反正
  */
-export type effectShort = [
+export type effectData = [
   effectTarget,
   resourceEffectTypes,
   number
@@ -46,6 +41,7 @@ export interface effect {
 
 export const Effect = {
   allEffects: GameStats.effects,
+  lastCheck: [] as effect[],
 
   registerEffect(target: effect) {
     if (this.allEffects.find((e) => e.id == target.id && e.source == target.source)) {
@@ -78,7 +74,7 @@ export const Effect = {
    * @param e
    */
   toEffects(...e: effect[]) {
-    let v: [string, number, effectSmall][] = []
+    let v: [effectSource, id, effectSmall][] = []
     for (const eff of e) {
       for (const small of eff.effects) {
         v.push([eff.source, eff.id, small])
@@ -93,29 +89,20 @@ export const Effect = {
     }
     return v
   },
-
-  /* calculate related */
-  calcResource(rt: ResourceTypes, et: resourceEffectTypes) {
-    const v = this.effects.filter(
-      (e) => e[2].target == rt && e[2].type == et
-    )
-    const r = { // return value
-      names: [] as [string, number][],
-      value: 0
-    }
-    for (const e of v) {
-      r.names.push([this.parseAffectName(e[0], e[1]), e[2].factor])
-      r.value += e[2].factor
-    }
+  /**
+   * with this function called before any (or some) updates, this will
+   * remove lots of useless updates.
+   */
+  hasChanged() {
+    const r = this.allEffects == this.lastCheck
+    this.lastCheck = this.allEffects
     return r
   },
-  calcResourceMax(r: ResourceTypes) {
-    return Numbers.round((1e4 + this.calcResource(r, 'maxAdd').value) *
-      (1 + this.calcResource(r, "maxMult").value), 2)
-  },
+
+  /* calculate related */
   calcResearchProgress() {
     let arr =
-      this.effects.filter((e) => e[2].target == "research")
+      this.effects.filter((e) => e[2].target === "research")
     let v = 1
     for (const [, , e] of arr) {
       v += e.factor
@@ -134,7 +121,7 @@ export const Effect = {
    * }
    * ```
    */
-  calcFromEffects(...e: effect[]):{[x:string]:number} {
+  calcFromEffects(...e: effect[]): { [x: string]: number } {
     const smalls = this.toSmall(...e)
     let v: { [x: string]: number } = {}
     for (const small of smalls) {
@@ -159,21 +146,13 @@ export const Effect = {
   parseAffectName(s: string, id: number) {
     switch (s) {
       case "research" :
-        let research = GameDataBase.Researches.find((v) => v.id == id)
-        if (!research) {
-          throw new Error()
-        }
-        return `研究：${research.name}`
+        return `研究：${Research(id).name}`
 
       case "NMP":
         throw new NotImplementedError("Effect not implemented")
 
       case "employee":
-        let employee = GameDataBase.Employees.work.find((v) => v.id == id)
-        if (!employee) {
-          throw new Error()
-        }
-        return `雇员：${employee.name}`
+        return `雇员：${Employee(id).name}`
       default:
         throw new Error(`WTF effect ${s} ${id}`)
     }

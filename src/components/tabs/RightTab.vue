@@ -1,50 +1,33 @@
 <script setup lang="ts">
 import TaskTab from "./task/TaskTab.vue";
+import ResourceTab from "./resource/ResourceTab.vue";
+
+import {Tab} from "../../core/GameDataBase/tabs.ts";
 import H2PTab from "./H2PTab.vue";
-import ResourceDetailTab from "./resource/detail/ResourceDetailTab.vue";
-import ResourceGeneralTab from "./resource/general/ResourceGeneralTab.vue";
-import UpgradeTab from "./market/upgrade/upgradeTab.vue";
-import BasePriceTab from "./market/basePrice/basePriceTab.vue";
-import ExchangeTab from "./market/exchange/exchangeTab.vue";
-import CompanyTab from "./market/company/companyTab.vue";
-import EmployeeTab from "./employ/employee/employeeTab.vue";
 import ResearchTab from "./research/researchTab.vue";
+import MarketTab from "./market/MarketTab.vue";
+import EmployTab from "./employ/EmployTab.vue";
+import OptionTab from "./options/OptionTab.vue";
 
-// import {ref} from "vue";
-// import {player} from "../../core/player";
-//
-// import {displayEnum} from "../../core/GameDataBase/display.ts";
-// import {gameLoop} from "../../core/gameUpdate/gameLoop.ts";
-// import OptionVisual from "./options/OptionVisual.vue";
-//
-// const displayRef = ref(0)
-//
-// function update() {
-//   displayRef.value = player.display
-// }
+const display = Tab.display
 
-// gameLoop.displayHandlers[displayEnum.baseLayouts].push(update)
 </script>
 
 <template>
   <div class="right-tab">
-<!--    <ResourceGeneralTab v-if="displayRef == displayEnum.resourceGeneral"/>-->
-<!--    <ResourceDetailTab v-else-if="displayRef == displayEnum.resourceDetail"/>-->
+    <ResourceTab v-if="display[0] == 0"/>
 
-<!--    <TaskTab v-else-if="displayRef == displayEnum.task"/>-->
-        <TaskTab />
-<!--    <ResearchTab v-else-if="displayRef == displayEnum.research"/>-->
+    <TaskTab v-else-if="display[0] == 1"/>
+    <ResearchTab v-else-if="display[0] == 2"/>
 
-<!--    <UpgradeTab v-else-if="displayRef == displayEnum.marketUpgrade"/>-->
-<!--    <BasePriceTab v-else-if="displayRef == displayEnum.marketPrice"/>-->
-<!--    <ExchangeTab v-else-if="displayRef == displayEnum.marketExchange"/>-->
-<!--    <CompanyTab v-else-if="displayRef == displayEnum.marketCompany"/>-->
+    <MarketTab v-else-if="display[0] == 3"/>
 
-<!--    <EmployeeTab v-else-if="displayRef == displayEnum.employWork"/>-->
+    <EmployTab v-else-if="display[0] == 4"/>
 
-<!--    <H2PTab v-else-if="displayRef == displayEnum.h2p"/>-->
+    <H2PTab v-else-if="display[0] == 5"/>
 
-<!--    <OptionVisual v-else-if="displayRef == displayEnum.optionVisual"/>-->
+    <OptionTab v-else-if="display[0] == 6"/>
+
   </div>
 
 </template>
@@ -57,10 +40,12 @@ import ResearchTab from "./research/researchTab.vue";
   border-left: none;
   flex: 1 1
 }
+
 .right-tab > div {
   animation: a-right-tab-op linear 0.1s;
   animation-fill-mode: both;
 }
+
 @keyframes a-right-tab-op {
   0% {
     opacity: 0;

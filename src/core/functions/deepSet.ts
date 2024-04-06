@@ -38,6 +38,7 @@ export function deepSet(source:any, target:any) {
         target[key] = source[key]
       }
     }
-    else {Object.defineProperty(target,key, {value:source[key]})}
+    else {Object.defineProperty(target,key,
+      {value:source[key],configurable:true,writable:true})}
   }
 }

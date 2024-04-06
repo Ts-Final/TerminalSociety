@@ -1,15 +1,11 @@
 <script setup lang="ts">
 
-import {employeeWork, employeeWorkSkillToAffect} from "../../../../core/GameDataBase/employee/work.ts";
-import {ref} from "vue";
-import {displayEnum} from "../../../../core/GameDataBase/display.ts";
+import {EmployeeWorkClass} from "../../../../core/GameDataBase/employee/work.ts";
 import EffectLines from "../../../small/effect/EffectLines.vue";
-import {Progress} from "../../../../core/game-mechanics/progress.ts";
-import {Employee} from "../../../../core/game-mechanics/employee.ts";
-import {gameLoop} from "../../../../core/gameUpdate/gameLoop.ts";
 
-const {employee} = defineProps<{ employee: employeeWork }>()
-const eff = employeeWorkSkillToAffect(employee, Progress.employee(employee.id).level)
+const {employee} = defineProps<{ employee: EmployeeWorkClass }>()
+
+/*const eff = employeeWorkSkillToAffect(employee, Progress.employee(employee.id).level)
 
 const unlocked = ref(false)
 const level = ref(0)
@@ -24,6 +20,8 @@ function update() {
   req.value = Employee.upgradeRequire(employ.level)
 }
 
+
+gameLoop.displayHandlers[displayEnum.employWork].push(update)*/
 function onDragStart(e: DragEvent) {
   if (e.dataTransfer) {
     e.dataTransfer.setData('employ/employWork', employee.id.toString())
@@ -33,7 +31,7 @@ function onDragStart(e: DragEvent) {
   }
 }
 
-gameLoop.displayHandlers[displayEnum.employWork].push(update)
+const {exp, level, unlocked, req, eff} = employee.useBase()
 </script>
 
 <template>
@@ -46,9 +44,9 @@ gameLoop.displayHandlers[displayEnum.employWork].push(update)
     </div>
     <div class="border1-top flex-row space-around">
       <div>Lv.{{ level }}</div>
-      <div>({{ letters }}/{{ req }})</div>
-      <div v-if="letters >= req" class="employ-unit-btn"
-           @click="Employee.upgradeEmployee(employee.id)">升级
+      <div>({{ exp }}/{{ req }})</div>
+      <div v-if="exp >= req" class="employ-unit-btn"
+           @click="employee.upgrade()">升级
       </div>
     </div>
     <div class="gameUnit-popout" style="border: 2px solid;">
@@ -59,6 +57,7 @@ gameLoop.displayHandlers[displayEnum.employWork].push(update)
       <div class="flex-col">
         <EffectLines :eff="eff"/>
       </div>
+      <div class="op0.5">于{{ employee.dateString }}加入</div>
     </div>
 
   </div>

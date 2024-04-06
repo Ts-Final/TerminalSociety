@@ -59,24 +59,29 @@ gameLoop.displayHandlers[displayEnum.baseLayouts].push(update)*/
 function divs() {
   let v = []
   for (const res of Resources.all) {
-    v.push(computed(function () {
-      if (res.refs.amount.value >= res.refs.maximum.value) {
-        return res.parseName() + `(Max)`
-      }
-
-      return res.parseName() + `(${res.refs.change.value}/s)`
-
-    }))
+    const {amount, maximum, change} = res.useBase()
+    v.push({
+      amount,
+      maximum,
+      change,
+      name: res.parsed,
+      changes: computed(() =>
+          amount.value < maximum.value ?
+              Numbers.formatInt(change.value,false,0) + `/s` : `Max`)
+    })
   }
   return v
 }
+
+const v = divs()
 </script>
 
 <template>
   <div class="flex-row flex-nowrap space-around"
        style="color: #b8dcee;margin-bottom: 5px;border-bottom: #7cdcf4 1px solid">
-    <div v-for="v in divs()">
-      {{ v }}
+    <div v-for="res in v">
+      {{ res.name }}:{{ res.amount }}
+      ({{ res.changes.value.replace(`"`,'') }})
     </div>
   </div>
 </template>
