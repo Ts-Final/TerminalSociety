@@ -1,33 +1,4 @@
 <script setup lang="ts">
-/*
-import {LB_TAB} from "../../core/GameDataBase/tabs.ts";
-import {player} from "../../core/player";
-import {ref} from "vue";
-
-import {displayEnum} from "../../core/GameDataBase/display.ts";
-import {changeTab} from "../../core/game-mechanics/display.ts";
-import {EventHub, GameEvent} from "../../core/gameUpdate/eventHub.ts";
-import {gameLoop} from "../../core/gameUpdate/gameLoop.ts";
-
-const {Tab} = defineProps<{ Tab: LB_TAB }>()
-
-const hasSubTab = Tab.subTabs != undefined
-const unlocked = ref(false)
-const onUpdate = ref(true)
-const chosen = ref(false)
-
-function update() {
-  unlocked.value = Tab.unlocked || unlocked.value
-  chosen.value = Tab.frame.includes(player.display)
-}
-
-gameLoop.displayHandlers[displayEnum.baseLayouts].push(update)
-
-EventHub.ui.on(GameEvent.UPDATE, function () {
-  onUpdate.value = false
-  onUpdate.value = true
-})
-*/
 import {TabClass} from "../../core/GameDataBase/tabs.ts";
 
 const {tab} = defineProps<{ tab: TabClass }>()

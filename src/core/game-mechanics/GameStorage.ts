@@ -5,6 +5,7 @@ import {Base64} from "../functions/base64.ts";
 import {Numbers} from "../functions/Numbers.ts";
 import {EventHub, GameEvent} from "../eventHub.ts";
 import {Market} from "../GameDataBase/market";
+import {version} from "../GameDataBase/how2play/how2play.ts";
 
 const Key = 'TerminalSociety'
 
@@ -35,6 +36,7 @@ export const GameStorage = {
     }
     player.saveTime = Date.now()
     player.dailyFreshTime = nextDay()
+    player.version = version
     let v = this.deserialize(JSON.stringify(player))
     localStorage.setItem(Key, v)
     return v
