@@ -1,7 +1,7 @@
 import {player} from "../../player";
 import {ref, Ref} from "vue";
 import {EventHub, GameEvent} from "../../eventHub.ts";
-import {randomElement} from "../../functions/random.ts";
+import {randomElement} from "../.././utils/random.ts";
 import {Options} from "../../game-mechanics/options.ts";
 
 export interface NewsTick {

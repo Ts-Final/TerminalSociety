@@ -6,7 +6,7 @@ import {player} from "../../player.ts";
 import {ref, Ref} from "vue";
 import {Money} from "./money.ts";
 import {Resources} from "../resource.ts";
-import {noEmpty} from "../../functions/noEmpty.ts";
+import {noEmpty} from "../.././utils/noEmpty.ts";
 
 export interface upg {
   id: number
@@ -116,15 +116,11 @@ export class UpgradeClass extends GameDataClass {
     this.unlocked ||= this.unlock()
   }
 
-  updateVisual() {
+  updateRef() {
     this.refs.canBuy.value = this.canBuy
-    this.refs.unlocked.value ||= this.unlocked
+    this.refs.unlocked.value = this.unlocked
   }
 
-  useBase() {
-    super._boundBase(this)
-    return this.refs
-  }
 }
 
 export const Upgrades = UpgradeClass.fromData(...UpgradeData)

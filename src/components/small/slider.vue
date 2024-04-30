@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {Ref, ref} from "vue";
-import {Numbers} from "../../core/functions/Numbers.ts";
+import {Numbers} from "../../core/./utils/Numbers.ts";
 
 const {fn, max, min, step, choices, initial, showValue} = defineProps<{
   fn: (v: number) => void,

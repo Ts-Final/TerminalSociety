@@ -2,10 +2,10 @@ import {countryName} from "../situation/country.ts";
 import {GameDataClass} from "../baseData.ts";
 import {player} from "../../player.ts";
 import {exchangeShort, ResourceTypes} from "../../constants.ts";
-import {randomElements, randomNumber} from "../../functions/random.ts";
-import {Numbers} from "../../functions/Numbers.ts";
+import {randomElements, randomNumber} from "../.././utils/random.ts";
+import {Numbers} from "../.././utils/Numbers.ts";
 import {Resources} from "../resource.ts";
-import {noEmpty} from "../../functions/noEmpty.ts";
+import {noEmpty} from "../.././utils/noEmpty.ts";
 
 export interface company {
   id: number
@@ -74,6 +74,7 @@ export class CompanyClass extends GameDataClass {
 
   set unlocked(value) {
     player.market.company[this.id][0] = value
+    this.refs.unlocked.value = value
   }
 
   get allResourceString() {
@@ -96,14 +97,10 @@ export class CompanyClass extends GameDataClass {
     this.unlocked ||= this.unlock()
   }
 
-  updateVisual() {
+  updateRef() {
     this.refs.unlocked.value ||= this.unlocked
   }
 
-  useBase() {
-    super._boundBase(this)
-    return this.refs
-  }
 
   generateExchange() {
     let v: exchangeShort[] = []

@@ -3,7 +3,7 @@ import {GameDataClass, GameDataInterface} from "./baseData.ts";
 import {ref, Ref} from "vue";
 import {EventHub, GameEvent} from "../eventHub.ts";
 import {Resources} from "./resource.ts";
-import {noEmpty} from "../functions/noEmpty.ts";
+import {noEmpty} from ".././utils/noEmpty.ts";
 
 interface TabDataInterface extends GameDataInterface {
   col: number
@@ -69,7 +69,10 @@ export class TabClass extends GameDataClass {
       }
     }
 
-    EventHub.logic.on(GameEvent.UPDATE, this.updateLogic.bind(this),this)
+    this.onLogic()
+
+    const x = this
+    EventHub.ui.on(GameEvent.CHANGE_TAB, () => x.refs.chosen.value = x.chosen,this)
   }
 
   static all: TabClass[] = []
@@ -98,6 +101,7 @@ export class TabClass extends GameDataClass {
 
   set unlocked(value: boolean) {
     player.tabs[this.id].unlocks.fill(value)
+    this.refs.unlocked.value = value
   }
 
   get shown() {
@@ -106,6 +110,7 @@ export class TabClass extends GameDataClass {
 
   set shown(value: boolean) {
     player.tabs[this.id].hide.fill(value)
+    this.refs.hide.value = player.tabs[this.id].hide
   }
 
   get chosen() {
@@ -125,6 +130,8 @@ export class TabClass extends GameDataClass {
   }
   set unlocks(value) {
     player.tabs[this.id].unlocks = value
+    this.refs.unlocked.value = this.unlocked
+    this.refs.unlocks.value = value
   }
   get hide() {
     return player.tabs[this.id].hide
@@ -150,7 +157,7 @@ export class TabClass extends GameDataClass {
     EventHub.ui.dispatch(GameEvent.CHANGE_TAB)
   }
 
-  updateVisual() {
+  updateRef() {
     this.refs.hide.value = this.hide
     this.refs.unlocked.value = this.unlocked
     this.refs.chosen.value = this.chosen
@@ -163,19 +170,20 @@ export class TabClass extends GameDataClass {
       for (const subTab of this.subTabs) {
         this.unlocks[subTab.row + 1] ||= this.subTabs[subTab.row].unlock()
         this.unlocks[0] ||= this.unlock()
+
       }
     } else {
       this.unlocks = [this.unlock()]
     }
+    // This small piece of shit sits here because if i dont do that it won't
+    // trigger the changing of this.refs.unlocks and may cause stupid bugs.
+    this.unlocks = this.unlocks
   }
 
-  useBase() {
-    this._boundBase(this)
-    return this.refs
-  }
 
   show() {
     player.display = [this.col, this.lastOpen]
+    this.refs.chosen.value = this.chosen
     EventHub.ui.dispatch(GameEvent.CHANGE_TAB)
   }
 

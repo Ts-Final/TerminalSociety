@@ -17,7 +17,7 @@ import {Tab} from "../../core/GameDataBase/tabs.ts";
 .sidebar-wrapper {
   width: var(--left-bar-width);
   margin: 0;
-  position: absolute;
+  position: fixed;
   left: 0;
   top: 0;
   z-index: var(--z-topbar);

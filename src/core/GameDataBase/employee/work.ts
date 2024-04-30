@@ -1,11 +1,11 @@
-import {Effect, effect, effectData, effectSmall} from "../../game-mechanics/effect.ts";
-import {Numbers} from "../../functions/Numbers.ts";
+import {Effect, effect, effectData, effectShort} from "../../game-mechanics/effect.ts";
+import {Numbers} from "../.././utils/Numbers.ts";
 import {GameDataClass} from "../baseData.ts";
 import {player} from "../../player.ts";
 import {onMounted, onUnmounted, ref, Ref} from "vue";
 import {EventHub, GameEvent} from "../../eventHub.ts";
-import {notify} from "../../functions/notify.ts";
-import {noEmpty} from "../../functions/noEmpty.ts";
+import {notify} from "../.././utils/notify.ts";
+import {noEmpty} from "../.././utils/noEmpty.ts";
 
 export interface employeeWork {
   id: number
@@ -142,6 +142,7 @@ export class EmployeeWorkClass extends GameDataClass implements EmployeeWorkData
 
   set unlocked(value: boolean) {
     player.employee[this.id][0] = value
+    this.refs.unlocked.value = value
   }
 
   get equipped() {
@@ -150,6 +151,7 @@ export class EmployeeWorkClass extends GameDataClass implements EmployeeWorkData
 
   set equipped(value) {
     player.employee[this.id][1] = value
+    this.refs.equipped.value = value
   }
 
   get level() {
@@ -158,6 +160,7 @@ export class EmployeeWorkClass extends GameDataClass implements EmployeeWorkData
 
   set level(value) {
     player.employee[this.id][2] = value
+    this.refs.level.value = value
   }
 
   get exp() {
@@ -166,6 +169,7 @@ export class EmployeeWorkClass extends GameDataClass implements EmployeeWorkData
 
   set exp(value: number) {
     player.employee[this.id][3] = value
+    this.refs.exp.value = value
   }
 
   get joinTime() {
@@ -174,6 +178,7 @@ export class EmployeeWorkClass extends GameDataClass implements EmployeeWorkData
 
   set joinTime(value: number) {
     player.employee[this.id][4] = value
+    this.refs.joinTime.value = value
   }
 
   get upgradeRequire() {
@@ -233,7 +238,7 @@ export class EmployeeWorkClass extends GameDataClass implements EmployeeWorkData
   unEquip() {
     if (!this.equipped) return
     this.equipped = false
-    Effect.clearSpecEffect('employee', this.id)
+    Effect.deleteEffect('employee', this.id)
     EventHub.dispatch(GameEvent.CHANGE_EMPLOYEE)
   }
 
@@ -246,11 +251,10 @@ export class EmployeeWorkClass extends GameDataClass implements EmployeeWorkData
     if (this.equipped) {
       this.register()
     }
-    this.updateVisual()
     this.refs.eff.value = this.toEffect()
   }
 
-  updateVisual() {
+  updateRef() {
     this.refs.exp.value = this.exp
     this.refs.equipped.value ||= this.equipped
     this.refs.unlocked.value ||= this.unlocked
@@ -260,7 +264,7 @@ export class EmployeeWorkClass extends GameDataClass implements EmployeeWorkData
   }
 
   toEffect(): effect {
-    let smalls: effectSmall[] = []
+    let smalls: effectShort[] = []
     for (const eff of this.skill(this.level)) {
       if (eff.length == 2) {
         smalls.push({
@@ -279,7 +283,7 @@ export class EmployeeWorkClass extends GameDataClass implements EmployeeWorkData
   }
 
   register() {
-    Effect.clearSpecEffect('employee', this.id)
+    Effect.deleteEffect('employee', this.id)
 
     if (this.equipped) {
       Effect.registerEffect(this.toEffect())
@@ -288,15 +292,10 @@ export class EmployeeWorkClass extends GameDataClass implements EmployeeWorkData
 
   join() {
     if (!this.unlocked) {
-      notify.success("新员工加入："+ this.name, 1000)
+      notify.success("新员工加入：" + this.name, 1000)
     }
     this.unlocked = true
     this.joinTime = Date.now()
-  }
-
-  useBase() {
-    super._boundBase(this)
-    return this.refs
   }
 }
 

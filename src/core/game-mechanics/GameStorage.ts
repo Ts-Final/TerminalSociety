@@ -1,8 +1,8 @@
 import {player} from "../player";
-import {notify} from "../functions/notify.ts";
-import {deepSet} from "../functions/deepSet.ts";
-import {Base64} from "../functions/base64.ts";
-import {Numbers} from "../functions/Numbers.ts";
+import {notify} from ".././utils/notify.ts";
+import {deepSet} from ".././utils/deepSet.ts";
+import {Base64} from ".././utils/base64.ts";
+import {Numbers} from ".././utils/Numbers.ts";
 import {EventHub, GameEvent} from "../eventHub.ts";
 import {Market} from "../GameDataBase/market";
 import {version} from "../GameDataBase/how2play/how2play.ts";

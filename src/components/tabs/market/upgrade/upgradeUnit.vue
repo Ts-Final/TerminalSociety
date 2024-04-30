@@ -5,7 +5,7 @@ import {Country} from "../../../../core/GameDataBase/situation/country.ts";
 
 
 const {upgrade} = defineProps<{ upgrade: UpgradeClass }>()
-const {bought, unlocked, canBuy} = upgrade.useBase()
+const {bought, unlocked, canBuy} = upgrade.refs
 
 
 </script>

@@ -40,3 +40,6 @@
 .flex-avg {
   display: flex;
 }
+.overflow-y-scroll {
+  overflow-y: scroll;
+}

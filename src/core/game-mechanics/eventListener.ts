@@ -1,8 +1,9 @@
-import {GameStorage} from "../game-mechanics/GameStorage.ts";
-import {notify} from "./notify.ts";
+import {GameStorage} from "./GameStorage.ts";
+import {notify} from ".././utils/notify.ts";
 import {EventHub, GameEvent} from "../eventHub.ts";
 import {player} from "../player.ts";
 import {Market} from "../GameDataBase/market";
+import {Modal} from "../utils/modal.ts";
 
 export function initListener() {
   document.addEventListener('keydown', function (e) {
@@ -20,6 +21,8 @@ export function initListener() {
         EventHub.dispatch(GameEvent.UPDATE)
       } else if (e.code === "KeyC" && e.ctrlKey) {
         GameStorage.copySave()
+      } else if (e.code === "KeyV" && e.altKey) {
+        Modal.VersionModal.show()
       }
     }
   )

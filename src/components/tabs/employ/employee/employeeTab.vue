@@ -50,7 +50,7 @@ function employeeEffects() {
          @dragenter="prevent"
          @dragover="prevent">
       <div class="self-center">上岗人数：{{ equip.employees().length }}/{{ Employee.class.maxEquipCount }}</div>
-      <CalcEffects :effects="Effect.calcFromEffects(...employeeEffects())"/>
+      <CalcEffects :effects="Effect.calcEffectMap(...employeeEffects())"/>
       <div class="flex-col self-center">
         <EmployeeUnit :employee="employee"
                       v-for="employee in equip.employees()"/>

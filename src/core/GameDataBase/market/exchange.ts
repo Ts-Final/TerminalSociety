@@ -4,8 +4,8 @@ import {player} from "../../player.ts";
 import {Company} from "./company.ts";
 import {Resources} from "../resource.ts";
 import {Money} from "./money.ts";
-import {noEmpty} from "../../functions/noEmpty.ts";
-import {GameUI} from "../../game-mechanics/gameUI.ts";
+import {noEmpty} from "../.././utils/noEmpty.ts";
+import {ui} from "../../game-mechanics/ui.ts";
 
 /*
 export class ExchangeClass extends GameDataClass{
@@ -173,18 +173,26 @@ export interface ExchangeObject {
 }
 
 export const ExchangeHandler = {
-  all: [] as exchangeShort[],
+  get all() {
+    return this._all
+  },
+  set all(value) {
+    this._all = value
+    this.allRef.value = value
+  },
+  _all: [] as exchangeShort[],
+  allRef: ref([]) as Ref<exchangeShort[]>,
   getData(index: number): exchangeShort {
     return noEmpty(this.all[index])
   },
   allObjects() {
     const Handler = this;
-    if (!GameUI.initialized) {
+    if (!ui.init.initialized) {
       const f = function () {
         Handler.fromPlayer()
         Handler.refresh()
       };
-      GameUI.addWait(f)
+      ui.init.addWait(f)
     }
     return this.all.map((_, index) => this.toObject(index))
   },

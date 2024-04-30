@@ -37,7 +37,7 @@ export type id = number
  */
 export type effectTarget = ResourceTypes | "research"
 
-/*Market Related*/
+/* Market Related */
 /**
  * {
  *   0: company name
@@ -48,3 +48,5 @@ export type effectTarget = ResourceTypes | "research"
  * }
  */
 export type exchangeShort = [number, ResourceTypes, number, number, number]
+
+export type Optional<T> = T | undefined

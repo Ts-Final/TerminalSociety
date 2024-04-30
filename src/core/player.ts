@@ -15,10 +15,10 @@ export const player = {
       change: number,
       max_record: number,
       affects: {
-        pro: { source: [string, number][], total: number},
-        consume: { source: [string, number][], total: number},
-        maxAdd: { source: [string, number][], total: number},
-        maxMult: { source: [string, number][], total: number},
+        pro: { source: [string, number][], total: number },
+        consume: { source: [string, number][], total: number },
+        maxAdd: { source: [string, number][], total: number },
+        maxMult: { source: [string, number][], total: number },
       },
     }
   },
@@ -66,20 +66,20 @@ export const player = {
      * ```
      */
     exchange: [] as exchangeShort[],
-    basePrice: {} as {[key in ResourceTypes]: number}
+    basePrice: {} as { [key in ResourceTypes]: number }
 
   },
   version: "Test 08 change 1",
-    /**
-     * {
-     *   0: unlocked,
-     *   1: equipped,
-     *   2: level,
-     *   3: exp,
-     *   4: join-time
-     * }
-     */
-  employee:  [] as [boolean, boolean, number, number, number][],
+  /**
+   * {
+   *   0: unlocked,
+   *   1: equipped,
+   *   2: level,
+   *   3: exp,
+   *   4: join-time
+   * }
+   */
+  employee: [] as [boolean, boolean, number, number, number][],
 
   // country: __player_country,
   display: [0, 0] as [number, number],
@@ -116,7 +116,12 @@ export const player = {
     stupidThings: {
       clicks: 0,
     }
-  }
+  },
+  story: {} as { [key: string]: [boolean] },
+  /* For some times testing or anyway to speed the game up in this way,
+  * instead of calling EventHub.dispatch more often, thats crazy when
+  * calculating game speed */
+  globalAmplifier: 0,
 
 }
 declare global {
@@ -126,4 +131,4 @@ declare global {
   }
 }
 
-window["player"] = player
+window.player = player

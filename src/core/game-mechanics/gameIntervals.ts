@@ -1,6 +1,7 @@
 import {EventHub, GameEvent} from "../eventHub.ts";
 import {player} from "../player";
 import {GameStorage} from "./GameStorage.ts";
+import {ui} from "./ui.ts";
 
 type intervalObj = {
   start(): void,
@@ -45,5 +46,8 @@ export const gameIntervals = (function () {
     update: interval(() => EventHub.ui.dispatch(GameEvent.UPDATE),
       () => player.options.updateRate),
     save: interval(GameStorage.save.bind(GameStorage), 10e3),
+    uiUpdate: interval(() => ui.view.handlers.forEach(x => x()), 33)
   }
 })()
+
+window.dev.gameIntervals = gameIntervals

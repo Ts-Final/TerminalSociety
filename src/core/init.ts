@@ -1,6 +1,6 @@
 import {GameStorage} from "./game-mechanics/GameStorage.ts";
-import {initListener} from "./functions/eventListener.ts";
-import {Base64} from "./functions/base64.ts";
+import {initListener} from "./game-mechanics/eventListener.ts";
+import {Base64} from "././utils/base64.ts";
 import {gameIntervals} from "./game-mechanics/gameIntervals.ts";
 
 

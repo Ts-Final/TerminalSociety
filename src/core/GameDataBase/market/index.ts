@@ -1,7 +1,7 @@
 import {Upgrades} from "./upgrade.ts";
 import {Company} from "./company.ts";
 import {Resources} from "../resource.ts";
-import {notify} from "../../functions/notify.ts";
+import {notify} from "../.././utils/notify.ts";
 import {Money} from "./money.ts";
 import {ExchangeHandler} from "./exchange.ts";
 

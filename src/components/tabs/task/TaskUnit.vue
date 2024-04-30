@@ -5,7 +5,7 @@ import {TaskClass} from "../../../core/GameDataBase/task.ts";
 import {parseResourceName} from "../../../core/GameDataBase/resource.ts";
 
 const {Task} = defineProps<{Task: TaskClass }>()
-const {unlocked, activated} = Task.useBase()
+const {unlocked, activated} = Task.refs
 
 </script>
 

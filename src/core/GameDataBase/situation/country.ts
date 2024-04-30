@@ -1,5 +1,5 @@
 import {GameDataClass} from "../baseData.ts";
-import {noEmpty} from "../../functions/noEmpty.ts";
+import {noEmpty} from "../.././utils/noEmpty.ts";
 
 export const countryList = [
   "xi",

@@ -2,9 +2,9 @@ import {player} from "../player";
 import {ResourceClass, Resources} from "./resource.ts";
 import {GameDataClass, GameDataInterface} from "./baseData.ts";
 import {Ref, ref} from "vue";
-import {notify} from "../functions/notify.ts";
+import {notify} from ".././utils/notify.ts";
 import {ResourceTypes} from "../constants.ts";
-import {noEmpty} from "../functions/noEmpty.ts";
+import {noEmpty} from ".././utils/noEmpty.ts";
 
 interface TaskDataInterface extends GameDataInterface {
   id: number
@@ -122,6 +122,7 @@ export class TaskClass
 
   set unlocked(value: boolean) {
     player.task[this.id][0] = value
+    this.refs.unlocked.value = value
   }
 
   get activated(): boolean {
@@ -130,6 +131,7 @@ export class TaskClass
 
   set activated(value: boolean) {
     player.task[this.id][1] = value
+    this.refs.activated.value = value
   }
 
   static createAccessor(...data: TaskDataInterface[]) {
@@ -141,10 +143,9 @@ export class TaskClass
 
   trigger() {
     this.activated = !this.activated
-    this.updateVisual()
   }
 
-  updateVisual() {
+  updateRef() {
     this.refs.activated.value = this.activated
     this.refs.unlocked.value = this.unlocked
   }
@@ -186,10 +187,6 @@ export class TaskClass
     }
   }
 
-  useBase() {
-    this._boundBase(this)
-    return this.refs
-  }
 }
 
 export const Task = TaskClass.createAccessor(...TaskData)

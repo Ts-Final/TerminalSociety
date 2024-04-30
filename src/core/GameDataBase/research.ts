@@ -1,12 +1,12 @@
 import {Resources} from "./resource.ts";
 import {player} from "../player";
-import {Effect, effect, effectData, effectSmall} from "../game-mechanics/effect.ts";
-import {Numbers} from "../functions/Numbers.ts";
+import {Effect, effect, effectData, effectShort} from "../game-mechanics/effect.ts";
+import {Numbers} from ".././utils/Numbers.ts";
 import {GameDataClass, GameDataInterface} from "./baseData.ts";
 import {ref, Ref} from "vue";
-import {notify} from "../functions/notify.ts";
+import {notify} from ".././utils/notify.ts";
 import {ResourceTypes} from "../constants.ts";
-import {noEmpty} from "../functions/noEmpty.ts";
+import {noEmpty} from ".././utils/noEmpty.ts";
 
 export interface Research {
   id: number
@@ -28,7 +28,7 @@ export interface Research {
  * @param lv
  */
 export function researchToEffect(r: Research, lv: number): effect {
-  let e: effectSmall[] = []
+  let e: effectShort[] = []
   for (const eff of r.effect) {
     if (eff.length == 2) {
       e.push({
@@ -149,6 +149,7 @@ export class ResearchClass
 
   set unlocked(value) {
     player.research[this.id][0] = value
+    this.refs.unlocked.value = value
   }
 
   get activated() {
@@ -157,6 +158,7 @@ export class ResearchClass
 
   set activated(value) {
     player.research[this.id] [1] = value
+    this.refs.activated.value = value
   }
 
   get started() {
@@ -165,6 +167,8 @@ export class ResearchClass
 
   set started(value) {
     player.research[this.id][2] = value
+    this.refs.started.value = value
+    this.refs.percent.value = this.percent
   }
 
   get level() {
@@ -173,6 +177,7 @@ export class ResearchClass
 
   set level(value) {
     player.research[this.id][3] = value
+    this.refs.level.value = value
   }
 
   get maxed() {
@@ -189,7 +194,7 @@ export class ResearchClass
   }
 
   get secondaryProgress() {
-    return Effect.calcResearchProgress()
+    return Effect.researchProgress.value
   }
 
   static createAccessor(...data: ResearchData[]) {
@@ -210,7 +215,7 @@ export class ResearchClass
     if (level > this.maxLevel) {
       throw new Error("level cant greater than max" + level + this.maxLevel)
     }
-    let e: effectSmall[] = []
+    let e: effectShort[] = []
     for (const eff of this.effect) {
       if (eff.length == 2) {
         e.push({
@@ -229,15 +234,6 @@ export class ResearchClass
       id: this.id,
       effects: e
     }
-  }
-
-  updateVisual() {
-    this.refs.level.value = this.level
-    this.refs.activated.value = this.activated
-    this.refs.started.value = this.started
-    this.refs.unlocked.value ||= this.unlocked
-    this.refs.finished.value ||= this.maxed
-    this.refs.percent.value = this.percent
   }
 
   updateLogic() {
@@ -282,16 +278,22 @@ export class ResearchClass
   }
 
   registerEffect() {
-    Effect.clearSpecEffect('research', this.id)
+    Effect.deleteEffect('research', this.id)
     if (this.level > 0) {
       Effect.registerEffect(this.toEffect())
     }
   }
 
-  useBase() {
-    super._boundBase(this)
-    return this.refs
+  updateRef() {
+    this.refs.finished.value = this.maxed
+    this.refs.percent.value = this.percent
+    this.refs.unlocked.value = this.unlocked
+    this.refs.started.value = this.started
+    this.refs.level.value = this.level
+    this.refs.timeToUpg.value = this.timeToUpg
+    this.refs.activated.value = this.activated
   }
+
 
   trigger() {
     this.activated = !this.activated
@@ -299,3 +301,4 @@ export class ResearchClass
 }
 
 export const Research = ResearchClass.createAccessor(...Researches)
+window.dev.research = Research

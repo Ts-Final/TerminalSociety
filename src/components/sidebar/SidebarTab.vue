@@ -2,7 +2,7 @@
 import {TabClass} from "../../core/GameDataBase/tabs.ts";
 
 const {tab} = defineProps<{ tab: TabClass }>()
-const {unlocked, hide, chosen, unlocks, hidden} = tab.useBase()
+const {unlocked, hide, chosen, unlocks, hidden} = tab.refs
 
 
 </script>
@@ -40,6 +40,7 @@ const {unlocked, hide, chosen, unlocks, hidden} = tab.useBase()
   background-image: var(--bgi);
   position: relative;
   cursor: pointer;
+  pointer-events: all;
 }
 
 .sidebar-tab-sublist {

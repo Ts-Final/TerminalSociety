@@ -52,6 +52,7 @@ export const enum GameEvent {
   /* UI update only, we use gameLoop() another-where */
   UPDATE,
   CHANGE_TAB,
+  CLOSE_MODAL,
 
   // Options
   OPTION_CHANGE,
@@ -63,6 +64,7 @@ export const enum GameEvent {
   // Employ
   CHANGE_EMPLOYEE
 }
+
 
 export function getStack(msg?: string) {
   let callstack = (new Error()).stack
@@ -112,7 +114,7 @@ export class EventHub {
     this.events = []
   }
 
-  on(event: number, fn: Function, target?: any, first?:boolean) {
+  on(event: number, fn: Function, target: any, first?:boolean) {
     let handlers = this._handlers[event]
     if (handlers === undefined) {
       handlers = []

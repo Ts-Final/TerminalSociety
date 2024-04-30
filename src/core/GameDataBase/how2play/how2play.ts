@@ -2,7 +2,7 @@ import "./h2p.css"
 import {player} from "../../player";
 import {ref, Ref} from "vue";
 import {EventHub, GameEvent} from "../../eventHub.ts";
-import {noEmpty} from "../../functions/noEmpty.ts";
+import {noEmpty} from "../.././utils/noEmpty.ts";
 
 export interface how2play {
   id: number

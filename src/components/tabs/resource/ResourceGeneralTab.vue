@@ -1,16 +1,18 @@
 <script setup lang="ts">
 import {Resources} from "../../../core/GameDataBase/resource.ts";
+import {ResourceTypeList} from "../../../core/constants.ts";
 
 function divs() {
   let v = []
-  for (const res of Resources.all) {
-    const {amount, maximum, change, max_record} = res.useBase()
+  for (const res of ResourceTypeList) {
+    const {amount, maximum, change, max_record} = Resources(res).refs
+    const name = Resources(res).parsed
     v.push({
       amount,
-      max_record,
+      max:max_record,
       maximum,
       change,
-      name: res.parsed
+      name,
     })
   }
   return v
@@ -34,7 +36,7 @@ const v = divs()
         <p>{{ res.amount }}</p>
         <p>{{ res.maximum }}</p>
         <p>{{ res.change }}</p>
-        <p>{{ res.amount.value }}</p>
+        <p>{{ res.max }}</p>
       </div>
     </div>
   </div>

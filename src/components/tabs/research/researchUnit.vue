@@ -8,7 +8,7 @@ const {research} = defineProps<{ research: ResearchClass }>()
 const {
   unlocked, level, activated, timeToUpg, percent,
   finished
-} = research.useBase()
+} = research.refs
 </script>
 
 <template>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
 import {Effect} from "../../../core/game-mechanics/effect.ts";
-import {Numbers} from "../../../core/functions/Numbers.ts";
+import {Numbers} from "../../../core/./utils/Numbers.ts";
 
 const {effects} = defineProps<{ effects: { [p: string]: number } }>()
 

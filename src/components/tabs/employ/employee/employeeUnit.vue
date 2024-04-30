@@ -31,7 +31,7 @@ function onDragStart(e: DragEvent) {
   }
 }
 
-const {exp, level, unlocked, req, eff} = employee.useBase()
+const {exp, level, unlocked, req, eff} = employee.refs
 </script>
 
 <template>

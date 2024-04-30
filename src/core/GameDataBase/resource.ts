@@ -1,12 +1,12 @@
 import {GameDataClass, GameDataInterface} from "./baseData.ts";
 import {ref, Ref} from "vue";
 import {player} from "../player.ts";
-import {ValueNotFoundError} from "../functions/errors.ts";
-import {Numbers} from "../functions/Numbers.ts";
+import {ValueNotFoundError} from ".././utils/errors.ts";
+import {Numbers} from ".././utils/Numbers.ts";
 import {Effect} from "../game-mechanics/effect.ts";
-import {randomNumber} from "../functions/random.ts";
+import {randomNumber} from ".././utils/random.ts";
 import {resourceBasePrice, ResourceTypeList, ResourceTypes} from "../constants.ts";
-import {noEmpty} from "../functions/noEmpty.ts";
+import {noEmpty} from ".././utils/noEmpty.ts";
 
 
 let resIdCounter = 0
@@ -69,6 +69,7 @@ export class ResourceClass
       maxAdd: Ref<{ source: [string, number][], total: number }>
       maxMult: Ref<{ source: [string, number][], total: number }>
     },
+    changes: Ref<string>,
   }
   name: ResourceTypes
   private readonly _parsed: string
@@ -102,6 +103,7 @@ export class ResourceClass
       amount: ref(0),
       maximum: ref(1e4),
       change: ref(0),
+      changes: ref(""),
       max_record: ref(0),
       affects: {
         pro: ref({source: [], total: 0}),
@@ -122,9 +124,13 @@ export class ResourceClass
   }
 
   set amount(value: number) {
-    this.change += value - this.amount
-    player.resource[this.name].amount = value
-    this.max_record = Math.max(value, this.max_record)
+    let rounded = Numbers.round(value)
+    this.change += rounded - this.amount
+
+    player.resource[this.name].amount = rounded
+    this.refs.amount.value = value
+
+    this.max_record = Math.max(rounded, this.max_record)
   }
 
   get maximum() {
@@ -133,6 +139,7 @@ export class ResourceClass
 
   set maximum(value: number) {
     player.resource[this.name].maximum = value
+    this.refs.maximum.value = value
   }
 
   get change() {
@@ -140,17 +147,27 @@ export class ResourceClass
   }
 
   set change(value: number) {
-    player.resource[this.name].change = value
+    let rounded = Numbers.round(value, 2)
+    player.resource[this.name].change = rounded
+    this.refs.change.value = rounded
+    this.refs.changes.value = this.changes
+  }
+
+  get changes() {
+    return this.amount < this.maximum ?
+      Numbers.formatInt(this.change, false, 2) + `/s` : `Max`
   }
 
   get max_record() {
     return player.resource[this.name].max_record
   }
+
   set max_record(value) {
     player.resource[this.name].max_record = value
+    this.refs.max_record.value = value
   }
 
-  get affects() {
+  get effects() {
     return player.resource[this.name].affects
   }
 
@@ -197,16 +214,16 @@ export class ResourceClass
     }
   }
 
-  updateVisual() {
+  updateRef() {
     this.refs.amount.value = Numbers.round(this.amount, 2)
     this.refs.maximum.value = this.maximum
     this.refs.change.value = this.change
     this.refs.max_record.value = this.max_record
 
-    this.refs.affects.pro.value = this.affects.pro
-    this.refs.affects.consume.value = this.affects.consume
-    this.refs.affects.maxAdd.value = this.affects.maxAdd
-    this.refs.affects.maxMult.value = this.affects.maxMult
+    this.refs.affects.pro.value = this.effects.pro
+    this.refs.affects.consume.value = this.effects.consume
+    this.refs.affects.maxAdd.value = this.effects.maxAdd
+    this.refs.affects.maxMult.value = this.effects.maxMult
   }
 
   updateLogic() {
@@ -216,52 +233,62 @@ export class ResourceClass
 
   updateEffect() {
     if (!Effect.hasChanged()) return
-    const effects = Effect.effects.filter(x =>
-      x[2].target == this.name)
+    const effects = Effect.effects.filter(
+      x => x.effects.filter(
+        x => x.target == this.name
+      ).length > 0
+    )
 
     // refresh
-    this.affects.pro = {source: [], total: 0}
-    this.affects.maxMult = {source: [], total: 0}
-    this.affects.consume = {source: [], total: 0}
-    this.affects.maxAdd = {source: [], total: 0}
+    this.effects.pro = {source: [], total: 0}
+    this.effects.maxMult = {source: [], total: 0}
+    this.effects.consume = {source: [], total: 0}
+    this.effects.maxAdd = {source: [], total: 0}
 
-    for (const [source, id, small] of effects) {
+    /*for (const [source, id, small] of effects) {
       if (!small.type) {
         throw new Error(`wtf resource Effect dont have type ${source} ${id}`)
       }
       this.affects[small.type].source.push(
         [Effect.parseAffectName(source, id), small.factor])
       this.affects[small.type].total += small.factor
+    }*/
+    for (const eff of effects) {
+      for (const short of eff.effects) {
+        if (!short.type || !(short.type in this.effects)) {
+          throw new Error(`wtf resource Effect dont have type ${eff.source} ${eff.id}`)
+        }
+        this.effects[short.type].source.push(
+          [Effect.parseEffectName(eff.source, eff.id), short.factor]
+        )
+        this.effects[short.type].total += short.factor
+      }
     }
     this.updateMaximum()
   }
 
   updateMaximum() {
-    this.maximum = Numbers.round((1e4 + this.affects.maxAdd.total) * (1 + this.affects.maxMult.total))
+    this.maximum = Numbers.round((1e4 + this.effects.maxAdd.total) * (1 + this.effects.maxMult.total))
   }
 
   canProduce(value: number) {
-    return this.amount + value * (1 + this.affects.pro.total) <= this.maximum
+    return this.amount + value * (1 + this.effects.pro.total) <= this.maximum
   }
 
   canCost(value: number) {
-    return this.amount >= value * (1 - this.affects.consume.total)
+    return this.amount >= value * (1 - this.effects.consume.total)
   }
 
   doProduce(value: number, useEffect: boolean) {
     this.amount += useEffect ?
-      value * (1 + this.affects.pro.total) : value
+      value * (1 + this.effects.pro.total) : value
   }
 
   doCost(value: number, useEffect: boolean) {
     this.amount -= useEffect ?
-      value * (1 - this.affects.consume.total) : value
+      value * (1 - this.effects.consume.total) : value
   }
 
-  useBase() {
-    this._boundBase(this)
-    return this.refs
-  }
 }
 
 

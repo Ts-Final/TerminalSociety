@@ -1,4 +1,5 @@
 import {ValueNotFoundError} from "./errors.ts";
+import {ui} from "../game-mechanics/ui.ts";
 
 export const notify = (function (){
   const notifyElement = document.createElement('div')
@@ -7,13 +8,17 @@ export const notify = (function (){
   const leaveAnimation = "notify-a-leave"
 
   function showNotify(message:string, duration : number, elClass:string='notify-normal') {
+    if (!ui.init.initialized) {
+      ui.init.addWait(() => showNotify(message, duration, elClass))
+      return
+    }
     const container = document.getElementById('notifyContainer')
     if (!container) {
       throw new ValueNotFoundError("Notify Container not found")
     }
 
     const element = notifyElement.cloneNode() as HTMLDivElement
-    element.textContent = message
+    element.innerHTML = message
     element.classList.add(elClass)
     container.appendChild(element)
 

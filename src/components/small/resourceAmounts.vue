@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import {computed} from "vue";
 import {Resources} from "../../core/GameDataBase/resource.ts"
-import {Numbers} from "../../core/functions/Numbers.ts";
 
 /*const resAmount: Ref<{ [key in ResourceTypes]: number }> = ref({
   energy: 0,
@@ -59,15 +57,13 @@ gameLoop.displayHandlers[displayEnum.baseLayouts].push(update)*/
 function divs() {
   let v = []
   for (const res of Resources.all) {
-    const {amount, maximum, change} = res.useBase()
+    const {amount, maximum, change, changes} = res.refs
     v.push({
       amount,
       maximum,
       change,
       name: res.parsed,
-      changes: computed(() =>
-          amount.value < maximum.value ?
-              Numbers.formatInt(change.value,false,0) + `/s` : `Max`)
+      changes,
     })
   }
   return v
@@ -81,7 +77,7 @@ const v = divs()
        style="color: #b8dcee;margin-bottom: 5px;border-bottom: #7cdcf4 1px solid">
     <div v-for="res in v">
       {{ res.name }}:{{ res.amount }}
-      ({{ res.changes.value.replace(`"`,'') }})
+      ({{ res.changes.value.replace(`"`, '') }})
     </div>
   </div>
 </template>

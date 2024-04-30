@@ -5,6 +5,7 @@ import OptionUnit from "./optionUnit.vue";
 import Slider from "../../small/slider.vue";
 import {Options} from "../../../core/game-mechanics/options.ts";
 import WordHelper from "../../small/wordHelper.vue";
+import {Modal} from "../../../core/utils/modal.ts";
 
 const visual = Options.visual
 const {news, updateRate, laugh} = visual.refs
@@ -34,6 +35,9 @@ const {news, updateRate, laugh} = visual.refs
                     :class="laugh? 'rainbow-text' : 'style-border'">
           <span v-if="laugh" class="rainbow-text">神奇小功能：开启</span>
           <span v-else>神奇小功能：关闭</span>
+        </OptionUnit>
+        <OptionUnit @click="Modal.VersionModal.show()">
+          版本更新记录
         </OptionUnit>
       </div>
     </div>

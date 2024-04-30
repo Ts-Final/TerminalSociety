@@ -1,6 +1,6 @@
 import {onMounted, onUnmounted, Ref, ref} from "vue"
 import {EventHub, GameEvent} from "../eventHub.ts"
-import {noEmpty} from "../functions/noEmpty.ts";
+import {ui} from "../game-mechanics/ui.ts";
 
 export interface GameDataInterface {
   id: number
@@ -56,45 +56,37 @@ export class GameDataClass implements GameDataInterface {
     this.refs = {
       unlocked: ref(false)
     }
+
+    if (!ui.init.initialized) {
+      ui.init.addWait(this.updateRef.bind(this))
+    } else {
+      this.updateRef()
+    }
   }
 
   get unlocked(): boolean {
     return false
   }
 
-  /**
-   * Volar-complainer. SHIT!!!!!
-   *
-   * For the extending classes, define createAccessor() and call this function.
-   *
-   * @param classObj The extending class, which can be used to call its constructor()
-   * @deprecated
-   */
-  static _createAccessor<arg, ins extends GameDataClass>(classObj: { new(data: arg): ins }) {
-    return function (...data: arg[]) {
-      const all = data.map((x) => new classObj(x))
-      const accessor = (id: number) => noEmpty(all.find(x => x.id == id))
-      accessor.all = all
-      return accessor
-    }
-  }
-
   _boundBase(ins: GameDataClass) {
-    onMounted(() => EventHub.ui.on(GameEvent.UPDATE, ins.updateVisual.bind(ins), ins))
+    onMounted(() => EventHub.ui.on(GameEvent.UPDATE, ins.updateRef.bind(ins), ins))
     onUnmounted(() => EventHub.ui.offAll(ins))
   }
 
+  /** @deprecated */
   useBase() {
     this._boundBase(this)
     return this.refs
   }
+
   onLogic() {
-    EventHub.logic.on(GameEvent.UPDATE,this.updateLogic.bind(this),this)
+    EventHub.logic.on(GameEvent.UPDATE, this.updateLogic.bind(this), this)
   }
 
-  updateLogic() {}
+  updateLogic() {
+  }
 
-  updateVisual() {
+  updateRef() {
 
   }
 }
