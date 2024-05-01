@@ -1,4 +1,3 @@
-
 function toDate(y:number, month:number, d:number, h =0, m =0, s =0){
   let date = new Date()
   date.setFullYear(y,month,d)
@@ -6,6 +5,7 @@ function toDate(y:number, month:number, d:number, h =0, m =0, s =0){
   date.setHours(h,m,s)
   return date.getTime()
 }
+
 export interface VersionDataInterface {
   id: number
   name: string
@@ -73,5 +73,11 @@ export const Versions:VersionDataInterface[] = [
     name: "Pre-Dev 10",
     date: toDate(2024, 4, 30),
     description: ['加入了这个页面，然后其实可以试试还有没有什么奇奇怪怪的东西。']
+  },
+  {
+    id: 11,
+    name: "Pre-Dev 11",
+    date: toDate(2024,5,1),
+    description: ["各位五一快乐！",'新增模块：故事（主线）' ,'由于各种原因我还是不把全部都放上来了。']
   }
 ]

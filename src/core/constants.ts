@@ -50,3 +50,4 @@ export type effectTarget = ResourceTypes | "research"
 export type exchangeShort = [number, ResourceTypes, number, number, number]
 
 export type Optional<T> = T | undefined
+export type Accessor<T> = { (id:number): T, all:T[]}

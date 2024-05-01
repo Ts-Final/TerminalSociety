@@ -2,22 +2,20 @@
 
 import {ref} from "vue";
 import {NewsHandler} from "../../core/GameDataBase/news/news.ts";
-import {EventHub, GameEvent} from "../../core/eventHub.ts";
-import {player} from "../../core/player";
 
 
 const span = ref()
 const contain = ref()
 
 NewsHandler.changeNextNews(span, contain)
-const {enabled, id} = NewsHandler.refs
-EventHub.logic.on(GameEvent.OPTION_CHANGE, function () {
+const {enabled} = NewsHandler.refs
+/*EventHub.logic.on(GameEvent.OPTION_CHANGE, function () {
   enabled.value = player.options.news
   if (enabled.value && id.value) {
     clearTimeout(id.value)
     NewsHandler.changeNextNews(span, contain)
   }
-},NewsHandler)
+},NewsHandler)*/
 
 </script>
 

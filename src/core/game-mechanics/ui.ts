@@ -1,6 +1,6 @@
 import {EventHub} from "../eventHub.ts";
 import {Modal} from ".././utils/modal.ts";
-import {Ref, ref} from "vue";
+import {Component, Ref, ref} from "vue";
 import {Optional} from "../constants.ts";
 
 const initialize = {
@@ -17,6 +17,19 @@ const initialize = {
     this.waitInitialize.forEach(x => x())
 
 
+  }
+}
+const tabs = {
+  _current: undefined as Optional<Component>,
+  refs: {
+    current: ref() as Ref<Optional<Component>>,
+  },
+  get current() {
+    return this._current
+  },
+  set current(value: Optional<Component>) {
+    this._current = value
+    this.refs.current.value = value
   }
 }
 const view = {
@@ -42,6 +55,7 @@ const view = {
 export const ui = {
   init: initialize,
   view,
-  events: EventHub.ui
+  events: EventHub.ui,
+  tabs
 
 }

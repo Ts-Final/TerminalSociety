@@ -1,30 +1,37 @@
 import {player} from "../player";
 import {GameDataClass, GameDataInterface} from "./baseData.ts";
-import {ref, Ref} from "vue";
+import {Component, ref, Ref} from "vue";
 import {EventHub, GameEvent} from "../eventHub.ts";
 import {Resources} from "./resource.ts";
 import {noEmpty} from ".././utils/noEmpty.ts";
+import ResourceGeneralTab from "../../components/tabs/resource/ResourceGeneralTab.vue";
+import ResourceDetailTab from "../../components/tabs/resource/ResourceDetailTab.vue";
+import TaskTab from "../../components/tabs/task/TaskTab.vue";
+import ResearchTab from "../../components/tabs/research/researchTab.vue";
+import ExchangeTab from "../../components/tabs/market/exchange/exchangeTab.vue";
+import BasePriceTab from "../../components/tabs/market/basePrice/basePriceTab.vue";
+import CompanyTab from "../../components/tabs/market/company/companyTab.vue";
+import UpgradeTab from "../../components/tabs/market/upgrade/upgradeTab.vue";
+import EmployeeTab from "../../components/tabs/employ/employee/employeeTab.vue";
+import OptionVisual from "../../components/tabs/options/OptionVisual.vue";
+import {ui} from "../game-mechanics/ui.ts";
+import H2PTab from "../../components/tabs/H2PTab.vue";
+import {Numbers} from "../utils/Numbers.ts";
+import StoryMainTab from "../../components/tabs/story/storyMainTab.vue";
 
 interface TabDataInterface extends GameDataInterface {
-  col: number
   name: string
   hideable: boolean
+  component?: Component
 
   subTabs?: {
     name: string,
     row: number,
     unlock(): boolean,
+    component: Component
   }[]
 
   unlock(): boolean
-}
-
-/**
- * 检查一个arr里面是否全为true
- * @param arr
- */
-function all(arr: boolean[]) {
-  return !arr.includes(false)
 }
 
 function repeat(length: number, value: boolean) {
@@ -35,11 +42,25 @@ function repeat(length: number, value: boolean) {
   return v
 }
 
-export class TabClass extends GameDataClass {
+export class TabClass extends GameDataClass implements TabDataInterface {
+  static all: TabClass[] = []
+  static display = ref(player.display)
+  declare refs: {
+    unlocked: Ref<boolean>,
+    hide: Ref<boolean[]>,
+    chosen: Ref<boolean>,
+    unlocks: Ref<boolean[]>,
+    hidden: Ref<boolean>,
+  }
+  subTabs?: { name: string; row: number; unlock(): boolean; component: Component; }[]
+  component?: Component
+  hideable: boolean
+  hasSubTab: boolean = false
+
   constructor(data: TabDataInterface) {
     super({
       name: data.name,
-      id: data.col,
+      id: data.id,
       unlock: data.unlock,
     });
     this.refs = {
@@ -49,22 +70,19 @@ export class TabClass extends GameDataClass {
       unlocks: ref(data.subTabs ? repeat(data.subTabs.length, false) : [false]),
       hidden: ref(false)
     }
-
-    if (data.id != data.col) {
-      throw new Error("Tab ID != Tab Col")
-    }
-
-    this.col = data.col
     this.hideable = data.hideable
     if (data.subTabs) {
       this.subTabs = data.subTabs
       this.hasSubTab = true
     }
+    if (data.component) {
+      this.component = data.component
+    }
 
-    if (player.tabs[this.col] == undefined) {
-      player.tabs[this.col] = {
-        unlocks: repeat(data.subTabs ? data.subTabs.length+1 : 1, false),
-        hide: repeat(data.subTabs ? data.subTabs.length+1 : 1, false),
+    if (player.tabs[this.id] == undefined) {
+      player.tabs[this.id] = {
+        unlocks: repeat(data.subTabs ? data.subTabs.length + 1 : 1, false),
+        show: repeat(data.subTabs ? data.subTabs.length + 1 : 1, true),
         lastOpen: 0,
       }
     }
@@ -72,28 +90,8 @@ export class TabClass extends GameDataClass {
     this.onLogic()
 
     const x = this
-    EventHub.ui.on(GameEvent.CHANGE_TAB, () => x.refs.chosen.value = x.chosen,this)
+    EventHub.ui.on(GameEvent.CHANGE_TAB, () => x.refs.chosen.value = x.chosen, this)
   }
-
-  static all: TabClass[] = []
-  static display = ref(player.display)
-
-  declare refs: {
-    unlocked: Ref<boolean>,
-    hide: Ref<boolean[]>,
-    chosen: Ref<boolean>,
-    unlocks: Ref<boolean[]>,
-    hidden: Ref<boolean>,
-  }
-  col: number
-  subTabs?: {
-    name: string,
-    row: number,
-    unlock(): boolean,
-  }[]
-  hideable: boolean
-  hasSubTab: boolean = false
-
 
   get unlocked() {
     return player.tabs[this.id].unlocks[0]
@@ -105,16 +103,11 @@ export class TabClass extends GameDataClass {
   }
 
   get shown() {
-    return !all(player.tabs[this.col].hide)
-  }
-
-  set shown(value: boolean) {
-    player.tabs[this.id].hide.fill(value)
-    this.refs.hide.value = player.tabs[this.id].hide
+    return player.tabs[this.id].show.includes(true)
   }
 
   get chosen() {
-    return player.display[0] == this.col
+    return player.display[0] == this.id
   }
 
   get lastOpen() {
@@ -128,20 +121,27 @@ export class TabClass extends GameDataClass {
   get unlocks() {
     return player.tabs[this.id].unlocks
   }
+
   set unlocks(value) {
     player.tabs[this.id].unlocks = value
     this.refs.unlocked.value = this.unlocked
     this.refs.unlocks.value = value
   }
+
   get hide() {
-    return player.tabs[this.id].hide
+    return player.tabs[this.id].show
   }
+
   get hidden() {
     return !this.hide.includes(false)
   }
 
 
-  static createAccessor(...data: TabDataInterface[]) {
+  static createAccessor(...data: TabDataInterface[]): {
+    (id: number): TabClass,
+    class: typeof TabClass,
+    all: TabClass[],
+  } {
     this.all = data.map(x => new this(x))
     const accessor = (id: number) => noEmpty(this.all.find(x => x.id == id))
     accessor.all = this.all
@@ -150,11 +150,10 @@ export class TabClass extends GameDataClass {
     return accessor
   }
 
-  showSubTab(row: number) {
-    this.hide.fill(false)
-    this.lastOpen = row
-    player.display = [this.id, row]
-    EventHub.ui.dispatch(GameEvent.CHANGE_TAB)
+  static show(col: number, row?: number) {
+    const tab = this.all.find(x => x.id == col)
+    if (!tab) throw new Error(`WTF tab column index ${col}`)
+    tab.show(row)
   }
 
   updateRef() {
@@ -180,23 +179,32 @@ export class TabClass extends GameDataClass {
     this.unlocks = this.unlocks
   }
 
-
-  show() {
-    player.display = [this.col, this.lastOpen]
-    this.refs.chosen.value = this.chosen
-    EventHub.ui.dispatch(GameEvent.CHANGE_TAB)
-  }
-
-  hideSubtab(row: number) {
-    this.hide[row] = false
+  show(row?: number) {
+    if (row != undefined) {
+      player.display = [this.id, row]
+      if (this.subTabs) {
+        ui.tabs.current =
+          this.subTabs.find(
+            x => x.row == row)?.component
+      } else {
+        ui.tabs.current = this.component
+      }
+    } else {
+      player.display = [this.id, this.lastOpen]
+      this.refs.chosen.value = this.chosen
+      if (this.component) ui.tabs.current = this.component
+      else if (this.subTabs) {
+        ui.tabs.current = this.subTabs[this.lastOpen].component
+      }
+    }
   }
 }
 
+const counter = Numbers.counter(0, 1)
 const TabData: TabDataInterface[] = [
   {
     name: "资源",
-    col: 0,
-    id: 0,
+    id: counter.next(),
     hideable: false,
     unlock(): boolean {
       return true
@@ -207,72 +215,78 @@ const TabData: TabDataInterface[] = [
         row: 0,
         unlock(): boolean {
           return true
-        }
+        },
+        component: ResourceGeneralTab
       },
       {
         name: "详细",
         row: 1,
-        unlock:() => true
+        unlock: () => true,
+        component: ResourceDetailTab
       }
     ]
   },
   {
-    name:"生产",
-    col: 1,
-    id: 1,
+    name: "生产",
+    id: counter.next(),
     hideable: true,
-    unlock(): boolean { return true },
+    unlock(): boolean {
+      return true
+    },
+    component: TaskTab
   },
   {
     name: "研究",
-    col:2,
-    id:2,
-    hideable:true,
-    unlock:() => true
+    id: counter.next(),
+    hideable: true,
+    unlock: () => true,
+    component: ResearchTab
   },
   {
-    name:"市场",
-    col:3,
-    id:3,
+    name: "市场",
+    id: counter.next(),
     hideable: true,
     unlock(): boolean {
       return Resources.air.max_record >= 20
     },
     subTabs: [
       {
+        name: "价格",
+        row: 0,
+        unlock(): boolean {
+          return true
+        },
+        component: BasePriceTab
+      },
+      {
         name: "交易",
         unlock(): boolean {
           return true
         },
-        row: 1
-      },
-      {
-        name: "价格",
-        row:0,
-        unlock(): boolean {
-          return true
-        }
+        row: 1,
+        component: ExchangeTab
       },
       {
         name: "公司",
-        row:2,
+        row: 2,
         unlock(): boolean {
           return true
-        }
+        },
+        component: CompanyTab
       },
       {
-        name:"许可",
-        row:3,
+        name: "许可",
+        row: 3,
         unlock(): boolean {
           return true
-        }
-      }
+        },
+        component: UpgradeTab
+      },
     ]
   },
   {
     name: "员工",
-    col:4,
-    id:4,
+    id: counter.next(),
     hideable: true,
     unlock(): boolean {
       return Resources.water.max_record >= 5
@@ -283,34 +297,53 @@ const TabData: TabDataInterface[] = [
         row: 0,
         unlock(): boolean {
           return true
-        }
+        },
+        component: EmployeeTab
       },
     ]
   },
   {
+    name:"故事",
+    id:counter.next(),
+    hideable: true,
+    unlock(): boolean {
+      return Resources.energy.max_record >= 10
+    },
+    subTabs: [
+      {
+        row:0,
+        name:"主线",
+        unlock(): boolean {
+          return true
+        },
+        component: StoryMainTab,
+      }
+    ]
+  },
+  {
     name: '指引',
-    col:5,
-    id:5,
+    id: counter.next(),
     hideable: false,
     unlock() {
       return true
-    }
+    },
+    component: H2PTab
   },
   {
     name: "设置",
-    col:6,
-    id:6,
+    id: counter.next(),
     hideable: false,
     unlock(): boolean {
       return true
     },
     subTabs: [
       {
-        name:"视觉",
+        name: "视觉",
         unlock(): boolean {
           return true
         },
         row: 0,
+        component: OptionVisual
       }
     ]
   }
@@ -318,9 +351,6 @@ const TabData: TabDataInterface[] = [
 
 export const Tab = TabClass.createAccessor(...TabData)
 
-EventHub.ui.on(GameEvent.CHANGE_TAB, function () {
-  Tab.class.display.value = player.display
-}, Tab)
 EventHub.ui.dispatch(GameEvent.CHANGE_TAB)
 
 window.dev.tab = Tab

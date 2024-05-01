@@ -66,7 +66,7 @@ export const How2PlayData: how2play[] = [
     </div>
     <p class="small-title size-1.5rem rainbow-text">Thank for your playing!</p>
     `,
-    unlock: () => false,
+    unlock: () => player.dev,
   },
   {
     id: 1,

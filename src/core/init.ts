@@ -2,6 +2,9 @@ import {GameStorage} from "./game-mechanics/GameStorage.ts";
 import {initListener} from "./game-mechanics/eventListener.ts";
 import {Base64} from "././utils/base64.ts";
 import {gameIntervals} from "./game-mechanics/gameIntervals.ts";
+import {EventHub, GameEvent} from "./eventHub.ts";
+import {Tab} from "./GameDataBase/tabs.ts";
+import {player} from "./player.ts";
 
 
 export function isLocal() {
@@ -14,6 +17,8 @@ export function init() {
   gameIntervals.start()
   initListener()
   // initEffects()
+  Tab.class.show(...player.display)
+  EventHub.logic.dispatch(GameEvent.UPDATE)
 }
 
 

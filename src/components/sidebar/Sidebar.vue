@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import SidebarTab from "./SidebarTab.vue";
 import {Tab} from "../../core/GameDataBase/tabs.ts";
+import {EventHub, GameEvent} from "../../core/eventHub.ts";
 </script>
 
 <template>
-  <div class="sidebar-wrapper">
+  <div class="sidebar-wrapper" @click="EventHub.ui.dispatch(GameEvent.CHANGE_TAB)">
     <SidebarTab
         v-for="tab in Tab.all"
         :tab="tab"

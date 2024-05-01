@@ -97,6 +97,7 @@ export const player = {
     updateRate: 33,
     laugh: false,
     news: true,
+    autoStory: false,
   },
   /**
    * {
@@ -106,7 +107,7 @@ export const player = {
   tabs: {} as {
     [x: number]: {
       unlocks: boolean[],
-      hide: boolean[],
+      show: boolean[],
       lastOpen: number
     }
   },
@@ -117,7 +118,7 @@ export const player = {
       clicks: 0,
     }
   },
-  story: {} as { [key: string]: [boolean] },
+  story: {} as { [key: string]: [boolean,boolean] },
   /* For some times testing or anyway to speed the game up in this way,
   * instead of calling EventHub.dispatch more often, thats crazy when
   * calculating game speed */

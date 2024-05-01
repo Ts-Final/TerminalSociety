@@ -3,6 +3,8 @@
 import PopoutModal from "./Modals/PopoutModal.vue";
 import Sidebar from "./sidebar/Sidebar.vue";
 import {ui} from "../core/game-mechanics/ui.ts";
+import StoryCurrent from "./tabs/story/storyCurrent.vue";
+import {StoryClass} from "../core/GameDataBase/story/story.ts";
 </script>
 
 <template>
@@ -12,6 +14,8 @@ import {ui} from "../core/game-mechanics/ui.ts";
         v-if="ui.view.modal.refs.current.value && ui.view.modal.current"
         :modal="ui.view.modal.current"
     />
+    <StoryCurrent :current="StoryClass.refs.current.value"
+                  v-if="StoryClass.refs.current.value"/>
     <div class="flex-col" id="notifyContainer" />
   </div>
 </template>

@@ -2,13 +2,13 @@
 import {TabClass} from "../../core/GameDataBase/tabs.ts";
 
 const {tab} = defineProps<{ tab: TabClass }>()
-const {unlocked, hide, chosen, unlocks, hidden} = tab.refs
+const {unlocked,chosen, unlocks} = tab.refs
 
 
 </script>
 
 <template>
-  <div class="sidebar-tab" v-if="unlocked && !hidden"
+  <div class="sidebar-tab" v-if="unlocked"
        :class="{'sidebar-no-subtab': !tab.hasSubTab, chosen:chosen}">
     <div class="sidebar-tab-name" style="border: none"
          @click="tab.show()">
@@ -16,8 +16,8 @@ const {unlocked, hide, chosen, unlocks, hidden} = tab.refs
     </div>
     <div class="sidebar-tab-sublist" v-if="tab.hasSubTab">
       <div v-for="subTab in tab.subTabs">
-        <div class="sidebar-subtab style-color" v-if="unlocks[subTab.row] && !hide[subTab.row]"
-             @click="tab.showSubTab(subTab.row)">
+        <div class="sidebar-subtab style-color" v-if="unlocks[subTab.row]"
+             @click="tab.show(subTab.row)">
           {{ subTab.name }}
         </div>
       </div>

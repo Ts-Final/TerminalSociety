@@ -33,7 +33,7 @@ const {text} = defineProps<{ text: string }>()
   background-image: var(--bgi);
   left: 50%;
   transform: translate(1rem, -50%);
-  border: 2px solid #ffffff;
+  border: 2px solid #7cdcf4;
   border-radius: 8px;
   top: 100%;
   padding: 5px;

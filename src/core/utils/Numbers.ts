@@ -23,5 +23,15 @@ export const Numbers = {
   },
   integer(x:number) {
     return this.round(x,0)
+  },
+  counter(init:number, step:number) {
+    return {
+      value:init,
+      next() {
+        const r = this.value
+        this.value += step
+        return r
+      }
+    }
   }
 }

@@ -53,7 +53,7 @@ function changePos(x: number, y: number) {
     * equation (about n) here: left-length
     * (x/width) * (max-min) = min + n * stepLength
     * => n = ((max - min) * (x / width) - min) / stepLength
-    * value = round(round(n) * stepLength) + min
+    * #value = round(round(n) * stepLength) + min
     *
     * */
     const stepLength = (max - min) / step
@@ -71,7 +71,7 @@ function changePos(x: number, y: number) {
     * equation (about n) here: left-length
     *  x/width = n / choice.length
     * => n = x * choice.length / width
-    * value = choice[round(n)]
+    * #value = choice[round(n)]
     *
     * */
     let n = Numbers.integer(x * choices.length / width)
