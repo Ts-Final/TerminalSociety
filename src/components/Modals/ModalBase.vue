@@ -6,12 +6,14 @@ function closeModal() {
   EventHub.dispatch(GameEvent.CLOSE_MODAL)
 }
 
+const props = defineProps<{showClose?:boolean}>()
+const showClose = props.showClose ? true : props.showClose
 </script>
 
 <template>
   <div class="modal-wrapper">
     <div class="modal-header" v-if="$slots.header">
-      <ModalCloseButton @click="closeModal"/>
+      <ModalCloseButton @click="closeModal" v-if="showClose"/>
       <span class="modal-title">
         <slot name="header"/>
       </span>
@@ -45,5 +47,8 @@ function closeModal() {
   min-width: 40vw;
   min-height: 50vh;
   position: relative;
+  border: 2px solid #7cdcf4;
+  padding: 4px;
+  background-image: var(--bgi);
 }
 </style>

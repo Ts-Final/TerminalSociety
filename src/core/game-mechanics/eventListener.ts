@@ -1,13 +1,12 @@
 import {GameStorage} from "./GameStorage.ts";
 import {notify} from ".././utils/notify.ts";
 import {EventHub, GameEvent} from "../eventHub.ts";
-import {player} from "../player.ts";
 import {Market} from "../GameDataBase/market";
 import {Modal} from "../utils/modal.ts";
 
 export function initListener() {
   document.addEventListener('keydown', function (e) {
-      console.log(e.code)
+    console.log(e.code)
       if (e.code === "KeyS" && e.ctrlKey) {
         GameStorage.save()
         e.preventDefault()
@@ -22,19 +21,16 @@ export function initListener() {
       } else if (e.code === "KeyC" && e.ctrlKey) {
         GameStorage.copySave()
       } else if (e.code === "KeyV" && e.altKey) {
-        Modal.VersionModal.show()
+        Modal.VersionModal.show({})
+      } else if (e.code === "Escape") {
+        EventHub.dispatch(GameEvent.CLOSE_MODAL)
       }
     }
   )
 }
 
-if (player.dev) {
-  window.onerror = function (event,
-                             source,
-                             lineno,
-                             colno,
-                             error) {
+if (true) {
+  window.onerror = function () {
     GameStorage.clearSave()
-    console.log(event, source, lineno, colno, error)
   }
 }

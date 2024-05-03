@@ -5,7 +5,7 @@ import {ResourceTypes} from "../../constants.ts";
 import {player} from "../../player.ts";
 import {ref, Ref} from "vue";
 import {Money} from "./money.ts";
-import {Resources} from "../resource.ts";
+import {Resource} from "../resource.ts";
 import {noEmpty} from "../.././utils/noEmpty.ts";
 
 export interface upg {
@@ -87,9 +87,9 @@ export class UpgradeClass extends GameDataClass {
 
   get canBuy() {
     let flag = true
-    flag &&= Money.amount >= this.costMoney
+    flag &&= Money.amount.gte(this.costMoney)
     for (const [res, value] of this.costResource) {
-      flag &&= Resources(res).amount >= value
+      flag &&= Resource(res).amount.gte(value)
     }
     return flag
   }
@@ -108,7 +108,7 @@ export class UpgradeClass extends GameDataClass {
 
     Money.spend(this.costMoney)
     for (const [res, value] of this.costResource) {
-      Resources(res).amount += value
+      Resource(res).doProduce(value, false)
     }
   }
 

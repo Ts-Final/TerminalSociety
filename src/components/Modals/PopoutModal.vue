@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import {Modal} from "../../core/./utils/modal.ts";
-import {onMounted, ref} from "vue";
+import {ref} from "vue";
 import {EventHub, GameEvent} from "../../core/eventHub.ts";
 import {different} from "../../core/./utils/different.ts";
-import {ui} from "../../core/game-mechanics/ui.ts";
 
 const {modal} = defineProps<{ modal: Modal }>()
 const positionStyle = ref({})
@@ -41,7 +40,7 @@ function update() {
 
 EventHub.ui.on(GameEvent.CLOSE_MODAL, hide, Modal)
 EventHub.ui.on(GameEvent.UPDATE, update, Modal)
-onMounted(() => ui.view.handlers.push(updatePositionStyles))
+EventHub.ui.on(GameEvent.UPDATE, updatePositionStyles, Modal)
 </script>
 
 <template>
@@ -62,14 +61,13 @@ onMounted(() => ui.view.handlers.push(updatePositionStyles))
   display: block;
   position: fixed;
   color: var(--color-text);
-  border: var(--color-border) 2px solid;
-  background-image: var(--bgi);
   max-height: 75vh;
   min-height: 50vh;
   max-width: 60vw;
   min-width: 40vw;
   pointer-events: auto;
   padding: 5px;
+  z-index: var(--z-modal);
 
 }
 </style>

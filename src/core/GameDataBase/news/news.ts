@@ -3,6 +3,8 @@ import {ref, Ref} from "vue";
 import {EventHub, GameEvent} from "../../eventHub.ts";
 import {randomElement} from "../.././utils/random.ts";
 import {Options} from "../../game-mechanics/options.ts";
+import {Resource} from "../resource.ts";
+import {Numbers} from "../../utils/Numbers.ts";
 
 export interface NewsTick {
   content: string
@@ -13,9 +15,11 @@ export interface NewsTick {
 
 export * from "./news.css"
 
+const counter =Numbers.counter(0,1)
+
 export const News: NewsTick[] = [
   {
-    id: 1,
+    id: counter.next(),
     content: "天空灰蓝。这种天气，谁都抬不起好心情吧？" +
       "不过这时候撑一把伞，和（或者不）一些人去散步，湿漉漉的空气，谁知道这一丝的愉悦呢？",
     unlocked() {
@@ -23,28 +27,28 @@ export const News: NewsTick[] = [
     }
   },
   {
-    id: 2,
+    id: counter.next(),
     content: "事实上还有人处于苦难之中。所以现在还不是休息的时候，我们仍有被需要的价值。",
     unlocked(): boolean {
       return true
     }
   },
   {
-    id: 3,
+    id: counter.next(),
     content: "从不起眼的角落里，我们翻出了那个排气扇。提出“把它倒过来”用的那位其实也事实上——算是个天才吧。",
     unlocked() {
       return true
     }
   },
   {
-    id: 4,
+    id: counter.next(),
     content: `就这个战斗<span class='news-ZHANDOU-SHUANG'>爽</span>`,
     unlocked(): boolean {
       return player.options.laugh
     }
   },
   {
-    id: 5,
+    id: counter.next(),
     content: "有的时候会想起一些儿时的回忆。从最开始认识瑕亘，还有许多陪着自己走向现在的人，却不知道他们现在又在何处。" +
       "当然，有时也不得不减去那欢愉的过往，和没有意义的昨天。",
     unlocked(): boolean {
@@ -52,10 +56,11 @@ export const News: NewsTick[] = [
     }
   },
   {
-    id: 6,
-    content: "114514",
+    id: counter.next(),
+    content: "有些时候还是会为了电力的问题头痛。其实说实话，当我们真正地可以利用好我们身旁的每一丝能量……" +
+      "那么其实还是不少的。哈哈。",
     unlocked(): boolean {
-      return player.resource.energy.max_record >= 5e4
+      return Resource.energy.amount.lte(200)
     }
   }
 ]
@@ -73,10 +78,8 @@ export const NewsHandler = new (class NewsHandler {
   constructor() {
     this.data = News
 
-    if (this.seen.length < Math.ceil(this.data.length / 20)) {
-      while (this.seen.length < Math.ceil(this.data.length / 20)) {
-        this.seen.push(0)
-      }
+    if (!player.news.seen) {
+      player.news.seen = []
     }
     this.refs = {
       enabled: ref(false),
@@ -143,6 +146,8 @@ export const NewsHandler = new (class NewsHandler {
     while (this.recent.length > this.recentMax) {
       this.recent.shift()
     }
+    player.news.seen.push(nextNews.id)
+    player.news.seen = [...new Set(player.news.seen)].sort((a,b) => a-b)
 
     span.value.innerHTML = nextNews.content // set the content
     span.value.style["transitionDuration"] = "0s"

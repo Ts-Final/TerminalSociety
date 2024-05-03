@@ -4,12 +4,17 @@ import "./base.css"
 import RightTab from "./components/tabs/RightTab.vue";
 import News from "./components/small/news.vue";
 import GameUIFixed from "./components/GameUIFixed.vue";
+import {ui} from "./core/game-mechanics/ui.ts";
 </script>
 
 <template>
   <div class="full app-wrapper">
-    <News/>
-    <RightTab/>
+
+    <template v-if="ui.init.ref.value">
+      <News/>
+      <RightTab/>
+    </template>
+
     <GameUIFixed/>
   </div>
 </template>
@@ -17,26 +22,30 @@ import GameUIFixed from "./components/GameUIFixed.vue";
 <style>
 body, :root, #app {
   background-image: linear-gradient(60deg, #0d1418 0%, #11161b 100%);
-  width: 100%;
-  height: 100%;
   margin: 0;
   overflow: hidden;
 }
+
 * {
   font-family: sans-serif;
 }
+
 .app-wrapper {
   display: flex;
   flex-direction: column;
   left: 0;
+  width: 100vw;
+  height: 100vh;
   flex-wrap: nowrap;
 }
 
 
 :root {
   --left-bar-width: 8rem;
-  --z-topbar: 10;
-  --z-modal: 20;
+  --z-fixed: 5;
+  --z-modal-bg: 9;
+  --z-modal: 10;
+
   --bgi: linear-gradient(60deg, #0d1418 0%, #11161b 100%);
   --border-color: #7cdcf4;
   --sidebar-tab-height: 2.5rem;
@@ -110,5 +119,6 @@ body, :root, #app {
   --color-destroyer--base: rgb(18, 190, 243);
   --color-kohler--base: #c93991;
   --color-kohler--accent: #31071c;*/
+
 }
 </style>

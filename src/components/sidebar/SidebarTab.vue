@@ -16,7 +16,7 @@ const {unlocked,chosen, unlocks} = tab.refs
     </div>
     <div class="sidebar-tab-sublist" v-if="tab.hasSubTab">
       <div v-for="subTab in tab.subTabs">
-        <div class="sidebar-subtab style-color" v-if="unlocks[subTab.row]"
+        <div class="sidebar-subtab style-color" v-if="unlocks[subTab.row+1]"
              @click="tab.show(subTab.row)">
           {{ subTab.name }}
         </div>

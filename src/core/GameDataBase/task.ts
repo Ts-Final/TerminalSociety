@@ -1,9 +1,9 @@
 import {player} from "../player";
-import {ResourceClass, Resources} from "./resource.ts";
+import {ResourceClass, Resource} from "./resource.ts";
 import {GameDataClass, GameDataInterface} from "./baseData.ts";
 import {Ref, ref} from "vue";
 import {notify} from ".././utils/notify.ts";
-import {ResourceTypes} from "../constants.ts";
+import {Accessor, ResourceTypes} from "../constants.ts";
 import {noEmpty} from ".././utils/noEmpty.ts";
 
 interface TaskDataInterface extends GameDataInterface {
@@ -48,7 +48,7 @@ export const TaskData: TaskDataInterface[] = [
     produce: [["air", 1]],
     cost: [["energy", 2]],
     unlock() {
-      return Resources("energy").max_record >= 25
+      return Resource("energy").max_record.gt(25)
     }
   },
   {
@@ -59,7 +59,7 @@ export const TaskData: TaskDataInterface[] = [
     produce: [["water", 2]],
     cost: [],
     unlock() {
-      return Resources.air.max_record >= 3
+      return Resource.air.max_record.gt(3)
     },
   },
   {
@@ -90,7 +90,6 @@ export class TaskClass
   extends GameDataClass
   implements TaskDataInterface {
 
-  static all: TaskClass[] = []
   refs: {
     unlocked: Ref<boolean>,
     activated: Ref<boolean>,
@@ -134,10 +133,10 @@ export class TaskClass
     this.refs.activated.value = value
   }
 
-  static createAccessor(...data: TaskDataInterface[]) {
-    this.all = data.map((x) => new this(x))
-    const accessor = (id: number) => noEmpty(this.all.find(x => x.id == id))
-    accessor.all = this.all
+  static createAccessor(...data: TaskDataInterface[]): Accessor<TaskClass> {
+    const all = data.map((x) => new this(x))
+    const accessor = (id: number) => noEmpty(all.find(x => x.id == id))
+    accessor.all = all
     return accessor
   }
 
@@ -150,7 +149,7 @@ export class TaskClass
     this.refs.unlocked.value = this.unlocked
   }
 
-  updateLogic() {
+  updateLogic(speed:number=1) {
     if (!this.unlocked) {
       this.unlocked ||= this.unlock()
       if (this.unlocked) {
@@ -166,27 +165,28 @@ export class TaskClass
     // these code seems absolutely ugly
     let canProduce = true
     for (const [resType, value] of this.produce) {
-      canProduce &&= Resources[resType].canProduce(value)
+      canProduce &&= Resource[resType].canProduce(value * speed)
     }
     if (!canProduce) {
       return;
     }
     for (let i = 0; i < this.cost.length; i++) {
       let [resKey, value] = this.cost[i]
-      canProduce &&= Resources(resKey).canCost(value)
+      canProduce &&= Resource(resKey).canCost(value * speed)
     }
     if (!canProduce) {
       return;
     }
 
     for (let [resKey, value] of this.produce) {
-      Resources[resKey].doProduce(value, true)
+      Resource[resKey].doProduce(value * speed, true)
     }
     for (let [resKey, value] of this.cost) {
-      ResourceClass[resKey].doCost(value, true)
+      ResourceClass[resKey].doCost(value * speed, true)
     }
   }
 
 }
 
 export const Task = TaskClass.createAccessor(...TaskData)
+window.dev.task = {Task, TaskClass}

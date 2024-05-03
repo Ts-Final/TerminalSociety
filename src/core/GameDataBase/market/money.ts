@@ -1,5 +1,6 @@
 import {ref} from "vue";
 import {player} from "../../player.ts";
+import {Decimal, DecimalSource} from "../../utils/break_infinity.ts";
 
 export const Money = {
   refs: {
@@ -7,37 +8,34 @@ export const Money = {
     totalEarned: ref(player.money.totalEarned),
     totalSpend: ref(player.money.totalSpend)
   },
-  get amount() {
+  get amount():Decimal {
     return player.money.current
   },
-  set amount(value: number) {
-    player.money.current = value
-    this.refs.money.value = value
+  set amount(value: DecimalSource) {
+    player.money.current.fromValue(value)
+    this.refs.money.value = Decimal.fromValue(value)
   },
-  spend(value: number) {
-    this.amount -= value
-    this.totalSpend += value
+  spend(value: DecimalSource) {
+    this.amount = this.amount.sub(value)
+    this.totalSpend = this.totalSpend.add(value)
   },
-  earn(value: number) {
-    this.amount += value
-    this.totalEarned += value
+  earn(value: DecimalSource) {
+    this.amount = this.amount.add(value)
+    this.totalEarned = this.totalEarned.add(value)
   },
-  canSpend(value: number) {
-    return this.amount >= value
-  },
-  get totalSpend() {
+  get totalSpend():Decimal {
     return player.money.totalSpend
   },
-  set totalSpend(value: number) {
-    player.money.totalSpend = value
-    this.refs.totalSpend.value = value
+  set totalSpend(value: DecimalSource) {
+    player.money.totalSpend.fromValue(value)
+    this.refs.totalSpend.value = player.money.totalSpend
   },
-  get totalEarned() {
+  get totalEarned():Decimal {
     return player.money.totalEarned
   },
-  set totalEarned(value: number) {
-    player.money.totalEarned = value
-    this.refs.totalEarned.value = value
+  set totalEarned(value: DecimalSource) {
+    player.money.totalEarned.fromValue(value)
+    this.refs.totalEarned.value = player.money.totalEarned
   },
 
 }

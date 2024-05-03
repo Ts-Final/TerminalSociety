@@ -2,7 +2,7 @@ import {player} from "../player";
 import {GameDataClass, GameDataInterface} from "./baseData.ts";
 import {Component, ref, Ref} from "vue";
 import {EventHub, GameEvent} from "../eventHub.ts";
-import {Resources} from "./resource.ts";
+import {Resource} from "./resource.ts";
 import {noEmpty} from ".././utils/noEmpty.ts";
 import ResourceGeneralTab from "../../components/tabs/resource/ResourceGeneralTab.vue";
 import ResourceDetailTab from "../../components/tabs/resource/ResourceDetailTab.vue";
@@ -18,6 +18,7 @@ import {ui} from "../game-mechanics/ui.ts";
 import H2PTab from "../../components/tabs/H2PTab.vue";
 import {Numbers} from "../utils/Numbers.ts";
 import StoryMainTab from "../../components/tabs/story/storyMainTab.vue";
+import {Effect} from "../game-mechanics/effect.ts";
 
 interface TabDataInterface extends GameDataInterface {
   name: string
@@ -221,7 +222,7 @@ const TabData: TabDataInterface[] = [
       {
         name: "详细",
         row: 1,
-        unlock: () => true,
+        unlock: () => Effect.effects.length > 0,
         component: ResourceDetailTab
       }
     ]
@@ -247,7 +248,7 @@ const TabData: TabDataInterface[] = [
     id: counter.next(),
     hideable: true,
     unlock(): boolean {
-      return Resources.air.max_record >= 20
+      return Resource.air.max_record.gt(20)
     },
     subTabs: [
       {
@@ -289,7 +290,7 @@ const TabData: TabDataInterface[] = [
     id: counter.next(),
     hideable: true,
     unlock(): boolean {
-      return Resources.water.max_record >= 5
+      return Resource.water.max_record.gt(5)
     },
     subTabs: [
       {
@@ -307,7 +308,7 @@ const TabData: TabDataInterface[] = [
     id:counter.next(),
     hideable: true,
     unlock(): boolean {
-      return Resources.energy.max_record >= 10
+      return Resource.energy.max_record.gt(10)
     },
     subTabs: [
       {

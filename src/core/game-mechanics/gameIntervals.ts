@@ -2,6 +2,7 @@ import {EventHub, GameEvent} from "../eventHub.ts";
 import {player} from "../player";
 import {GameStorage} from "./GameStorage.ts";
 import {ui} from "./ui.ts";
+import {gameLoop} from "./simulateTime.ts";
 
 type intervalObj = {
   start(): void,
@@ -35,18 +36,18 @@ export const gameIntervals = (function () {
     return i
   }
   return {
+    all: all,
     start() {
       this.all.forEach((i) => i.start())
     },
     stop() {
       this.all.forEach((i) => i.stop())
     },
-    all: all,
-    gameLoop: interval(() => EventHub.logic.dispatch(GameEvent.UPDATE), 1000),
+    gameLoop: interval(() => gameLoop(), 1000),
     update: interval(() => EventHub.ui.dispatch(GameEvent.UPDATE),
       () => player.options.updateRate),
     save: interval(GameStorage.save.bind(GameStorage), 10e3),
-    uiUpdate: interval(() => ui.view.handlers.forEach(x => x()), 33)
+    uiUpdate: interval(() => ui.view.handlers.forEach(x => x()), 33),
   }
 })()
 

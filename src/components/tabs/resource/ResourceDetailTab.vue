@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import {Ref, ref} from "vue";
-import {parseResourceName, Resources} from "../../../core/GameDataBase/resource.ts";
-import {parseAffectValue} from "../../../core/game-mechanics/parse.ts";
+import {parseResourceName, Resource} from "../../../core/GameDataBase/resource.ts";
 import {ResourceTypeList, ResourceTypes} from "../../../core/constants.ts";
-
+import {Decimal} from "../../../core/utils/break_infinity.ts";
 
 function changeChosen(key: ResourceTypes) {
   chosen.value = key
@@ -17,37 +16,37 @@ const chosen: Ref<ResourceTypes> = ref("energy")
     <div class="res-detail-top">
       <div class="res-detail-btn" v-for="resKey in ResourceTypeList"
            :key="resKey" @click="changeChosen(resKey)"
-           :class="{chosen:Resources(chosen).name === resKey}"
+           :class="{chosen:Resource(chosen).name === resKey}"
            v-html="parseResourceName(resKey as ResourceTypes)">
       </div>
     </div>
     <div class="res-detail flex-avg">
       <div class="res-detail-list  left-border right-border">
         <div class="res-detail-first-row">生产加成</div>
-        <div v-for="aff in Resources(chosen).refs.affects.pro.value.source" class="res-detail-row">
+        <div v-for="aff in Resource(chosen).refs.affects.pro.value.source" class="res-detail-row">
           <div v-html="aff[0]"></div>
-          <div>+{{ parseAffectValue(aff[1], 'pro') }}</div>
+          <div>+{{ Decimal.toPercent(aff[1]) }}</div>
         </div>
       </div>
       <div class="res-detail-list right-border">
         <div class="res-detail-first-row">消耗减少</div>
-        <div v-for="aff in Resources(chosen).refs.affects.consume.value.source" class="res-detail-row">
+        <div v-for="aff in Resource(chosen).refs.affects.consume.value.source" class="res-detail-row">
           <div v-html="aff[0]"></div>
-          <div>-{{ parseAffectValue(aff[1], 'consume') }}</div>
+          <div>-{{ Decimal.toPercent(aff[1]) }}</div>
         </div>
       </div>
       <div class="res-detail-list right-border">
         <div class="res-detail-first-row">最大（加算）</div>
-        <div v-for="aff in Resources(chosen).refs.affects.maxAdd.value.source" class="res-detail-row">
+        <div v-for="aff in Resource(chosen).refs.affects.maxAdd.value.source" class="res-detail-row">
           <div v-html="aff[0]"></div>
-          <div>+{{ parseAffectValue(aff[1], 'maxAdd') }}</div>
+          <div>+{{ Decimal.toResourceAmount(aff[1]) }}</div>
         </div>
       </div>
       <div class="res-detail-list right-border">
         <div class="res-detail-first-row">最大（乘算）</div>
-        <div v-for="aff in Resources(chosen).refs.affects.maxMult.value.source" class="res-detail-row">
+        <div v-for="aff in Resource(chosen).refs.affects.maxMult.value.source" class="res-detail-row">
           <div v-html="aff[0]"></div>
-          <div>+{{ parseAffectValue(aff[1], 'maxMult') }}</div>
+          <div>+{{ Decimal.toPercent(aff[1]) }}</div>
         </div>
       </div>
     </div>

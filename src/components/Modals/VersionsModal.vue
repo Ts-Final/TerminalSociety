@@ -7,7 +7,7 @@ const reversed = Versions.sort((a, b) => b.id - a.id)
 </script>
 
 <template style="font-family: sans-serif">
-  <ModalBase class="credits-modal">
+  <ModalBase class="credits-modal" :show-close="true">
     <template v-slot:header>
       版本更新记录
     </template>

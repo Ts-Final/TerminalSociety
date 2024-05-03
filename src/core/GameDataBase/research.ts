@@ -1,12 +1,14 @@
-import {Resources} from "./resource.ts";
+import {Resource} from "./resource.ts";
 import {player} from "../player";
 import {Effect, effect, effectData, effectShort} from "../game-mechanics/effect.ts";
 import {Numbers} from ".././utils/Numbers.ts";
 import {GameDataClass, GameDataInterface} from "./baseData.ts";
 import {ref, Ref} from "vue";
 import {notify} from ".././utils/notify.ts";
-import {ResourceTypes} from "../constants.ts";
+import {Accessor, ResourceTypes} from "../constants.ts";
 import {noEmpty} from ".././utils/noEmpty.ts";
+import {ui} from "../game-mechanics/ui.ts";
+import {Decimal} from "../utils/break_infinity.ts";
 
 export interface Research {
   id: number
@@ -72,7 +74,7 @@ export const Researches: ResearchData[] = [
     time: 15,
     maxLevel: 1,
     unlock() {
-      return player.resource.air.max_record >= 10
+      return Resource.air.max_record.gt(10)
     },
     timePow: 1,
   }
@@ -108,10 +110,9 @@ export class ResearchClass
   refs: {
     unlocked: Ref<boolean>,
     activated: Ref<boolean>,
-    started: Ref<number>,
+    started: Ref<Decimal>,
     level: Ref<number>,
-    timeToUpg: Ref<number>,
-    finished: Ref<boolean>,
+    timeToUpg: Ref<Decimal>,
     percent: Ref<string>,
   }
 
@@ -126,21 +127,20 @@ export class ResearchClass
     this.timePow = data.timePow
 
     if (player.research[this.id] === undefined) {
-      player.research[this.id] = [false, false, 0, 0]
+      player.research[this.id] = [false, false,new Decimal(0), 0]
     }
 
     this.refs = {
       unlocked: ref(false),
       activated: ref(false),
-      started: ref(0),
+      started: ref(new Decimal(0)),
       level: ref(0),
-      timeToUpg: ref(0),
-      finished: ref(false),
+      timeToUpg: ref(new Decimal(0)),
       percent: ref("0")
     }
 
     this.onLogic()
-    setTimeout(this.registerEffect.bind(this), 100)
+    ui.init.wait(this.registerEffect.bind(this))
   }
 
   get unlocked() {
@@ -181,23 +181,25 @@ export class ResearchClass
   }
 
   get maxed() {
-    return this.level >= this.maxLevel
+    return this.level>= this.maxLevel
   }
 
   get percent() {
-    return Numbers.formatInt(this.started / this.timeToUpg, true)
+    return this.started.div(this.timeToUpg).toPercent()
   }
 
   get timeToUpg() {
-    return Numbers.round(
-      this.time * (this.timePow ** this.level) / this.secondaryProgress, 2)
+    // return Numbers.round(
+    //   this.time * (this.timePow ** this.level) / this.secondaryProgress, 2)
+    const totalTime = new Decimal(this.time).pow(this.timePow ** this.level)
+    return totalTime.div(this.secondaryProgress)
   }
 
   get secondaryProgress() {
     return Effect.researchProgress.value
   }
 
-  static createAccessor(...data: ResearchData[]) {
+  static createAccessor(...data: ResearchData[]): Accessor<ResearchClass>{
     this.all = data.map((x) => new this(x))
     const accessor = (id: number) => noEmpty(this.all.find(x => x.id === id))
     accessor.all = this.all
@@ -213,7 +215,7 @@ export class ResearchClass
 
   levelEffect(level: number): effect {
     if (level > this.maxLevel) {
-      throw new Error("level cant greater than max" + level + this.maxLevel)
+      throw new Error(`level cant greater than max(${this.maxLevel}):Lv.${level}`)
     }
     let e: effectShort[] = []
     for (const eff of this.effect) {
@@ -236,45 +238,50 @@ export class ResearchClass
     }
   }
 
-  updateLogic() {
+  updateLogic(speed=1) {
+    this.cheatGuard()
     if (!this.unlocked) {
-      this.unlocked ||= this.unlock()
+      this.unlocked = this.unlock()
       if (this.unlocked) {
         notify.success("解锁研究：" + this.name, 1000)
       }
       return
     }
 
+    if (this.maxed) return
     if (!this.activated) return
 
     let canProduce = true
     this.cost.forEach((x) => {
-      canProduce &&= Resources(x[0]).canCost(x[1])
+      canProduce &&= Resource(x[0]).canCost(x[1]*speed)
     })
     if (!canProduce) return
 
-    this.nextSecond()
+    this.nextSecond(speed)
     if (this.levelCheck()) {
       if (!this.maxed) {
         notify.success("研究升级" + this.name + "Lv." + this.level, 1000)
       } else {
         notify.success("研究完成：" + this.name, 1000)
+        this.activated = false
       }
       this.upgrade()
     }
   }
 
-  nextSecond() {
-    this.started += this.secondaryProgress
+  nextSecond(speed=1) {
+    this.started.toAdd(this.secondaryProgress * speed)
+    this.started.referToRef(this.refs.started)
+    this.refs.percent.value = this.percent
   }
 
   levelCheck() {
-    return this.started >= this.timeToUpg
+    return this.started.gte(this.timeToUpg)
   }
 
   upgrade() {
     this.level += 1
-    this.started = 0
+    this.started = new Decimal(0)
   }
 
   registerEffect() {
@@ -285,9 +292,8 @@ export class ResearchClass
   }
 
   updateRef() {
-    this.refs.finished.value = this.maxed
-    this.refs.percent.value = this.percent
     this.refs.unlocked.value = this.unlocked
+    this.refs.percent.value = this.percent
     this.refs.started.value = this.started
     this.refs.level.value = this.level
     this.refs.timeToUpg.value = this.timeToUpg
@@ -297,6 +303,9 @@ export class ResearchClass
 
   trigger() {
     this.activated = !this.activated
+  }
+  cheatGuard() {
+    this.level = Math.min(this.level,this.maxLevel)
   }
 }
 

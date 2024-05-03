@@ -23,7 +23,7 @@ import {ui} from "../../core/game-mechanics/ui.ts";
 }
 
 .right-tab > div {
-  animation: a-right-tab-op linear 0.1s;
+  animation: a-op-up linear 0.1s;
   animation-fill-mode: both;
 }
 </style>

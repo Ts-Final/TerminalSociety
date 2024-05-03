@@ -1,10 +1,10 @@
 import {countryName} from "../situation/country.ts";
 import {GameDataClass} from "../baseData.ts";
 import {player} from "../../player.ts";
-import {exchangeShort, ResourceTypes} from "../../constants.ts";
+import {Accessor, exchangeShort, ResourceTypes} from "../../constants.ts";
 import {randomElements, randomNumber} from "../.././utils/random.ts";
 import {Numbers} from "../.././utils/Numbers.ts";
-import {Resources} from "../resource.ts";
+import {Resource} from "../resource.ts";
 import {noEmpty} from "../.././utils/noEmpty.ts";
 
 export interface company {
@@ -79,16 +79,15 @@ export class CompanyClass extends GameDataClass {
 
   get allResourceString() {
     return this.allResource.map((x) => {
-      let name = Resources(x).parsed
+      let name = Resource(x).parsed
       return name in this.advantage ? `<span style="color: #f7f12c;">${name}</span>` : name
     })
   }
 
-  static fromData(...data: company[]) {
+  static createAccessor(...data: company[]): Accessor<CompanyClass> {
     this.all = data.map(x => new this(x))
     const accessor = (id: number) => noEmpty(this.all.find(x => x.id == id))
     accessor.all = this.all
-    accessor.class = CompanyClass
     return accessor
   }
 
@@ -113,8 +112,8 @@ export class CompanyClass extends GameDataClass {
         randomNumber(...this.advPow, 2) : randomNumber(0.9, 1.05)
       let amount = this.baseAmount * pow
       amount = Numbers.round(amount, 0)
-      let price = Resources(res).basePrice
-      price *= randomNumber(0.9, 1.05, 2)
+      let price = Resource(res).basePrice
+      price = price.mul(randomNumber(0.9, 1.05, 2))
       v.push([this.id, res, amount, 0, price])
     }
 
@@ -122,4 +121,4 @@ export class CompanyClass extends GameDataClass {
   }
 }
 
-export const Company = CompanyClass.fromData(...CompanyData)
+export const Company = CompanyClass.createAccessor(...CompanyData)

@@ -57,11 +57,7 @@ export class GameDataClass implements GameDataInterface {
       unlocked: ref(false)
     }
 
-    if (!ui.init.initialized) {
-      ui.init.addWait(this.updateRef.bind(this))
-    } else {
-      this.updateRef()
-    }
+    ui.init.wait(this.updateRef.bind(this))
   }
 
   get unlocked(): boolean {

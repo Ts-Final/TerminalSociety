@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {Resources} from "../../../../core/GameDataBase/resource.ts";
+import {Resource} from "../../../../core/GameDataBase/resource.ts";
 </script>
 
 <template>
@@ -9,7 +9,7 @@ import {Resources} from "../../../../core/GameDataBase/resource.ts";
         <p>资源类型</p>
         <p>基础价格/1</p>
       </div>
-      <div class="flex-row bpt-line border1-top" v-for="res in Resources.all">
+      <div class="flex-row bpt-line border1-top" v-for="res in Resource.all">
         <p>{{res.parsed}}</p>
         <p>{{res.basePrice}}</p>
       </div>

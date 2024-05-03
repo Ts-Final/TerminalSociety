@@ -1,4 +1,5 @@
 import {exchangeShort, ResourceTypes} from "./constants.ts";
+import {Decimal} from "./utils/break_infinity.ts";
 
 /*
 * For most of the values we dont set its values here, and in different
@@ -10,15 +11,15 @@ import {exchangeShort, ResourceTypes} from "./constants.ts";
 export const player = {
   resource: {} as {
     [key: string]: {
-      amount: number,
-      maximum: number,
-      change: number,
-      max_record: number,
+      amount: Decimal,
+      maximum: Decimal,
+      change: Decimal,
+      max_record: Decimal,
       affects: {
-        pro: { source: [string, number][], total: number },
-        consume: { source: [string, number][], total: number },
-        maxAdd: { source: [string, number][], total: number },
-        maxMult: { source: [string, number][], total: number },
+        pro: { source: [string, Decimal][], total: Decimal },
+        consume: { source: [string, Decimal][], total: Decimal },
+        maxAdd: { source: [string, Decimal][], total: Decimal },
+        maxMult: { source: [string,Decimal][], total: Decimal },
       },
     }
   },
@@ -33,7 +34,7 @@ export const player = {
    * }
    * ```
    */
-  research: [] as [boolean, boolean, number, number][],
+  research: [] as [boolean, boolean, Decimal, number][],
   market: {
     affect: 0,
     /**
@@ -66,10 +67,10 @@ export const player = {
      * ```
      */
     exchange: [] as exchangeShort[],
-    basePrice: {} as { [key in ResourceTypes]: number }
+    basePrice: {} as { [key in ResourceTypes]: Decimal }
 
   },
-  version: "Test 08 change 1",
+  version: 0,
   /**
    * {
    *   0: unlocked,
@@ -85,9 +86,9 @@ export const player = {
   display: [0, 0] as [number, number],
   how2play: 1,
   money: {
-    current: 0,
-    totalSpend: 0,
-    totalEarned: 0,
+    current: new Decimal(0),
+    totalSpend: new Decimal(0),
+    totalEarned: new Decimal(0),
 
   },
   saveTime: 0,
@@ -119,17 +120,18 @@ export const player = {
     }
   },
   story: {} as { [key: string]: [boolean,boolean] },
-  /* For some times testing or anyway to speed the game up in this way,
-  * instead of calling EventHub.dispatch more often, thats crazy when
-  * calculating game speed */
-  globalAmplifier: 0,
+  customName: "",
+  lastUpdate: Date.now(),
 
 }
+
 declare global {
   interface Window {
     player: any,
     dev: any,
+    Decimal: any,
   }
 }
 
 window.player = player
+window.Decimal = Decimal

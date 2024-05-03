@@ -21,7 +21,6 @@ import {EventHub, GameEvent} from "../../core/eventHub.ts";
   position: fixed;
   left: 0;
   top: 0;
-  z-index: var(--z-topbar);
   align-items: center;
 }
 

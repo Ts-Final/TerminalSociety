@@ -1,15 +1,23 @@
 <script setup lang="ts">
-import {Resources} from "../../../core/GameDataBase/resource.ts";
+import {Resource} from "../../../core/GameDataBase/resource.ts";
 import {ResourceTypeList} from "../../../core/constants.ts";
+import {Decimal} from "../../../core/utils/break_infinity.ts";
+import {Ref} from "vue";
 
-function divs() {
+function divs():{
+  amount: Ref<Decimal>,
+  maximum: Ref<Decimal>,
+  change: Ref<Decimal>,
+  max_record: Ref<Decimal>,
+  name: string
+}[] {
   let v = []
   for (const res of ResourceTypeList) {
-    const {amount, maximum, change, max_record} = Resources(res).refs
-    const name = Resources(res).parsed
+    const {amount, maximum, change, max_record} = Resource(res).refs
+    const name = Resource(res).parsed
     v.push({
       amount,
-      max:max_record,
+      max_record:max_record,
       maximum,
       change,
       name,
@@ -33,10 +41,10 @@ const v = divs()
       </div>
       <div class="RGT-line style-border no-top-border" v-for="res in v">
         <p>{{ res.name }}</p>
-        <p>{{ res.amount }}</p>
-        <p>{{ res.maximum }}</p>
-        <p>{{ res.change }}</p>
-        <p>{{ res.max }}</p>
+        <p>{{ res.amount.value.toResourceAmount() }}</p>
+        <p>{{ res.maximum.value.toResourceAmount() }}</p>
+        <p>{{ res.change.value.toResourceAmount() }}</p>
+        <p>{{ res.max_record.value.toResourceAmount() }}</p>
       </div>
     </div>
   </div>

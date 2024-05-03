@@ -2,13 +2,14 @@
 import {ResearchClass} from "../../../core/GameDataBase/research.ts";
 import EffectLines from "../../small/effect/EffectLines.vue";
 import {parseResourceName} from "../../../core/GameDataBase/resource.ts";
+import {computed} from "vue";
 
 const {research} = defineProps<{ research: ResearchClass }>()
 
 const {
   unlocked, level, activated, timeToUpg, percent,
-  finished
 } = research.refs
+const finished = computed(() => level.value >= research.maxLevel)
 </script>
 
 <template>
@@ -29,7 +30,7 @@ const {
       </div>
       <div class="third-row" style="display: flex;justify-content: space-around">
         <div>Lv. {{ level }}</div>
-        <div>本级用时：{{ timeToUpg }}s</div>
+        <div>本级用时：{{ timeToUpg.toFixed(1) }}s</div>
       </div>
       <div class="third-row">
         {{ research.des }}

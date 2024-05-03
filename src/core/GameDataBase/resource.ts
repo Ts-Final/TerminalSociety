@@ -2,11 +2,12 @@ import {GameDataClass, GameDataInterface} from "./baseData.ts";
 import {ref, Ref} from "vue";
 import {player} from "../player.ts";
 import {ValueNotFoundError} from ".././utils/errors.ts";
-import {Numbers} from ".././utils/Numbers.ts";
 import {Effect} from "../game-mechanics/effect.ts";
 import {randomNumber} from ".././utils/random.ts";
 import {resourceBasePrice, ResourceTypeList, ResourceTypes} from "../constants.ts";
 import {noEmpty} from ".././utils/noEmpty.ts";
+import {Lazy} from "../utils/lazy.ts";
+import {Decimal, DecimalSource} from "../utils/break_infinity.ts";
 
 
 let resIdCounter = 0
@@ -44,6 +45,38 @@ export function parseResourceName(key: ResourceTypes) {
   }
 }
 
+function toLazy(name: ResourceTypes) {
+  function getter() {
+    const dict = {
+      pro: {source: [] as [string, number][], total: new Decimal(0)},
+      maxMult: {source: [] as [string, number][], total: new Decimal(0)},
+      consume: {source: [] as [string, number][], total: new Decimal(0)},
+      maxAdd: {source: [] as [string, number][], total: new Decimal(0)},
+    }
+    const effects = Effect.effects.filter(
+      x => x.effects.filter(
+        x => x.target == name
+      ).length > 0
+    )
+    for (const eff of effects) {
+      const effName = Effect.effToName(eff);
+
+      for (const short of eff.effects) {
+        if (short.target !== name) continue
+        if (!short.type) continue
+        dict[short.type].total.add(short.factor)
+        dict[short.type].source.push(
+          [effName, short.factor]
+        )
+      }
+
+    }
+    return dict
+  }
+
+  return Lazy.bindTo(getter, Effect.collection)
+}
+
 export class ResourceClass
   extends GameDataClass
   implements GameDataInterface {
@@ -59,19 +92,19 @@ export class ResourceClass
 
   refs: {
     unlocked: Ref<boolean>
-    amount: Ref<number>,
-    maximum: Ref<number>,
-    change: Ref<number>,
-    max_record: Ref<number>,
+    amount: Ref<Decimal>,
+    maximum: Ref<Decimal>,
+    change: Ref<Decimal>,
+    max_record: Ref<Decimal>,
     affects: {
-      pro: Ref<{ source: [string, number][], total: number }>
-      consume: Ref<{ source: [string, number][], total: number }>
-      maxAdd: Ref<{ source: [string, number][], total: number }>
-      maxMult: Ref<{ source: [string, number][], total: number }>
+      pro: Ref<{ source: [string, Decimal][], total: Decimal }>
+      consume: Ref<{ source: [string, Decimal][], total: Decimal }>
+      maxAdd: Ref<{ source: [string, Decimal][], total: Decimal }>
+      maxMult: Ref<{ source: [string, Decimal][], total: Decimal }>
     },
-    changes: Ref<string>,
   }
   name: ResourceTypes
+  lazy: Lazy
   private readonly _parsed: string
 
   constructor(data: ResourceDataInterface) {
@@ -81,81 +114,71 @@ export class ResourceClass
 
     if (player.resource[this.name] == undefined) {
       player.resource[this.name] = {
-        amount: 0,
-        maximum: 1e4,
-        change: 0,
-        max_record: 0,
+        amount: new Decimal(0),
+        maximum: new Decimal(1e4),
+        change: new Decimal(0),
+        max_record: new Decimal(0),
         affects: {
-          pro: {source: [], total: 0},
-          consume: {source: [], total: 0},
-          maxAdd: {source: [], total: 0},
-          maxMult: {source: [], total: 0},
+          pro: {source: [], total: new Decimal(0)},
+          consume: {source: [], total: new Decimal(0)},
+          maxAdd: {source: [], total: new Decimal(0)},
+          maxMult: {source: [], total: new Decimal(0)},
         },
       }
     }
     if (player.market.basePrice[this.name] == undefined) {
       player.market.basePrice[this.name] =
-        randomNumber(...resourceBasePrice[this.name], 2)
+        new Decimal(randomNumber(...resourceBasePrice[this.name], 2))
     }
 
     this.refs = {
       unlocked: ref(false), // useLess Forever (?
-      amount: ref(0),
-      maximum: ref(1e4),
-      change: ref(0),
-      changes: ref(""),
-      max_record: ref(0),
+      amount: ref(new Decimal(0)),
+      maximum: ref(new Decimal(1e4)),
+      change: ref(new Decimal(0)),
+      max_record: ref(new Decimal(0)),
       affects: {
-        pro: ref({source: [], total: 0}),
-        consume: ref({source: [], total: 0}),
-        maxAdd: ref({source: [], total: 0}),
-        maxMult: ref({source: [], total: 0}),
+        pro: ref({source: [], total: new Decimal(0)}),
+        consume: ref({source: [], total: new Decimal(0)}),
+        maxAdd: ref({source: [], total: new Decimal(0)}),
+        maxMult: ref({source: [], total: new Decimal(0)}),
       },
     }
     this._parsed = parseResourceName(this.name)
+    this.lazy = toLazy(data.name)
   }
 
   get unlocked(): boolean {
     return true
   }
 
-  get amount() {
+  get amount(): Decimal {
     return player.resource[this.name].amount
   }
 
-  set amount(value: number) {
-    let rounded = Numbers.round(value)
-    this.change += rounded - this.amount
-
-    player.resource[this.name].amount = rounded
-    this.refs.amount.value = value
-
-    this.max_record = Math.max(rounded, this.max_record)
+  set amount(value: DecimalSource) {
+    this.change = this.change.add(value).sub(this.amount)
+    player.resource[this.name].amount.fromValue(value)
+    this.refs.amount.value = this.amount
+    this.max_record = Decimal.max(this.amount, this.max_record)
   }
 
   get maximum() {
     return player.resource[this.name].maximum
   }
 
-  set maximum(value: number) {
+  set maximum(value: Decimal) {
     player.resource[this.name].maximum = value
     this.refs.maximum.value = value
   }
 
-  get change() {
+  get change(): Decimal {
     return player.resource[this.name].change
   }
 
-  set change(value: number) {
-    let rounded = Numbers.round(value, 2)
-    player.resource[this.name].change = rounded
-    this.refs.change.value = rounded
-    this.refs.changes.value = this.changes
-  }
-
-  get changes() {
-    return this.amount < this.maximum ?
-      Numbers.formatInt(this.change, false, 2) + `/s` : `Max`
+  set change(value: DecimalSource) {
+    player.resource[this.name].change.fromValue(value)
+    this.refs.change.value = Decimal.fromValue(value)
   }
 
   get max_record() {
@@ -171,19 +194,37 @@ export class ResourceClass
     return player.resource[this.name].affects
   }
 
-  get basePrice() {
+  set effects(value) {
+    player.resource[this.name].affects = value
+    this.refs.affects.pro.value = value.pro
+    this.refs.affects.consume.value = value.consume
+    this.refs.affects.maxAdd.value = value.maxAdd
+    this.refs.affects.maxMult.value = value.maxMult
+  }
+
+  get basePrice():Decimal {
     return player.market.basePrice[this.name]
   }
 
-  set basePrice(value: number) {
-    player.market.basePrice[this.name] = value
+  set basePrice(value: DecimalSource) {
+    player.market.basePrice[this.name].fromValue(value)
   }
 
   get parsed() {
     return this._parsed
   }
 
-  static createAccessor() {
+  static createAccessor(): {
+    (name: ResourceTypes): ResourceClass,
+    all: ResourceClass[],
+    energy: ResourceClass,
+    air: ResourceClass,
+    water: ResourceClass,
+    copper: ResourceClass,
+    coal: ResourceClass,
+    iron: ResourceClass,
+    class: typeof ResourceClass,
+  } {
     this.all = []
     for (const resType of ResourceTypeList) {
       let ins = new this(_(resType))
@@ -192,8 +233,8 @@ export class ResourceClass
     }
     const accessor = (name: ResourceTypes) =>
       noEmpty(this.all.find(x => x.name === name))
+
     accessor.all = this.all
-    accessor.class = ResourceClass
 
     accessor.energy = this.energy
     accessor.air = this.air
@@ -201,6 +242,7 @@ export class ResourceClass
     accessor.copper = this.copper
     accessor.coal = this.coal
     accessor.iron = this.iron
+    accessor.class = this
     return accessor
   }
 
@@ -215,7 +257,7 @@ export class ResourceClass
   }
 
   updateRef() {
-    this.refs.amount.value = Numbers.round(this.amount, 2)
+    this.refs.amount.value = this.amount
     this.refs.maximum.value = this.maximum
     this.refs.change.value = this.change
     this.refs.max_record.value = this.max_record
@@ -232,65 +274,46 @@ export class ResourceClass
   }
 
   updateEffect() {
-    if (!Effect.hasChanged()) return
-    const effects = Effect.effects.filter(
-      x => x.effects.filter(
-        x => x.target == this.name
-      ).length > 0
-    )
-
-    // refresh
-    this.effects.pro = {source: [], total: 0}
-    this.effects.maxMult = {source: [], total: 0}
-    this.effects.consume = {source: [], total: 0}
-    this.effects.maxAdd = {source: [], total: 0}
-
-    /*for (const [source, id, small] of effects) {
-      if (!small.type) {
-        throw new Error(`wtf resource Effect dont have type ${source} ${id}`)
-      }
-      this.affects[small.type].source.push(
-        [Effect.parseAffectName(source, id), small.factor])
-      this.affects[small.type].total += small.factor
-    }*/
-    for (const eff of effects) {
-      for (const short of eff.effects) {
-        if (!short.type || !(short.type in this.effects)) {
-          throw new Error(`wtf resource Effect dont have type ${eff.source} ${eff.id}`)
-        }
-        this.effects[short.type].source.push(
-          [Effect.parseEffectName(eff.source, eff.id), short.factor]
-        )
-        this.effects[short.type].total += short.factor
-      }
-    }
+    this.effects = this.lazy.value
     this.updateMaximum()
   }
 
   updateMaximum() {
-    this.maximum = Numbers.round((1e4 + this.effects.maxAdd.total) * (1 + this.effects.maxMult.total))
+    // this.maximum = Numbers.round((1e4 + this.effects.maxAdd.total) * (1 + this.effects.maxMult.total))
+    this.maximum = this.effects.maxAdd.total.add(1e4).mul(this.effects.maxMult.total.add(1))
   }
 
-  canProduce(value: number) {
-    return this.amount + value * (1 + this.effects.pro.total) <= this.maximum
+  canProduce(value: DecimalSource) {
+    return this.maximum.gt(
+      this.effects.pro.total.add(1).mul(value).add(this.amount)
+    )
   }
 
   canCost(value: number) {
-    return this.amount >= value * (1 - this.effects.consume.total)
+    return this.amount.gt(
+      this.effects.consume.total.neg().add(1).mul(value)
+    )
   }
 
   doProduce(value: number, useEffect: boolean) {
-    this.amount += useEffect ?
-      value * (1 + this.effects.pro.total) : value
+    this._produce(useEffect ?
+      this.effects.pro.total.add(1).mul(value) : value)
   }
 
   doCost(value: number, useEffect: boolean) {
-    this.amount -= useEffect ?
-      value * (1 - this.effects.consume.total) : value
+    this._cost(useEffect ?
+      this.effects.consume.total.neg().add(1).mul(value) : value
+    )
+  }
+  _produce(value:DecimalSource) {
+    this.amount = this.amount.add(value)
+  }
+  _cost(value:DecimalSource) {
+    this.amount = this.amount.sub(value)
   }
 
 }
 
 
-export const Resources = ResourceClass.createAccessor()
-window.dev.resources = Resources
+export const Resource = ResourceClass.createAccessor()
+window.dev.resources = Resource

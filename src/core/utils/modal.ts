@@ -1,19 +1,46 @@
-import {Component} from "vue";
-import {EventHub, GameEvent} from "../eventHub.ts";
+import {Component, Ref} from "vue";
+import {EventHub} from "../eventHub.ts";
 import {ui} from "../game-mechanics/ui.ts";
 import VersionsModal from "../../components/Modals/VersionsModal.vue";
+import WhatsYourNameModal from "../../components/Modals/WhatsYourNameModal.vue";
+import OfflineUpdate from "../../components/Modals/offlineUpdate.vue";
+import {Decimal} from "./break_infinity.ts";
+import OfflineProgressModal from "../../components/Modals/OfflineProgressModal.vue";
 
 let nextModalID = 0
 type modalConfig = {
   closeEvent?: number
 }
 
-export class Modal {
+export namespace props {
+  export interface empty {
+
+  }
+
+  export interface offline extends empty {
+    max_ticks: number,
+    tickR: Ref<number>
+    finished: Ref<boolean>
+    tick: number
+    time: number
+  }
+
+  export interface offlineChange {
+    resource?: [string, Decimal][]
+    research?: [string, number | boolean][]
+  }
+}
+
+
+export class Modal<T extends props.empty = {}> {
+  static VersionModal = new Modal<props.empty>(VersionsModal)
+  static WhatsYourNameModal = new Modal<props.empty>(WhatsYourNameModal)
+  static OfflineModal = new Modal<props.offline>(OfflineUpdate, 1)
+  static OfflineProgressModal = new Modal<props.offlineChange>(OfflineProgressModal)
+
   _closeEvent?: number
   _modalConfig: modalConfig
   _uniqueID?: number
-
-  static VersionModal = new Modal(VersionsModal)
 
   constructor(
     component: Component,
@@ -63,14 +90,14 @@ export class Modal {
   }
 
   static hide() {
-    if (!ui.init.initialized) return;
+    if (!ui.init.value) return;
     ui.view.modal.queue.shift();
     if (ui.view.modal.queue.length === 0) ui.view.modal.current = undefined;
     else ui.view.modal.current = ui.view.modal.queue[0];
   }
 
   static hideAll() {
-    if (!ui.init.initialized) return;
+    if (!ui.init.value) return;
     while (ui.view.modal.queue.length) {
       Modal.hide()
     }
@@ -88,15 +115,13 @@ export class Modal {
     else ui.view.modal.current = ui.view.modal.queue[0]
   }
 
-  show(config?: modalConfig) {
-    if (!ui.init.initialized) return;
+  show(props: T, config?: modalConfig) {
+    if (!ui.init.value) return;
     this._uniqueID = nextModalID++
-    this._props = Object.assign({}, config || {})
+    this._props = Object.assign({}, props || {})
 
     if (this._closeEvent) this.applyCloseEventListeners(this._closeEvent)
     if (config?.closeEvent) this.applyCloseEventListeners(config.closeEvent)
-
-    EventHub.ui.on(GameEvent.CLOSE_MODAL, () => Modal.hide(),this)
 
     const queue = ui.view.modal.queue
     queue.unshift(this)

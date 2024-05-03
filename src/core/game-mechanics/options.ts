@@ -55,5 +55,5 @@ export const Options = {
   visual,
 }
 
-ui.init.addWait(visual.updateRef.bind(visual))
+ui.init.wait(visual.updateRef.bind(visual))
 

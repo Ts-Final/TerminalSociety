@@ -3,7 +3,7 @@ import {Numbers} from ".././utils/Numbers.ts";
 import {effectSource, effectTarget, resourceEffectTypes} from "../constants.ts";
 import {Employee} from "../GameDataBase/employee/work.ts";
 import {Research} from "../GameDataBase/research.ts";
-import {Lazy} from "../utils/lazy.ts";
+import {Lazy, LazyCollection} from "../utils/lazy.ts";
 
 /**
  * 用于GDB中一些简单的affect效果
@@ -209,11 +209,13 @@ export const Effect = {
 export const Effect = (function () {
   const _effects: effect[] = []
   let _copy: effect[] = []
+  const collection = new LazyCollection()
+
 
   function registerEffect(target: effect) {
     if (_effects.find(x => x.id == target.id && x.source == target.source)) return
     _effects.push(target)
-    researchProgress.invalidate()
+    collection.invalidate()
   }
 
   function deleteEffect(source: effectSource, id: number) {
@@ -225,8 +227,9 @@ export const Effect = (function () {
       _effects.findIndex(e => e == effect),
       1
     )
-    researchProgress.invalidate()
+    collection.invalidate()
   }
+
 
   function findEffect(source: effectSource, id: number) {
     return _effects.find(v => v.id == id && v.source == source)
@@ -279,20 +282,32 @@ export const Effect = (function () {
     let v: { [key: string]: number } = {}
     for (const small of e) {
       for (const short of small.effects) {
-        if (short.type) v[`${short.target},${short.type}`] += short.factor
-        else v[`${short.target}`] += short.factor
+        if (short.type) {
+          const key = `${short.target},${short.type}`
+          if (key in v) {
+            v[key] += short.factor
+          } else {
+            v[key] = short.factor
+          }
+        } else {
+          if (short.target in v) {
+            v[short.target] += short.factor
+          } else {
+            v[short.target] = short.factor
+          }
+        }
       }
     }
     return v
   }
 
-  const researchProgress = new Lazy(
+  const researchProgress = Lazy.bindTo(
     () => 1 + shortsFactorTotal(
       ...findShort('research')
-    )
+    ), collection
   )
 
-  function parseEffectName(s: string, id: number) {
+  function parseEffectName(s: effectSource, id: number) {
     switch (s) {
       case "research" :
         return `研究：${Research(id).name}`
@@ -307,6 +322,9 @@ export const Effect = (function () {
       default:
         throw new Error(`WTF effect ${s} ${id}`)
     }
+  }
+  function effToName(eff:effect) {
+    return parseEffectName(eff.source, eff.id)
   }
 
   function hasChanged() {
@@ -375,12 +393,14 @@ export const Effect = (function () {
     parseType,
     parseTarget,
     parseEffectName,
+    effToName,
     get effects() {
       return _effects
     },
     hasChanged,
     _effects,
     _copy,
+    collection,
   }
 })()
 

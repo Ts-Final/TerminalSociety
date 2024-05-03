@@ -5,7 +5,7 @@ import CalcEffects from "../../../small/effect/calcEffects.vue";
 import {Effect} from "../../../../core/game-mechanics/effect.ts";
 import {Employee} from "../../../../core/GameDataBase/employee/work.ts";
 
-const {onUpdate} = Employee.class.useBase()
+const {onUpdate} = Employee.class.refs
 
 
 function prevent(e: Event) {
@@ -40,18 +40,17 @@ const notEquip = {
 function employeeEffects() {
   return Employee.class.allEquipped.map(x => x.toEffect())
 }
-
 </script>
 
 <template>
   <div class="flex-row full">
-    <div class="employee-equipped flex-col" v-if="onUpdate"
+    <div class="employee-equipped flex-col"
          @drop="equip.onDrop"
          @dragenter="prevent"
          @dragover="prevent">
       <div class="self-center">上岗人数：{{ equip.employees().length }}/{{ Employee.class.maxEquipCount }}</div>
-      <CalcEffects :effects="Effect.calcEffectMap(...employeeEffects())"/>
-      <div class="flex-col self-center">
+      <CalcEffects :effects="Effect.calcEffectMap(...employeeEffects())" v-if="onUpdate"/>
+      <div class="flex-col self-center" v-if="onUpdate">
         <EmployeeUnit :employee="employee"
                       v-for="employee in equip.employees()"/>
       </div>
@@ -60,11 +59,11 @@ function employeeEffects() {
         将你的雇员拖动到这里<br>以启用加成
       </div>
     </div>
-    <div class="employee-all" v-if="onUpdate"
+    <div class="employee-all"
          @drop="notEquip.onDrop"
          @dragenter="prevent"
          @dragover="prevent">
-      <div class="gameUnit-contain flex-row">
+      <div class="gameUnit-contain flex-row" v-if="onUpdate">
         <EmployeeUnit :employee="employee"
                       v-for="employee in notEquip.employees()"/>
       </div>

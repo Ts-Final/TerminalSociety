@@ -6,14 +6,16 @@ const {current, content, ended} = StoryClass.refs
 </script>
 
 <template>
-  <div class="story-current slow-show" @click="StoryClass.next()" v-if="current">
+  <div class="story-current slow-show"
+       @click="StoryClass.next()" v-if="current">
     <div class="story-topbar">
       <div class="story-topbar-close" @click="StoryClass.close()">&ltcc; 返回</div>
+      <div class="story-topbar-fast" @click="StoryClass.fastRead()">&Del;快速浏览</div>
       <div class="size-1.5rem" v-html="current.name"/>
     </div>
     <div class="story-content">
       <div v-for="p in content"
-           class="story-piece" v-html="p">
+           class="story-piece slow-show" v-html="p">
       </div>
       <div class="story-end" v-if="ended">
         <div style="width: 70%;height: 2px;"/>
@@ -58,6 +60,13 @@ const {current, content, ended} = StoryClass.refs
   cursor: pointer;
   pointer-events: auto;
   left: calc(var(--left-bar-width) + 10px);
+  top: 5px;
+  position: fixed;
+}
+.story-topbar-fast {
+  cursor: pointer;
+  pointer-events: auto;
+  right: 10px;
   top: 5px;
   position: fixed;
 }

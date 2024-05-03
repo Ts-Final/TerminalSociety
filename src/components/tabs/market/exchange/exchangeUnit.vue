@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {Company} from "../../../../core/GameDataBase/market/company.ts";
-import {Resources} from "../../../../core/GameDataBase/resource.ts";
+import {Resource} from "../../../../core/GameDataBase/resource.ts";
 import {ExchangeObject} from "../../../../core/GameDataBase/market/exchange.ts";
 
 
@@ -13,7 +13,7 @@ const toBuy = exchange.toBuy
   <div class="gameUnit medium-size flex-col style-border">
     <div class="flex-row space-around">
       <div>{{ Company(exchange.company).name }}</div>
-      <div>{{ Resources(exchange.resource).parsed }}</div>
+      <div>{{ Resource(exchange.resource).parsed }}</div>
     </div>
     <div class="flex-col border1-top">
       <div class="center-text">剩余数量：{{ exchange.amount - bought }}</div>

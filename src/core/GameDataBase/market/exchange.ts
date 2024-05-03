@@ -2,10 +2,11 @@ import {exchangeShort, ResourceTypes} from "../../constants.ts";
 import {ref, Ref} from "vue";
 import {player} from "../../player.ts";
 import {Company} from "./company.ts";
-import {Resources} from "../resource.ts";
+import {Resource} from "../resource.ts";
 import {Money} from "./money.ts";
 import {noEmpty} from "../.././utils/noEmpty.ts";
 import {ui} from "../../game-mechanics/ui.ts";
+import {Decimal} from "../../utils/break_infinity.ts";
 
 /*
 export class ExchangeClass extends GameDataClass{
@@ -153,7 +154,7 @@ export interface ExchangeObject {
   company: number
   resource: ResourceTypes
   amount: number
-  price: number
+  price: Decimal
   toBuy: Ref<number>
   refs: {
     bought: Ref<number>,
@@ -187,12 +188,12 @@ export const ExchangeHandler = {
   },
   allObjects() {
     const Handler = this;
-    if (!ui.init.initialized) {
+    if (!ui.init.value) {
       const f = function () {
         Handler.fromPlayer()
         Handler.refresh()
       };
-      ui.init.addWait(f)
+      ui.init.wait(f)
     }
     return this.all.map((_, index) => this.toObject(index))
   },
@@ -219,23 +220,23 @@ export const ExchangeHandler = {
         this.refs.bought.value = value
       },
       canBuy(toBuy): boolean {
-        return toBuy * this.price < Money.amount
+        return Money.amount.gte(this.price.mul(toBuy))
       },
       canSell(toBuy): boolean {
-        return Resources(this.resource).amount >= toBuy
+        return Resource(this.resource).amount.gte(toBuy)
       },
       buy(toBuy) {
         if (!this.canBuy(toBuy)) return
 
         this.bought += toBuy
-        Resources(this.resource).amount += toBuy
-        Money.spend(toBuy * this.price)
+        Resource(this.resource).amount.toAdd(toBuy)
+        Money.spend(this.price.mul(toBuy))
       },
       sell(toBuy) {
         if (!this.canSell(toBuy)) return
 
-        Resources(this.resource).amount -= toBuy
-        Money.earn(toBuy * this.price)
+        Resource(this.resource).amount.toSub(toBuy)
+        Money.earn(this.price.mul(toBuy))
       }
 
     }
@@ -257,5 +258,7 @@ export const ExchangeHandler = {
     this.all = player.market.exchange
     this.refresh()
   }
-
 }
+ui.init.wait(
+  () => ExchangeHandler.fromPlayer()
+)

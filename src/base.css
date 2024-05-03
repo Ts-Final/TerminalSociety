@@ -38,3 +38,13 @@
 :focus {
   outline: none;
 }
+
+::-webkit-scrollbar {
+  background-color: transparent;
+  width: 8px;
+  margin-right: 4px;
+}
+::-webkit-scrollbar-thumb {
+  height: 15%;
+  background-color: #7cdcf4;
+}

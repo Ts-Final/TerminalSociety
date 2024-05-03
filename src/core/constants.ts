@@ -5,6 +5,8 @@
 
 /* Resource related */
 /*Resource Names list */
+import {Decimal} from "./utils/break_infinity.ts";
+
 export const ResourceTypeList = [
   "energy",
   "iron",
@@ -47,7 +49,7 @@ export type effectTarget = ResourceTypes | "research"
  *   4: price
  * }
  */
-export type exchangeShort = [number, ResourceTypes, number, number, number]
+export type exchangeShort = [number, ResourceTypes, number, number, Decimal]
 
 export type Optional<T> = T | undefined
-export type Accessor<T> = { (id:number): T, all:T[]}
+export type Accessor<T> = { (id:number): T, all:T[], class?: T}

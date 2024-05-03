@@ -39,7 +39,7 @@ const {news, updateRate, laugh,autoStory} = visual.refs
         <span v-if="autoStory">自动播放故事：On</span>
         <span v-else>自动播放故事：Off</span>
       </OptionUnit>
-      <OptionUnit @click="Modal.VersionModal.show()">
+      <OptionUnit @click="Modal.VersionModal.show({})">
         版本更新记录
       </OptionUnit>
     </div>

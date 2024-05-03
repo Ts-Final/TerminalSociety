@@ -43,3 +43,6 @@
 .overflow-y-scroll {
   overflow-y: scroll;
 }
+.align-center {
+  align-items: center;
+}

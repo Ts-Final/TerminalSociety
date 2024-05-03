@@ -1,4 +1,4 @@
-@keyframes a-right-tab-op {
+@keyframes a-op-up {
   0% {
     opacity: 0;
   }
@@ -7,6 +7,10 @@
   }
 }
 .slow-show {
-  animation: a-right-tab-op 0.1s linear;
+  animation: a-op-up 0.5s linear;
+  animation-fill-mode: both;
+}
+.fast-show {
+  animation: a-op-up 0.1s linear;
   animation-fill-mode: both;
 }

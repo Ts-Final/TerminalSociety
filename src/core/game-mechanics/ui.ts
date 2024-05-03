@@ -4,19 +4,30 @@ import {Component, Ref, ref} from "vue";
 import {Optional} from "../constants.ts";
 
 const initialize = {
-  dispatch(event: number) {
-    EventHub.ui.dispatch(event)
+  _value: false,
+  get value() {
+    return this._value
   },
-  initialized: false,
+  set value(v: boolean) {
+    this._value = v
+    this.ref.value = v
+  },
+  ref: ref(false),
   waitInitialize: [] as Function[],
-  addWait(func: Function) {
+
+  // Add the function to the list and wait for initialize,
+  // if the game is already initialized will call it immediately.
+  wait(func: Function) {
+    if (this.value) {
+      func()
+      return
+    }
     this.waitInitialize.push(func)
   },
   finishInitialize() {
-    this.initialized = true
+    this.value = true
+    this.ref.value = true
     this.waitInitialize.forEach(x => x())
-
-
   }
 }
 const tabs = {
@@ -52,10 +63,33 @@ const view = {
   },
   handlers: [] as Function[]
 }
+const curtain = {
+  _value: false,
+  ref: ref(false),
+  get value() {
+    return this._value
+  },
+  set value(v: boolean) {
+    this._value = v
+    this.ref.value = v
+  },
+  show(config:Partial<StyleSheet>) {
+    this.setStyle(config)
+    this.value = true
+  },
+  hide() {
+    this.value = false
+  },
+
+  style: ref({}),
+  setStyle(config:Partial<StyleSheet>) {
+    this.style.value = config
+  },
+}
 export const ui = {
   init: initialize,
   view,
   events: EventHub.ui,
-  tabs
-
+  tabs,
+  curtain
 }

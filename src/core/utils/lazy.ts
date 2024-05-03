@@ -1,6 +1,6 @@
 import {EventHub} from "../eventHub.ts";
 
-export class Lazy<T> {
+export class Lazy<T = any> {
   _value: T | undefined
   getValue: () => T
 
@@ -18,5 +18,27 @@ export class Lazy<T> {
   }
   invalidateOn(event:number) {
     EventHub.logic.on(event, this.invalidate.bind(this), this)
+  }
+
+  static bindTo<K>(getter: () => K, collection:LazyCollection) {
+    const ins = new Lazy(getter)
+    collection.push(ins)
+    return ins
+  }
+}
+
+export class LazyCollection {
+  _all: Lazy[]
+  get all() {
+    return this._all
+  }
+  constructor() {
+    this._all = []
+  }
+  invalidate() {
+    this._all.forEach(x =>  x.invalidate())
+  }
+  push(ins:Lazy) {
+    this.all.push(ins)
   }
 }

@@ -3,6 +3,8 @@ import {player} from "../../player";
 import {ref, Ref} from "vue";
 import {EventHub, GameEvent} from "../../eventHub.ts";
 import {noEmpty} from "../.././utils/noEmpty.ts";
+import {Resource} from "../resource.ts";
+import {LatestVersion, Version} from "../versions.ts";
 
 export interface how2play {
   id: number
@@ -12,11 +14,12 @@ export interface how2play {
   unlock(): boolean
 }
 
-export const version = 'Test-09'
-export const versionCount = 24 // Test-09
+export const versionCount = 15 + LatestVersion
+export const version = Version(LatestVersion).id
 
 let setUpDate = new Date(2022, 5, 28)
 let passedDays = Math.floor((Date.now() - setUpDate.getTime()) / (1000 * 60 * 60 * 24))
+
 export const How2PlayData: how2play[] = [
   {
     id: 1000,
@@ -102,7 +105,7 @@ export const How2PlayData: how2play[] = [
     
     `,
     unlock() {
-      return player.resource.air.max_record >= 20
+      return Resource.air.max_record.gte(20)
     }
   },
   {
@@ -111,7 +114,7 @@ export const How2PlayData: how2play[] = [
     info: `
     如果你有需要，可以在<a href="https://github.com/Ts-Final/Terminal-Society-SourceCode">Github(链接)</a>上提出issue反馈，如果无法访问github可以通过qq联系我（你从哪个群得知你游就从哪里找我）<br>
     请不要对一些刻意设计提出疑问，虽然我还是能解决问题（不过还没有刻意设计）<br>
-    <div class="self-center full-w" style="font-size: 3rem">当前版本为${version}，尚未完成！</div>
+    <div class="self-center full-w" style="font-size: 3rem">当前版本为${Version(LatestVersion).name}，尚未完成！</div>
     `,
     unlock: () => true,
   }

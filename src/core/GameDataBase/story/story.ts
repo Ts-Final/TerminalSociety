@@ -80,8 +80,8 @@ export class StoryClass extends GameDataClass implements StoryData {
    * Use this function in divided parts wont make stupid things.
    * Maybe.
    * */
-  static createAccessor(data: StoryData[][]): Accessor<StoryClass> {
-    const all = data.flat(1).map(x => new this(x))
+  static createAccessor(data: StoryData[]): Accessor<StoryClass> {
+    const all = data.map(x => new this(x))
     const accessor = (id: number) => noEmpty(all.find(x => x.id === id))
     accessor.all = all
     return accessor
@@ -94,14 +94,15 @@ export class StoryClass extends GameDataClass implements StoryData {
       this.interval = setInterval(this.next.bind(this), 5e3)
     }
     this.refs.content.value = []
-    this.refs.full = ins.content
+    this.refs.full = ins.content.map(x => x.replace("[player]", player.customName))
   }
 
   static next() {
     if (!this.refs.current.value) return
 
     if (this.refs.content.value.length < this.refs.full.length) {
-      this.refs.content.value.push(this.refs.full[this.refs.content.value.length])
+      const next = this.refs.full[this.refs.content.value.length]
+      this.refs.content.value.push(next)
     } else {
       clearInterval(this.interval)
       this.refs.ended.value = true
@@ -116,6 +117,13 @@ export class StoryClass extends GameDataClass implements StoryData {
     clearInterval(this.interval)
   }
 
+  static fastRead() {
+    if (!this.refs.current.value) return
+    this.refs.content.value = []
+    this.refs.content.value = this.refs.full
+    this.next()
+  }
+
   updateRef() {
     this.refs.unlocked.value = this.unlocked
   }
@@ -124,7 +132,7 @@ export class StoryClass extends GameDataClass implements StoryData {
     if (!this.unlocked) {
       this.unlocked ||= this.unlock()
       if (this.unlocked) {
-        notify.success('故事篇章解锁：' + this.index + this.name, 1500)
+        notify.success('故事篇章解锁：' + this.index + "  " + this.name, 1500)
       }
     }
   }

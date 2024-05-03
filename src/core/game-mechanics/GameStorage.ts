@@ -2,10 +2,12 @@ import {player} from "../player";
 import {notify} from ".././utils/notify.ts";
 import {deepSet} from ".././utils/deepSet.ts";
 import {Base64} from ".././utils/base64.ts";
-import {Numbers} from ".././utils/Numbers.ts";
-import {EventHub, GameEvent} from "../eventHub.ts";
 import {Market} from "../GameDataBase/market";
-import {version} from "../GameDataBase/how2play/how2play.ts";
+import {ui} from "./ui.ts";
+import {NewGame} from "./newGame.ts";
+import {Decimal} from "../utils/break_infinity.ts";
+import {LatestVersion} from "../GameDataBase/versions.ts";
+import {Modal} from "../utils/modal.ts";
 
 const Key = 'TerminalSociety'
 
@@ -17,12 +19,6 @@ function reverse(x: string) {
   return v
 }
 
-function repeat(x: Function, times: number) {
-  for (let i = 0; i < times; i++) {
-    x()
-  }
-}
-
 function nextDay() {
   let days = Math.floor(Date.now() / (24 * 60 * 60 * 1000));
   days += 1
@@ -30,13 +26,16 @@ function nextDay() {
 }
 
 export const GameStorage = {
-  save(n: boolean = true) {
-    if (n) {
+  save(doNotify = true) {
+    if (doNotify) {
       notify.normal("游戏已保存", 500)
     }
     player.saveTime = Date.now()
-    player.dailyFreshTime = nextDay()
-    player.version = version
+    if (player.saveTime > player.dailyFreshTime) {
+      player.dailyFreshTime = nextDay()
+      Market.generate()
+    }
+    player.version = LatestVersion
     let v = this.deserialize(JSON.stringify(player))
     localStorage.setItem(Key, v)
     return v
@@ -44,31 +43,7 @@ export const GameStorage = {
   clearSave() {
     localStorage.removeItem(Key)
   },
-  load(isLocal = false) {
-    let str = localStorage.getItem('TerminalSociety')
-    if (str != null) {
-      let obj
-      try {
-        obj = JSON.parse(str) // 向上兼容没有serial的版本
-      } catch (e) {
-        obj = JSON.parse(this.serialize(str))
-      } finally {
-        deepSet(obj, player)
-      }
 
-      /* Update */
-      let seconds = (Date.now() - player.saveTime) / (24 * 60 * 60 * 1000)
-      seconds = Numbers.round(seconds, 0) // update Times
-      if (seconds <= 200) {
-        repeat(() => EventHub.logic.dispatch(GameEvent.UPDATE), seconds)
-      }
-    }
-    if (Date.now() >= player.dailyFreshTime) {
-      Market.generate()
-    }
-    player.dev = isLocal
-
-  },
   copySave() {
     navigator.clipboard.writeText(this.save(false))
       .then(() => notify.success("存档已复制到剪贴板", 1000))
@@ -122,7 +97,29 @@ export const GameStorage = {
         return x.replace('-', '/')
       }
     }
-  ] as { encode(x: string): string, decode(x: string): string }[]
+  ] as { encode(x: string): string, decode(x: string): string }[],
+
+  load(isLocal = false) {
+    let str = localStorage.getItem('TerminalSociety')
+    if (str != null) {
+      /*try {
+        obj = JSON.parse(str) // 向上兼容没有serial的版本
+      } catch (e) {
+        obj = JSON.parse(this.serialize(str))
+        兼容（）（），不兼容了。到这个时候估计没什么用了（笑
+      } */
+      deepSet(JSON.parse(this.serialize(str)), player)
+      if (player.customName == "") ui.init.wait(NewGame)
+
+    } else {
+      ui.init.wait(NewGame)
+    }
+    Decimal.transfer(player)
+    player.dev = isLocal
+    if (player.version !== LatestVersion) {
+      ui.init.wait(() => Modal.VersionModal.show({}))
+    }
+  },
 
 }
 

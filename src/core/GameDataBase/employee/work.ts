@@ -2,10 +2,10 @@ import {Effect, effect, effectData, effectShort} from "../../game-mechanics/effe
 import {Numbers} from "../.././utils/Numbers.ts";
 import {GameDataClass} from "../baseData.ts";
 import {player} from "../../player.ts";
-import {onMounted, onUnmounted, ref, Ref} from "vue";
-import {EventHub, GameEvent} from "../../eventHub.ts";
+import {ref, Ref} from "vue";
 import {notify} from "../.././utils/notify.ts";
 import {noEmpty} from "../.././utils/noEmpty.ts";
+import {ui} from "../../game-mechanics/ui.ts";
 
 export interface employeeWork {
   id: number
@@ -113,7 +113,7 @@ export class EmployeeWorkClass extends GameDataClass implements EmployeeWorkData
       eff: ref(this.toEffect()),
     }
 
-    setTimeout(this.register.bind(this), 100)
+    ui.init.wait(this.register.bind(this))
   }
 
   static get allEquipped() {
@@ -202,24 +202,21 @@ export class EmployeeWorkClass extends GameDataClass implements EmployeeWorkData
     this.all.forEach(x => x.join())
   }
 
-  static fromData(...data: EmployeeWorkData[]) {
+  static createAccessor(...data: EmployeeWorkData[]): {
+    (id: number): EmployeeWorkClass,
+    all: EmployeeWorkClass[],
+    class: typeof EmployeeWorkClass
+  } {
     this.all = data.map(e => new this(e))
     const accessor = (id: number) => noEmpty(this.all.find(e => e.id == id))
     accessor.all = this.all
-    accessor.class = EmployeeWorkClass
+    accessor.class = this
 
     this.equipCount = this.all.filter(e => e.equipped).length
     return accessor
   }
 
-  static useBase() {
-    onMounted(() =>
-      EventHub.ui.on(GameEvent.CHANGE_EMPLOYEE, this.updateRefs.bind(this), this))
-    onUnmounted(() => EventHub.ui.offAll(this))
-    return this.refs
-  }
-
-  static updateRefs() {
+  static refreshTab() {
     this.refs.onUpdate.value = !this.refs.onUpdate.value
     setTimeout(() => this.refs.onUpdate.value = !this.refs.onUpdate.value, 20)
   }
@@ -231,15 +228,14 @@ export class EmployeeWorkClass extends GameDataClass implements EmployeeWorkData
 
     this.equipped = true
     Effect.registerEffect(this.toEffect())
-    EventHub.dispatch(GameEvent.CHANGE_EMPLOYEE)
-
+    EmployeeWorkClass.refreshTab()
   }
 
   unEquip() {
     if (!this.equipped) return
     this.equipped = false
     Effect.deleteEffect('employee', this.id)
-    EventHub.dispatch(GameEvent.CHANGE_EMPLOYEE)
+    EmployeeWorkClass.refreshTab()
   }
 
   upgrade() {
@@ -299,5 +295,5 @@ export class EmployeeWorkClass extends GameDataClass implements EmployeeWorkData
   }
 }
 
-export const Employee = EmployeeWorkClass.fromData(...__EmployeeWork)
-window.dev.employee = Employee
+export const Employee = EmployeeWorkClass.createAccessor(...__EmployeeWork)
+window.dev.employee = {Employee, EmployeeWorkClass}
