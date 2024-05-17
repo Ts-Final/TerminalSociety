@@ -13,7 +13,8 @@ const finished = computed(() => level.value >= research.maxLevel)
 </script>
 
 <template>
-  <div class="flex-col medium-size style-border gameUnit" v-if="unlocked && !finished">
+  <div class="flex-col medium-size style-border gameUnit"
+       v-if="!finished" :class="{'none-display':!unlocked}">
     <div class="show">
       <div class="res-detail-first-row">
         <span class="name">{{ research.name }}</span>
@@ -90,7 +91,7 @@ const finished = computed(() => level.value >= research.maxLevel)
 
 .progress-wrapper {
   margin: 2px;
-  border: 2px solid #7cdcf4;
+  border: 2px solid var(--border-color);
   padding: 2px;
   height: 0.75rem;
   width: 100%;
@@ -98,7 +99,7 @@ const finished = computed(() => level.value >= research.maxLevel)
 
 .progress {
   height: 100%;
-  background: #7cdcf4;
+  background: var(--border-color);
   width: v-bind(percent);
 }
 

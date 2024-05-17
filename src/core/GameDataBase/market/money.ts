@@ -12,7 +12,7 @@ export const Money = {
     return player.money.current
   },
   set amount(value: DecimalSource) {
-    player.money.current.fromValue(value)
+    player.money.current = new Decimal(value)
     this.refs.money.value = Decimal.fromValue(value)
   },
   spend(value: DecimalSource) {
@@ -37,5 +37,7 @@ export const Money = {
     player.money.totalEarned.fromValue(value)
     this.refs.totalEarned.value = player.money.totalEarned
   },
-
+  fromPlayer() {
+    this.amount = player.money.current
+  }
 }

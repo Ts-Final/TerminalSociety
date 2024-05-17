@@ -9,13 +9,6 @@ const contain = ref()
 
 NewsHandler.changeNextNews(span, contain)
 const {enabled} = NewsHandler.refs
-/*EventHub.logic.on(GameEvent.OPTION_CHANGE, function () {
-  enabled.value = player.options.news
-  if (enabled.value && id.value) {
-    clearTimeout(id.value)
-    NewsHandler.changeNextNews(span, contain)
-  }
-},NewsHandler)*/
 
 </script>
 

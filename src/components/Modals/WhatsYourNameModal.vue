@@ -2,24 +2,26 @@
 
 import ModalBase from "./ModalBase.vue";
 import {ref} from "vue";
-import {EventHub, GameEvent} from "../../core/eventHub.ts";
+import {EventHub} from "../../core/eventHub.ts";
 import {player} from "../../core/player.ts";
 import {ui} from "../../core/game-mechanics/ui.ts";
+import {GameStorage} from "../../core/game-mechanics/GameStorage.ts";
 
 const name = ref(player.customName)
 const fading = ref(false)
 
 function submit() {
   fading.value = true
-  name.value = name.value == "" ? "芸" : name.value
-  player.customName = name.value
+  player.customName = name.value == "" ? "芸" : name.value
   setTimeout(() => {
-    EventHub.dispatch(GameEvent.CLOSE_MODAL)
+    EventHub.dispatch('closeModal')
     ui.curtain.hide()
   }, 5e3)
+  GameStorage.save(false)
 }
 
 ui.curtain.show({})
+
 </script>
 
 <template>
@@ -34,8 +36,12 @@ ui.curtain.show({})
            placeholder="想想吧。你是否记得呢？" v-model="name" @keydown.enter="submit">
     <input class="name-input center-text" v-model="name" v-if="fading"
            style="user-select: none;cursor:none;pointer-events: none">
-    <div class="self-center size-0.8rem" v-if="name == ''">留空则会使用默认：“芸”。</div>
+
+    <div class="self-center size-0.8rem" v-if="name == '' && !fading">留空则会使用默认：“芸”。</div>
     <div class="self-center size-0.8rem" v-if="name == '芸'">你很喜欢这个名字？随你便吧。</div>
+    <div class="self-center size-0.8rem" v-if="fading && name == ''"
+         style="color: #f00">回忆我的故事……见证我的消逝。欢迎你。
+    </div>
     <div class="name-submit" @click="submit">确认</div>
   </ModalBase>
 </template>

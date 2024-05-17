@@ -2,7 +2,6 @@ import {player} from "../player";
 import {notify} from ".././utils/notify.ts";
 import {deepSet} from ".././utils/deepSet.ts";
 import {Base64} from ".././utils/base64.ts";
-import {Market} from "../GameDataBase/market";
 import {ui} from "./ui.ts";
 import {NewGame} from "./newGame.ts";
 import {Decimal} from "../utils/break_infinity.ts";
@@ -19,22 +18,12 @@ function reverse(x: string) {
   return v
 }
 
-function nextDay() {
-  let days = Math.floor(Date.now() / (24 * 60 * 60 * 1000));
-  days += 1
-  return days * 24 * 60 * 60 * 1000;
-}
-
 export const GameStorage = {
   save(doNotify = true) {
     if (doNotify) {
       notify.normal("游戏已保存", 500)
     }
     player.saveTime = Date.now()
-    if (player.saveTime > player.dailyFreshTime) {
-      player.dailyFreshTime = nextDay()
-      Market.generate()
-    }
     player.version = LatestVersion
     let v = this.deserialize(JSON.stringify(player))
     localStorage.setItem(Key, v)
@@ -110,15 +99,15 @@ export const GameStorage = {
       } */
       deepSet(JSON.parse(this.serialize(str)), player)
       if (player.customName == "") ui.init.wait(NewGame)
-
+      if (player.version !== LatestVersion) {
+        ui.init.wait(() => Modal.VersionModal.show({}))
+      }
     } else {
       ui.init.wait(NewGame)
     }
+
     Decimal.transfer(player)
     player.dev = isLocal
-    if (player.version !== LatestVersion) {
-      ui.init.wait(() => Modal.VersionModal.show({}))
-    }
   },
 
 }

@@ -36,7 +36,7 @@ export class CountryClass extends GameDataClass {
     super({
       id: countryIdCount++,
       name: name,
-      unlock: () => true
+      condition: () => true
     });
     this._parsed = parseCountryName(name)
   }
@@ -51,6 +51,13 @@ export class CountryClass extends GameDataClass {
       noEmpty(this.all.find(x => x.name == name))
     accessor.all = this.all
     return accessor
+  }
+
+  get unlocked(): boolean {
+    return true;
+  }
+
+  updateLogic(): void {
   }
 
 }

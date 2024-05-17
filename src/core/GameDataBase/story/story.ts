@@ -16,11 +16,12 @@ export interface StoryData {
 
   content: string[]
   border?: string
+  displayIndex?: string
 
   unlock(): boolean
 }
 
-export class StoryClass extends GameDataClass implements StoryData {
+export class StoryClass extends GameDataClass {
   static refs = {
     current: ref<Optional<StoryClass>>(),
     content: ref([]) as Ref<string[]>,
@@ -37,14 +38,25 @@ export class StoryClass extends GameDataClass implements StoryData {
   content: string[]
   border?: string
   description: string
+  displayIndex?: string
 
   constructor(data: StoryData) {
-    super(data);
+    super({
+      id: data.id,
+      name: data.name,
+      condition: data.unlock
+    });
     this.index = data.index
     this.content = data.content
     this.description = data.description
-    if (true) {
+
+    if (player.final) {
       this.description = this.description.replace(/\*.+\*/g, '')
+    }
+    if (data.displayIndex) {
+      this.displayIndex = data.displayIndex
+    } else {
+      this.displayIndex = data.index
     }
 
     this.refs = {
@@ -74,9 +86,6 @@ export class StoryClass extends GameDataClass implements StoryData {
   }
 
   /**
-   * Data of Story is organized in All[Chapter[Story]], so we need to
-   * flat the data list first.
-   *
    * Use this function in divided parts wont make stupid things.
    * Maybe.
    * */
@@ -130,7 +139,7 @@ export class StoryClass extends GameDataClass implements StoryData {
 
   updateLogic() {
     if (!this.unlocked) {
-      this.unlocked ||= this.unlock()
+      this.unlocked ||= this.condition()
       if (this.unlocked) {
         notify.success('故事篇章解锁：' + this.index + "  " + this.name, 1500)
       }

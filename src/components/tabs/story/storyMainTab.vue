@@ -51,7 +51,7 @@ function changeToNext() {
   position: fixed;
   right: 2rem;
   top: 4rem;
-  border:2px solid #7cdcf4;
+  border:2px solid var(--border-color);
   background-color: #000000;
   color: #7cdcf4;
   line-height: 1.5rem;

@@ -7,9 +7,9 @@ const change = defineProps<props.offlineChange>()
 
 <template>
   <ModalBase>
-    <template v-slot:header>
-      离线进度
-    </template>
+    <div class="self-center size-1.25rem">
+      离线进度计算
+    </div>
     <div class="flex-col full-w align-center">
       <div>欢迎回来！这段时间大概有人在干活，虽然可能不多，以下是你不在的时间发生的东西：</div>
       <template v-if="change.resource">

@@ -5,7 +5,7 @@ import {Company} from "../../../../core/GameDataBase/market/company.ts";
 </script>
 
 <template>
-  <div class="full-w flex-row flex-wrap">
+  <div class="full-w gameUnit-contain">
     <CompanyUnit :company="company" v-for="company in Company.all"/>
   </div>
 </template>

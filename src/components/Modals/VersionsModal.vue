@@ -12,11 +12,11 @@ const reversed = Versions.sort((a, b) => b.id - a.id)
       版本更新记录
     </template>
 
-    <div class="overflow-y-scroll credits-modal-body">
+    <div class="overflow-y-scroll version-modal-body">
       <div >
         <div v-for="version in reversed" style="text-align: center">
           <p class="self-center size-1.25rem" v-html="version.name" />
-          <p class="self-center">{{ new Date(version.date).toDateString() }}</p>
+<!--          <p class="self-center">{{ new Date(version.date).toDateString() }}</p>-->
           <div class="full-w flex-col" style="text-align: left">
             <div v-for="slice in version.description" v-html="slice"></div>
           </div>
@@ -29,10 +29,11 @@ const reversed = Versions.sort((a, b) => b.id - a.id)
 
 <style scoped>
 .credits-modal {
-  min-width: 50vw;
+  max-width: 50vw;
   min-height: 70vh;
 }
-.credits-modal-body {
+.version-modal-body {
   max-height: calc(70vh - 2rem - 10px);
+  padding: 4px;
 }
 </style>

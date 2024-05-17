@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import SidebarTab from "./SidebarTab.vue";
 import {Tab} from "../../core/GameDataBase/tabs.ts";
-import {EventHub, GameEvent} from "../../core/eventHub.ts";
 </script>
 
 <template>
-  <div class="sidebar-wrapper" @click="EventHub.ui.dispatch(GameEvent.CHANGE_TAB)">
+  <div class="sidebar-wrapper">
     <SidebarTab
         v-for="tab in Tab.all"
         :tab="tab"
@@ -24,8 +23,9 @@ import {EventHub, GameEvent} from "../../core/eventHub.ts";
   align-items: center;
 }
 
-.sidebar-wrapper :last-child {
+.sidebar-wrapper div:last-child {
   border-bottom: 1px solid;
+  border-color: var(--border-color);
 }
 
 </style>

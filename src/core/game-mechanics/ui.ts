@@ -1,4 +1,3 @@
-import {EventHub} from "../eventHub.ts";
 import {Modal} from ".././utils/modal.ts";
 import {Component, Ref, ref} from "vue";
 import {Optional} from "../constants.ts";
@@ -73,8 +72,8 @@ const curtain = {
     this._value = v
     this.ref.value = v
   },
-  show(config:Partial<StyleSheet>) {
-    this.setStyle(config)
+  show(config?: Partial<StyleSheet>) {
+    this.setStyle(config ?? {})
     this.value = true
   },
   hide() {
@@ -82,14 +81,13 @@ const curtain = {
   },
 
   style: ref({}),
-  setStyle(config:Partial<StyleSheet>) {
+  setStyle(config: Partial<StyleSheet>) {
     this.style.value = config
   },
 }
 export const ui = {
   init: initialize,
   view,
-  events: EventHub.ui,
   tabs,
   curtain
 }

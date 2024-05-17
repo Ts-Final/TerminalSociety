@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {Modal} from "../../core/./utils/modal.ts";
 import {ref} from "vue";
-import {EventHub, GameEvent} from "../../core/eventHub.ts";
+import {EventHub} from "../../core/eventHub.ts";
 import {different} from "../../core/./utils/different.ts";
 
 const {modal} = defineProps<{ modal: Modal }>()
@@ -38,9 +38,9 @@ function update() {
   lastUpdateWindowSize = v;
 }
 
-EventHub.ui.on(GameEvent.CLOSE_MODAL, hide, Modal)
-EventHub.ui.on(GameEvent.UPDATE, update, Modal)
-EventHub.ui.on(GameEvent.UPDATE, updatePositionStyles, Modal)
+EventHub.on('closeModal', hide, Modal)
+EventHub.on("update", update, Modal)
+EventHub.on("update", updatePositionStyles, Modal)
 </script>
 
 <template>
@@ -61,10 +61,10 @@ EventHub.ui.on(GameEvent.UPDATE, updatePositionStyles, Modal)
   display: block;
   position: fixed;
   color: var(--color-text);
-  max-height: 75vh;
-  min-height: 50vh;
-  max-width: 60vw;
-  min-width: 40vw;
+  max-height: 80vh;
+  min-height: 60vh;
+  max-width: 70vw;
+  min-width: 60vw;
   pointer-events: auto;
   padding: 5px;
   z-index: var(--z-modal);

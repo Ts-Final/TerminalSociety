@@ -134,6 +134,7 @@ export const StoryMainData: StoryMainData[] = [
       id: counter.next(),
       chapter: 0,
       index: "Main E-0",
+      displayIndex: `Main <span style="color: #ff0000">E-0</span>`,
       name: "无垠，惨白荒原",
       unlock: () => player.dev,
       description: `她迷失在了无垠的黑暗中。`,

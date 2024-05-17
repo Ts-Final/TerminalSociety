@@ -625,7 +625,6 @@ export class Decimal {
       } else if (typeof target[key] == "string") {
         target[key] = Decimal.DecimalLikeString(target[key])
       }
-
     }
   }
 

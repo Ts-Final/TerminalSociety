@@ -87,6 +87,15 @@ export const Versions: VersionDataInterface[] = [
     name: "Pre-dev 12",
     date: toDate(2024, 5, 3),
     description: ["给故事界面加了分类，现在可以分类查看了。", "实现了离线进度计算。"]
+  },
+  {
+    id:13,
+    name: "Pre-dev 12.1",
+    date: toDate(2024, 5, 17),
+    description: [
+      "修复bug：研究update时不消耗物资，市场-交易无法加载",
+      "修改了部分ui。"
+    ]
   }
 ]
 

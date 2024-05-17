@@ -1,18 +1,19 @@
-import {onMounted, onUnmounted, Ref, ref} from "vue"
-import {EventHub, GameEvent} from "../eventHub.ts"
+import {Ref, ref} from "vue"
+import {EventHub} from "../eventHub.ts"
 import {ui} from "../game-mechanics/ui.ts";
 
 export interface GameDataInterface {
   id: number
   name: string
 
-  unlock(): boolean
+  condition(): boolean
 
+  onUnlock?(): void
 }
 
-/*
-abstract class GameDataClassAbstract implements GameDataInterface {
-  unlock: () => boolean
+
+export abstract class GameDataClass implements GameDataInterface {
+  condition: () => boolean
   id: number
   name: string
   refs: {
@@ -20,69 +21,48 @@ abstract class GameDataClassAbstract implements GameDataInterface {
   }
 
   protected constructor(data: GameDataInterface) {
-    this.unlock = data.unlock
-    this.id = data.id
-    this.name = data.name
-
-    this.refs = {
-      unlocked: ref(this.unlock())
-    }
-    EventHub.logic.on(GameEvent.UPDATE,
-      this.updateLogic.bind(this), this)
-  }
-
-  abstract get unlocked(): boolean
-  abstract set unlocked(value: boolean)
-
-  abstract updateLogic(): void
-
-  abstract updateVisual(): void
-
-}
-*/
-export class GameDataClass implements GameDataInterface {
-  unlock: () => boolean
-  id: number
-  name: string
-  refs: {
-    unlocked: Ref<boolean>
-  }
-
-  constructor(data: GameDataInterface) {
-    this.unlock = data.unlock
+    this.condition = data.condition
     this.id = data.id
     this.name = data.name
 
     this.refs = {
       unlocked: ref(false)
     }
+    if (data.onUnlock) {
+      this.onUnlock = data.onUnlock
+    }
 
     ui.init.wait(this.updateRef.bind(this))
   }
 
-  get unlocked(): boolean {
-    return false
-  }
-
-  _boundBase(ins: GameDataClass) {
-    onMounted(() => EventHub.ui.on(GameEvent.UPDATE, ins.updateRef.bind(ins), ins))
-    onUnmounted(() => EventHub.ui.offAll(ins))
-  }
-
-  /** @deprecated */
-  useBase() {
-    this._boundBase(this)
-    return this.refs
-  }
+  abstract get unlocked(): boolean
+  abstract set unlocked(value)
 
   onLogic() {
-    EventHub.logic.on(GameEvent.UPDATE, this.updateLogic.bind(this), this)
+    EventHub.on('updateLogic', this.updateLogic.bind(this), this)
   }
 
-  updateLogic() {
+  abstract updateLogic(): void
+
+  updateRef(): void {
+
   }
 
-  updateRef() {
+  onUnlock?(): void
 
+  /*
+  * return true if the object is unlocked during this check.
+  * else would be either that the obj has already been unlocked or
+  * it fails the condition check.
+  * */
+  tryUnlock() {
+    if (this.condition()) {
+      this.unlocked = true
+      if (this.onUnlock) {
+        this.onUnlock()
+      }
+      return true
+    }
+    return false
   }
 }

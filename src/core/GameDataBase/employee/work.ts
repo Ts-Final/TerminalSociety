@@ -89,7 +89,7 @@ export class EmployeeWorkClass extends GameDataClass implements EmployeeWorkData
       id: data.id,
       name: data.name,
       // As we needed, they are all Employed manually, so we never let it unlock
-      unlock: () => false
+      condition: () => false
     });
     this.des = data.des
     this.maxLevel = data.maxLevel
@@ -292,6 +292,10 @@ export class EmployeeWorkClass extends GameDataClass implements EmployeeWorkData
     }
     this.unlocked = true
     this.joinTime = Date.now()
+  }
+
+  updateLogic(): void {
+
   }
 }
 

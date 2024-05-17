@@ -2,14 +2,9 @@
 
 import ModalBase from "./ModalBase.vue";
 import {props} from "../../core/utils/modal.ts";
-import {computed, watchEffect} from "vue";
-import {EventHub, GameEvent} from "../../core/eventHub.ts";
+import {computed} from "vue";
 
 const {max_ticks, tickR, finished, time} = defineProps<props.offline>()
-
-watchEffect(() => {
-  if (finished.value) EventHub.ui.dispatch(GameEvent.CLOSE_MODAL)
-})
 
 const passed = (function (x: number) {
   const days = Math.floor(x / (1000 * 60 * 60 * 24));

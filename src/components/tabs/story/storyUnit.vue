@@ -9,7 +9,7 @@ const {unlocked} = story.refs
   <div class="story-unit" :style="{borderColor:story.border}"
        v-if="unlocked">
     <div class="story-unit-left">
-      <div v-html="story.index"/>
+      <div v-html="story.displayIndex"/>
       <div class="story-tri" @click="story.show()">&vrtri;</div>
     </div>
     <div class="story-unit-right-wrapper">
@@ -27,7 +27,7 @@ const {unlocked} = story.refs
   max-height: 20vh;
   display: grid;
   grid-template-columns: 1fr 3fr;
-  border: 2px #7cdcf4 solid;
+  border: 2px var(--border-color) solid;
   align-self: center;
   background-color: #00000088;
   color: #7cdcf4;
@@ -39,7 +39,7 @@ const {unlocked} = story.refs
   justify-content: center;
   text-align: center;
   font-size: 2rem;
-  border-right: 1px solid #7cdcf4;
+  border-right: 1px solid var(--border-color);
   align-items: center;
 }
 .story-unit-right {

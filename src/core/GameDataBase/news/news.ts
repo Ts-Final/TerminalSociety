@@ -1,10 +1,11 @@
 import {player} from "../../player";
 import {ref, Ref} from "vue";
-import {EventHub, GameEvent} from "../../eventHub.ts";
+import {EventHub} from "../../eventHub.ts";
 import {randomElement} from "../.././utils/random.ts";
 import {Options} from "../../game-mechanics/options.ts";
 import {Resource} from "../resource.ts";
 import {Numbers} from "../../utils/Numbers.ts";
+import {ui} from "../../game-mechanics/ui.ts";
 
 export interface NewsTick {
   content: string
@@ -15,7 +16,7 @@ export interface NewsTick {
 
 export * from "./news.css"
 
-const counter =Numbers.counter(0,1)
+const counter = Numbers.counter(0, 1)
 
 export const News: NewsTick[] = [
   {
@@ -62,6 +63,13 @@ export const News: NewsTick[] = [
     unlocked(): boolean {
       return Resource.energy.amount.lte(200)
     }
+  },
+  {
+    id:counter.next(),
+    content:"不过，我们曾经留下的东西仍然有人记着：这不禁令人欣喜。当然，存在的形式可能不止于此，但是这很不错，是吧。",
+    unlocked(): boolean {
+      return true
+    }
   }
 ]
 
@@ -87,7 +95,8 @@ export const NewsHandler = new (class NewsHandler {
       id: ref(),
     }
     this.recent = []
-    EventHub.ui.on(GameEvent.UPDATE, this.update.bind(this), this)
+    EventHub.on('optionChange', this.update.bind(this), this)
+    ui.init.wait(this.update.bind(this))
   }
 
   /**
@@ -147,7 +156,7 @@ export const NewsHandler = new (class NewsHandler {
       this.recent.shift()
     }
     player.news.seen.push(nextNews.id)
-    player.news.seen = [...new Set(player.news.seen)].sort((a,b) => a-b)
+    player.news.seen = [...new Set(player.news.seen)].sort((a, b) => a - b)
 
     span.value.innerHTML = nextNews.content // set the content
     span.value.style["transitionDuration"] = "0s"

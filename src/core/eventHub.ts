@@ -48,105 +48,44 @@ export const EventHub = new eventHub()
 export {GameEvent}
 
 */
-export const enum GameEvent {
-  /* UI update only, we use gameLoop() another-where */
-  UPDATE,
-  CHANGE_TAB,
-  CLOSE_MODAL,
+export const GameEvents = {
+  update: 'update',
+  /*use this event here to separate ui-related things from logic*/
+  updateLogic: "updateLogic",
+  changeTab: 'changeTab',
+  closeModal: 'closeModal',
 
-  // Options
-  OPTION_CHANGE,
+  optionChange: 'optionChange',
 
-  // Market
-  MARKET_UPDATE,
-  MARKET_EXCHANGE_UPDATE,
-
-  // Employ
-  CHANGE_EMPLOYEE
-}
+  marketUpdate: 'marketUpdate',
+  marketExchangeUpdate: 'marketExchangeUpdate',
+  changeEmployee: 'changeEmployee'
+} as const
+export type Events = typeof GameEvents[keyof typeof GameEvents]
 
 
-export function getStack(msg?: string) {
-  let callstack = (new Error()).stack
-  if (!callstack) throw new Error("Unable to get stack")
-  let stacks = callstack.split("\n")
-  let r = msg || ""
-  for (const stack of stacks) {
-    r += `\n at ${stack}`
-  }
-  return r
-}
-
-function emptyCheck(value: any) {
-  if (!value) {
-    console.warn("value is empty!")
-  }
-}
-
-export class EventHub {
-  static ui: EventHub
-  static logic: EventHub;
-
-  static dispatch(event:number) {
-    EventHub.ui.dispatch(event)
-    EventHub.logic.dispatch(event)
-  }
-  _handlers: { [key: number]: { fn: Function, target: any }[] }
-  events: number[];
-
-  constructor() {
-    this.events = []
-    this._handlers = {}
-  }
-
-  dispatch(event: number, args?: any) {
+export const EventHub = {
+  _handlers: {} as { [key in Events]: { fn: Function, target: any }[] },
+  dispatch(event: Events) {
     const handlers = this._handlers[event]
     if (handlers === undefined) return
     for (const handler of handlers) {
-      handler.fn(args)
+      handler.fn()
     }
-  }
-
-  flushEvents() {
-    for (const event of this.events) {
-      this._handlers[event].forEach((v) => v.fn())
+  },
+  on(e: Events, fn: Function, target: any) {
+    const handler = this._handlers[e]
+    if (!handler) {
+      this._handlers[e] = []
     }
-    this.events = []
-  }
-
-  on(event: number, fn: Function, target: any, first?:boolean) {
-    let handlers = this._handlers[event]
-    if (handlers === undefined) {
-      handlers = []
-      this._handlers[event] = handlers
-    }
-
-    emptyCheck(target)
-    if (first) {
-      handlers.unshift({fn,target})
-    } else {
-      handlers.push({fn, target})
-    }
-  }
-
+    this._handlers[e].push({fn, target})
+  },
   offAll(target: any) {
-    for (const event in this._handlers) {
-      this._handlers[event] = this._handlers[event].filter(
-        (x) => x.target !== target
-      )
+    for (const handlers in this._handlers) {
+      let key = <Events>handlers
+      this._handlers[key] = this._handlers[key].filter(x => x.target !== target)
     }
   }
-
-  callAll() {
-    for (const key in this._handlers) {
-      for (const handler of this._handlers[key]) {
-        handler.fn()
-      }
-    }
-  }
-
 }
 
-EventHub.logic = new EventHub()
-EventHub.ui = new EventHub()
 window.dev.eventHub = EventHub

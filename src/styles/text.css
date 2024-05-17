@@ -1,5 +1,5 @@
 .rainbow-text {
-  background-image: linear-gradient(to right, red, orange, yellow, #7cdcf4,  violet, red, orange, yellow, #7cdcf4, violet,red);
+  background-image: linear-gradient(to right, red, orange, yellow, #7cdcf4, violet, red, orange, yellow, #7cdcf4, violet, red);
   background-size: 200% 100%;
   animation: infinite linear 4s a-rainbow-text;
   background-clip: text;
@@ -16,10 +16,12 @@
     background-position: -100% 0;
   }
 }
+
 .rainbow-text-color {
   animation: infinite linear 10s a-rainbow-text-color;
 
 }
+
 @keyframes a-rainbow-text-color {
   0% {
     color: #7cdcf4;
@@ -30,9 +32,15 @@
   40% {
     color: #c35ee7;
   }
-  60%{color: #943430}
-  80%{color: #bbb516}
-  100%{color: #7cdcf4}
+  60% {
+    color: #943430
+  }
+  80% {
+    color: #bbb516
+  }
+  100% {
+    color: #7cdcf4
+  }
 }
 
 .none-display {
@@ -59,4 +67,20 @@
 
 .text-italic {
   font-style: italic;
+}
+
+.size-0\.9rem {
+  font-size: 0.9rem;
+}
+
+.size-0\.8rem {
+  font-size: 0.8rem;
+}
+
+.size-1\.25rem {
+  font-size: 1.25rem;
+}
+
+.size-1\.5rem {
+  font-size: 1.5rem;
 }

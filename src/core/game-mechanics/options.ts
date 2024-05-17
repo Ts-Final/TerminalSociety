@@ -1,6 +1,6 @@
 import {player} from "../player";
 import {gameIntervals} from "./gameIntervals.ts";
-import {EventHub, GameEvent} from "../eventHub.ts";
+import {EventHub} from "../eventHub.ts";
 import {ref} from "vue";
 import {ui} from "./ui.ts";
 
@@ -19,15 +19,15 @@ const visual = {
   set newsEnabled(value: boolean) {
     player.options.news = value
     this.refs.news.value = value
-    EventHub.dispatch(GameEvent.OPTION_CHANGE)
+    EventHub.dispatch("optionChange")
   },
   get laugh() {
     return player.options.laugh
   },
   set laugh(value: boolean) {
     player.options.laugh = value
-    EventHub.dispatch(GameEvent.OPTION_CHANGE)
     this.refs.laugh.value = value
+    EventHub.dispatch("optionChange")
   },
   get autoStory() {
     return player.options.autoStory

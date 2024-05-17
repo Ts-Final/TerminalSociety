@@ -7,7 +7,8 @@ import {Research} from "../../../core/GameDataBase/research.ts";
 
 <template>
   <ResourceAmounts class="full-w"/>
-  <div class="full-w flex-wrap flex-row">
+  <div class="gameUnit-contain">
+    <ResearchUnit :research="Research(0)" style="display: flex"/>
     <ResearchUnit v-for="rch in Research.all" :research="rch"/>
   </div>
 </template>

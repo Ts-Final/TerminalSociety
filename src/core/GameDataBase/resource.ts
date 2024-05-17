@@ -15,14 +15,14 @@ let resIdCounter = 0
 interface ResourceDataInterface extends GameDataInterface {
   name: ResourceTypes
   id: number
-  unlock: () => boolean
+  condition: () => boolean
 }
 
 function _(name: ResourceTypes): ResourceDataInterface {
   return {
     name: name,
     id: resIdCounter++,
-    unlock: () => true
+    condition: () => true
   }
 }
 
@@ -202,7 +202,7 @@ export class ResourceClass
     this.refs.affects.maxMult.value = value.maxMult
   }
 
-  get basePrice():Decimal {
+  get basePrice(): Decimal {
     return player.market.basePrice[this.name]
   }
 
@@ -279,36 +279,55 @@ export class ResourceClass
   }
 
   updateMaximum() {
-    // this.maximum = Numbers.round((1e4 + this.effects.maxAdd.total) * (1 + this.effects.maxMult.total))
     this.maximum = this.effects.maxAdd.total.add(1e4).mul(this.effects.maxMult.total.add(1))
   }
 
-  canProduce(value: DecimalSource) {
+  canEffectProduce(value: DecimalSource) {
     return this.maximum.gt(
       this.effects.pro.total.add(1).mul(value).add(this.amount)
     )
   }
 
-  canCost(value: number) {
+  canEffectCost(value: DecimalSource) {
     return this.amount.gt(
       this.effects.consume.total.neg().add(1).mul(value)
     )
   }
 
-  doProduce(value: number, useEffect: boolean) {
-    this._produce(useEffect ?
-      this.effects.pro.total.add(1).mul(value) : value)
-  }
-
-  doCost(value: number, useEffect: boolean) {
-    this._cost(useEffect ?
-      this.effects.consume.total.neg().add(1).mul(value) : value
+  canDirectProduce(value: DecimalSource) {
+    return this.maximum.gt(
+      this.amount.add(value)
     )
   }
-  _produce(value:DecimalSource) {
+
+  canDirectCost(value: DecimalSource) {
+    return this.amount.gt(value)
+  }
+
+  effectProduce(value: number) {
+    this._produce(
+      this.effects.pro.total.add(1).mul(value))
+  }
+
+  effectCost(value: number) {
+    this._cost(
+      this.effects.consume.total.neg().add(1).mul(value)
+    )
+  }
+
+  directProduce(value: DecimalSource) {
+    this._produce(value)
+  }
+
+  directCost(value: DecimalSource) {
+    this._cost(value)
+  }
+
+  _produce(value: DecimalSource) {
     this.amount = this.amount.add(value)
   }
-  _cost(value:DecimalSource) {
+
+  _cost(value: DecimalSource) {
     this.amount = this.amount.sub(value)
   }
 

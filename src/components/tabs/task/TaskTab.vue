@@ -6,8 +6,8 @@ import {Task} from "../../../core/GameDataBase/task.ts";
 
 <template>
   <ResourceAmounts class="full-w flex-row"/>
-  <div class="full-w flex-row flex-wrap">
-    <TaskUnit :Task="task" v-for="task in Task.all" :key="task.id"/>
+  <div class="full-w gameUnit-contain">
+    <TaskUnit :task="task" v-for="task in Task.all" :key="task.id"/>
   </div>
 </template>
 

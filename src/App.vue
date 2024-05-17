@@ -41,7 +41,7 @@ body, :root, #app {
 
 
 :root {
-  --left-bar-width: 8rem;
+  --left-bar-width: 7rem;
   --z-fixed: 5;
   --z-modal-bg: 9;
   --z-modal: 10;
@@ -74,7 +74,6 @@ body, :root, #app {
   --color-notification: red;
   --color-overlay: rgba(30, 30, 50, 70%);
 
-  --color-border: #7cdcf4;
   /*
   --color-antimatter: #2196f3;
   --color-infinity: #b67f33;

@@ -1,19 +1,16 @@
 <script setup lang="ts">
-import {EventHub, GameEvent} from "../../core/eventHub.ts";
+import {EventHub} from "../../core/eventHub.ts";
 import ModalCloseButton from "./ModalCloseButton.vue";
 
 function closeModal() {
-  EventHub.dispatch(GameEvent.CLOSE_MODAL)
+  EventHub.dispatch('closeModal')
 }
-
-const props = defineProps<{showClose?:boolean}>()
-const showClose = props.showClose ? true : props.showClose
 </script>
 
 <template>
   <div class="modal-wrapper">
     <div class="modal-header" v-if="$slots.header">
-      <ModalCloseButton @click="closeModal" v-if="showClose"/>
+      <ModalCloseButton @click="closeModal"/>
       <span class="modal-title">
         <slot name="header"/>
       </span>

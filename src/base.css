@@ -1,6 +1,9 @@
 .style-border {
   border: 2px solid var(--border-color);
 }
+.style-border-color {
+  border-color: var(--border-color);
+}
 .style-color {
   color: var(--text-color);
 }

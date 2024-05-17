@@ -46,3 +46,10 @@
 .align-center {
   align-items: center;
 }
+.grid-1-3 {
+  display: grid;
+  grid-template-columns: 1fr 3fr;
+}
+.margin-top-2rem {
+  margin-top: 2rem;
+}

@@ -35,7 +35,7 @@ const classObject = computed(() => {
   height: 1.5rem;
   width: 1.5rem;
   font-family: sans-serif;
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   font-weight: bold;
   color: var(--color-text);
   background-color: black;

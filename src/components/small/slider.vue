@@ -148,13 +148,13 @@ function onMouseEnter(e: MouseEvent) {
 .slider-rail {
   width: 100%;
   height: 5px;
-  border: 2px solid #7cdcf4;
+  border: 2px solid var(--border-color);
   cursor: pointer;
 }
 
 .slider-rail-left {
   height: 100%;
-  background-color: #7cdcf4;
+  background-color: var(--border-color);
 }
 
 .slider-rail-button {

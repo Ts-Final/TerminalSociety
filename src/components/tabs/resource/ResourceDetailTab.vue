@@ -78,6 +78,9 @@ const chosen: Ref<ResourceTypes> = ref("energy")
   text-align: center;
   color: #7cdcf4;
   flex-grow: 1;
+  cursor: pointer;
+  user-select: none;
+  transition: border 0.2s linear;
 }
 
 .chosen {

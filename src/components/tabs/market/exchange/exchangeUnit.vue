@@ -17,7 +17,7 @@ const toBuy = exchange.toBuy
     </div>
     <div class="flex-col border1-top">
       <div class="center-text">剩余数量：{{ exchange.amount - bought }}</div>
-      <div class="center-text">单价：{{ exchange.price }}</div>
+      <div class="center-text">单价：{{ exchange.price.toResourceAmount() }}</div>
     </div>
     <div class="flex-row">
       <input class="style-border center-text" v-model="toBuy" placeholder="购买数量">

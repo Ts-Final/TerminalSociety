@@ -1,15 +1,16 @@
 import {Component, Ref} from "vue";
-import {EventHub} from "../eventHub.ts";
+import {EventHub, Events} from "../eventHub.ts";
 import {ui} from "../game-mechanics/ui.ts";
 import VersionsModal from "../../components/Modals/VersionsModal.vue";
 import WhatsYourNameModal from "../../components/Modals/WhatsYourNameModal.vue";
 import OfflineUpdate from "../../components/Modals/offlineUpdate.vue";
 import {Decimal} from "./break_infinity.ts";
 import OfflineProgressModal from "../../components/Modals/OfflineProgressModal.vue";
+import BasicPlayModal from "../../components/Modals/BasicPlayModal.vue";
 
 let nextModalID = 0
 type modalConfig = {
-  closeEvent?: number
+  closeEvent?: Events
 }
 
 export namespace props {
@@ -34,18 +35,19 @@ export namespace props {
 
 export class Modal<T extends props.empty = {}> {
   static VersionModal = new Modal<props.empty>(VersionsModal)
-  static WhatsYourNameModal = new Modal<props.empty>(WhatsYourNameModal)
+  static WhatsYourNameModal = new Modal<props.empty>(WhatsYourNameModal,1)
   static OfflineModal = new Modal<props.offline>(OfflineUpdate, 1)
   static OfflineProgressModal = new Modal<props.offlineChange>(OfflineProgressModal)
+  static BasicPlayModal = new Modal<props.empty>(BasicPlayModal)
 
-  _closeEvent?: number
+  _closeEvent?: Events
   _modalConfig: modalConfig
   _uniqueID?: number
 
   constructor(
     component: Component,
     priority = 0,
-    closeEvent?: number,
+    closeEvent?: Events,
   ) {
     this._component = component
     this._priority = priority
@@ -104,12 +106,12 @@ export class Modal<T extends props.empty = {}> {
     ui.view.modal.current = undefined;
   }
 
-  applyCloseEventListeners(event: number) {
-    EventHub.ui.on(event, () => this.removeFromQueue(), this)
+  applyCloseEventListeners(event: Events) {
+    EventHub.on(event, () => this.removeFromQueue(), this)
   }
 
   removeFromQueue() {
-    EventHub.ui.offAll(this)
+    EventHub.offAll(this)
     ui.view.modal.queue = ui.view.modal.queue.filter(m => m._uniqueID !== this._uniqueID)
     if (ui.view.modal.queue.length === 0) ui.view.modal.current = undefined
     else ui.view.modal.current = ui.view.modal.queue[0]
@@ -130,3 +132,5 @@ export class Modal<T extends props.empty = {}> {
 
   }
 }
+
+window.dev.modal = Modal

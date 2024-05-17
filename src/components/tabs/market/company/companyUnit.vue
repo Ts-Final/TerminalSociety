@@ -8,7 +8,7 @@ const {company} = defineProps<{ company: CompanyClass }>()
 </script>
 
 <template>
-  <div class="gameUnit medium-size style-border flex-col">
+  <div class="gameUnit style-border flex-col">
     <div class="flex-row space-around">
       <div>{{ company.name }}</div>
       <div v-html="Country(company.country).parsed"></div>

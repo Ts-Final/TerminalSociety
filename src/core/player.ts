@@ -122,6 +122,8 @@ export const player = {
   story: {} as { [key: string]: [boolean,boolean] },
   customName: "",
   lastUpdate: Date.now(),
+  gameSpeed: 1,
+  final: false
 
 }
 

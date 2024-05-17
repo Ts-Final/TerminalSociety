@@ -1,7 +1,7 @@
 import {player} from "../player";
 import {GameDataClass, GameDataInterface} from "./baseData.ts";
 import {Component, ref, Ref} from "vue";
-import {EventHub, GameEvent} from "../eventHub.ts";
+import {EventHub} from "../eventHub.ts";
 import {Resource} from "./resource.ts";
 import {noEmpty} from ".././utils/noEmpty.ts";
 import ResourceGeneralTab from "../../components/tabs/resource/ResourceGeneralTab.vue";
@@ -28,11 +28,11 @@ interface TabDataInterface extends GameDataInterface {
   subTabs?: {
     name: string,
     row: number,
-    unlock(): boolean,
+    condition(): boolean,
     component: Component
   }[]
 
-  unlock(): boolean
+  condition(): boolean
 }
 
 function repeat(length: number, value: boolean) {
@@ -53,7 +53,7 @@ export class TabClass extends GameDataClass implements TabDataInterface {
     unlocks: Ref<boolean[]>,
     hidden: Ref<boolean>,
   }
-  subTabs?: { name: string; row: number; unlock(): boolean; component: Component; }[]
+  subTabs?: { name: string; row: number; condition(): boolean; component: Component; }[]
   component?: Component
   hideable: boolean
   hasSubTab: boolean = false
@@ -62,7 +62,7 @@ export class TabClass extends GameDataClass implements TabDataInterface {
     super({
       name: data.name,
       id: data.id,
-      unlock: data.unlock,
+      condition: data.condition,
     });
     this.refs = {
       unlocked: ref(false),
@@ -91,7 +91,7 @@ export class TabClass extends GameDataClass implements TabDataInterface {
     this.onLogic()
 
     const x = this
-    EventHub.ui.on(GameEvent.CHANGE_TAB, () => x.refs.chosen.value = x.chosen, this)
+    EventHub.on('changeTab', () => x.refs.chosen.value = x.chosen, this)
   }
 
   get unlocked() {
@@ -156,6 +156,9 @@ export class TabClass extends GameDataClass implements TabDataInterface {
     if (!tab) throw new Error(`WTF tab column index ${col}`)
     tab.show(row)
   }
+  static updateDisplay() {
+    this.display.value = player.display
+  }
 
   updateRef() {
     this.refs.hide.value = this.hide
@@ -168,12 +171,12 @@ export class TabClass extends GameDataClass implements TabDataInterface {
   updateLogic() {
     if (this.subTabs) {
       for (const subTab of this.subTabs) {
-        this.unlocks[subTab.row + 1] ||= this.subTabs[subTab.row].unlock()
-        this.unlocks[0] ||= this.unlock()
+        this.unlocks[subTab.row + 1] ||= this.subTabs[subTab.row].condition()
+        this.unlocks[0] ||= this.condition()
 
       }
     } else {
-      this.unlocks = [this.unlock()]
+      this.unlocks = [this.condition()]
     }
     // This small piece of shit sits here because if i dont do that it won't
     // trigger the changing of this.refs.unlocks and may cause stupid bugs.
@@ -198,6 +201,7 @@ export class TabClass extends GameDataClass implements TabDataInterface {
         ui.tabs.current = this.subTabs[this.lastOpen].component
       }
     }
+    EventHub.dispatch('changeTab')
   }
 }
 
@@ -207,14 +211,14 @@ const TabData: TabDataInterface[] = [
     name: "资源",
     id: counter.next(),
     hideable: false,
-    unlock(): boolean {
+    condition(): boolean {
       return true
     },
     subTabs: [
       {
         name: "总览",
         row: 0,
-        unlock(): boolean {
+        condition(): boolean {
           return true
         },
         component: ResourceGeneralTab
@@ -222,7 +226,7 @@ const TabData: TabDataInterface[] = [
       {
         name: "详细",
         row: 1,
-        unlock: () => Effect.effects.length > 0,
+        condition: () => Effect.effects.length > 0,
         component: ResourceDetailTab
       }
     ]
@@ -231,7 +235,7 @@ const TabData: TabDataInterface[] = [
     name: "生产",
     id: counter.next(),
     hideable: true,
-    unlock(): boolean {
+    condition(): boolean {
       return true
     },
     component: TaskTab
@@ -240,28 +244,28 @@ const TabData: TabDataInterface[] = [
     name: "研究",
     id: counter.next(),
     hideable: true,
-    unlock: () => true,
+    condition: () => true,
     component: ResearchTab
   },
   {
     name: "市场",
     id: counter.next(),
     hideable: true,
-    unlock(): boolean {
+    condition(): boolean {
       return Resource.air.max_record.gt(20)
     },
     subTabs: [
       {
         name: "价格",
         row: 0,
-        unlock(): boolean {
+        condition(): boolean {
           return true
         },
         component: BasePriceTab
       },
       {
         name: "交易",
-        unlock(): boolean {
+        condition(): boolean {
           return true
         },
         row: 1,
@@ -270,7 +274,7 @@ const TabData: TabDataInterface[] = [
       {
         name: "公司",
         row: 2,
-        unlock(): boolean {
+        condition(): boolean {
           return true
         },
         component: CompanyTab
@@ -278,7 +282,7 @@ const TabData: TabDataInterface[] = [
       {
         name: "许可",
         row: 3,
-        unlock(): boolean {
+        condition(): boolean {
           return true
         },
         component: UpgradeTab
@@ -289,14 +293,14 @@ const TabData: TabDataInterface[] = [
     name: "员工",
     id: counter.next(),
     hideable: true,
-    unlock(): boolean {
+    condition(): boolean {
       return Resource.water.max_record.gt(5)
     },
     subTabs: [
       {
         name: "雇员",
         row: 0,
-        unlock(): boolean {
+        condition(): boolean {
           return true
         },
         component: EmployeeTab
@@ -307,14 +311,14 @@ const TabData: TabDataInterface[] = [
     name:"故事",
     id:counter.next(),
     hideable: true,
-    unlock(): boolean {
+    condition(): boolean {
       return Resource.energy.max_record.gt(10)
     },
     subTabs: [
       {
         row:0,
         name:"主线",
-        unlock(): boolean {
+        condition(): boolean {
           return true
         },
         component: StoryMainTab,
@@ -325,7 +329,7 @@ const TabData: TabDataInterface[] = [
     name: '指引',
     id: counter.next(),
     hideable: false,
-    unlock() {
+    condition() {
       return true
     },
     component: H2PTab
@@ -334,13 +338,13 @@ const TabData: TabDataInterface[] = [
     name: "设置",
     id: counter.next(),
     hideable: false,
-    unlock(): boolean {
+    condition(): boolean {
       return true
     },
     subTabs: [
       {
         name: "视觉",
-        unlock(): boolean {
+        condition(): boolean {
           return true
         },
         row: 0,
@@ -352,6 +356,7 @@ const TabData: TabDataInterface[] = [
 
 export const Tab = TabClass.createAccessor(...TabData)
 
-EventHub.ui.dispatch(GameEvent.CHANGE_TAB)
+EventHub.dispatch('changeTab')
+EventHub.on('changeTab', () => TabClass.updateDisplay(), TabClass)
 
 window.dev.tab = Tab

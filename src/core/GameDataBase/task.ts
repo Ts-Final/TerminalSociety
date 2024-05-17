@@ -1,10 +1,12 @@
 import {player} from "../player";
-import {ResourceClass, Resource} from "./resource.ts";
+import {Resource} from "./resource.ts";
 import {GameDataClass, GameDataInterface} from "./baseData.ts";
 import {Ref, ref} from "vue";
 import {notify} from ".././utils/notify.ts";
 import {Accessor, ResourceTypes} from "../constants.ts";
 import {noEmpty} from ".././utils/noEmpty.ts";
+import {Upgrades} from "./market/upgrade.ts";
+import {Numbers} from "../utils/Numbers.ts";
 
 interface TaskDataInterface extends GameDataInterface {
   id: number
@@ -14,7 +16,7 @@ interface TaskDataInterface extends GameDataInterface {
   produce: [ResourceTypes, number][]
   cost: [ResourceTypes, number][]
 
-  unlock(): boolean
+  condition(): boolean
 }
 
 /**
@@ -30,58 +32,59 @@ interface TaskDataInterface extends GameDataInterface {
  },
 
  */
+const counter = Numbers.counter(0, 1)
 export const TaskData: TaskDataInterface[] = [
   {
-    id: 0,
+    id: counter.next(),
     name: "太阳能",
     des: "至少太阳一直照耀着这里。",
     itl: "也没有人知道，为什么太阳永不落下",
     produce: [["energy", 5]],
     cost: [],
-    unlock: () => true,
+    condition: () => true,
   },
   {
-    id: 1,
+    id: counter.next(),
     name: "排气扇",
     des: "排气扇反过来用就可以变成吸气扇了。",
     itl: "仍然看着很怪，你也不清楚这玩意是否能用，并且开始怀念空气泵",
     produce: [["air", 1]],
     cost: [["energy", 2]],
-    unlock() {
+    condition() {
       return Resource("energy").max_record.gt(25)
     }
   },
   {
-    id: 2,
+    id: counter.next(),
     name: "矿泉水瓶",
     des: "这玩意总比那个倒过来用的排气扇要正常一点，虽然也不是什么好东西",
     itl: "什么年代了还需要手动舀水的？你仍然觉得作者脑子多少有点问题，不过总归不用耗能。",
     produce: [["water", 2]],
     cost: [],
-    unlock() {
+    condition() {
       return Resource.air.max_record.gt(3)
     },
   },
   {
-    id: 3,
+    id: counter.next(),
     name: "下矿",
     des: "从别人那里买的确很方便，但要担心被背刺的那一天什么时候到来",
     itl: "最后决定：自己去买一片地。真正实现矿产自由，但是环境破坏嘛……你仍然需要思考。",
     produce: [['iron', 10], ['copper', 10], ["coal", 20]],
     cost: [['energy', 100], ['water', 5]],
-    unlock() {
-      return false
+    condition() {
+      return Upgrades(0).unlocked
     },
   },
   {
-    id: 4,
+    id: counter.next(),
     name: "水泵",
     des: "机械时代！收藏矿泉水瓶吧，我们终于有了一个效率更高的东西。",
     itl: "这块地的旁边就是一条小河，对岸是另外一片荒地。谁知道■■花了多大力气才找了这么一块风水宝地。",
     produce: [['water', 10]],
     cost: [['energy', 10]],
-    unlock() {
-      return false
+    condition() {
+      return Upgrades(0).unlocked
     },
   },
 ]
@@ -149,40 +152,31 @@ export class TaskClass
     this.refs.unlocked.value = this.unlocked
   }
 
-  updateLogic(speed:number=1) {
+  updateLogic(speed: number = 1) {
     if (!this.unlocked) {
-      this.unlocked ||= this.unlock()
-      if (this.unlocked) {
+      if (this.tryUnlock()) {
         notify.success(`解锁生产：${this.name}`, 1000)
       }
+      return;
     }
+
     // activate check
-    if (!this.activated) {
-      return
-    }
+    if (!this.activated) return;
 
     // About Resources
-    // these code seems absolutely ugly
-    let canProduce = true
-    for (const [resType, value] of this.produce) {
-      canProduce &&= Resource[resType].canProduce(value * speed)
-    }
-    if (!canProduce) {
-      return;
-    }
-    for (let i = 0; i < this.cost.length; i++) {
-      let [resKey, value] = this.cost[i]
-      canProduce &&= Resource(resKey).canCost(value * speed)
-    }
-    if (!canProduce) {
-      return;
-    }
+    if (this.produce.map((x) =>
+      Resource(x[0]).canEffectProduce(x[1]))
+      .includes(false)) return
+    if (this.cost.map(x =>
+      Resource(x[0]).canEffectCost(x[1]))
+      .includes(false)) return
+
 
     for (let [resKey, value] of this.produce) {
-      Resource[resKey].doProduce(value * speed, true)
+      Resource(resKey).effectProduce(value * speed)
     }
     for (let [resKey, value] of this.cost) {
-      ResourceClass[resKey].doCost(value * speed, true)
+      Resource(resKey).effectCost(value * speed)
     }
   }
 

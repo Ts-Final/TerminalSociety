@@ -143,7 +143,7 @@ export class ExchangeClass extends GameDataClass{
 
 export const Exchange = ExchangeClass.fromPlayer()
 
-EventHub.logic.on(GameEvent.MARKET_UPDATE, function () {
+EventHub.on(GameEvent.MARKET_UPDATE, function () {
   ExchangeClass.exchanges = player.market.exchange
 }, ExchangeClass)
 setTimeout(() => ExchangeClass.exchanges = player.market.exchange, 1000)
@@ -159,6 +159,7 @@ export interface ExchangeObject {
   refs: {
     bought: Ref<number>,
   }
+  storage: number
 
   get bought(): number
 
@@ -175,67 +176,86 @@ export interface ExchangeObject {
 
 export const ExchangeHandler = {
   get all() {
-    return this._all
+    return player.market.exchange
   },
   set all(value) {
-    this._all = value
+    player.market.exchange = value
     this.allRef.value = value
   },
-  _all: [] as exchangeShort[],
   allRef: ref([]) as Ref<exchangeShort[]>,
   getData(index: number): exchangeShort {
     return noEmpty(this.all[index])
   },
   allObjects() {
     const Handler = this;
+    const f = function () {
+      Handler.fromPlayer()
+      Handler.refresh()
+    };
     if (!ui.init.value) {
-      const f = function () {
-        Handler.fromPlayer()
-        Handler.refresh()
-      };
       ui.init.wait(f)
     }
     return this.all.map((_, index) => this.toObject(index))
   },
   onUpdate: ref(true),
   toObject(index: number): ExchangeObject {
-    const [company, resource,
-      amount, bought, price] = this.getData(index)
+    const [, , , bought,] = this.getData(index)
+    const handler = this
 
     return {
       index: index,
-      company: company,
-      resource: resource,
-      amount: amount,
-      price: price,
+      get company() {
+        return handler.getData(this.index)[0]
+      },
+      get resource() {
+        return handler.getData(this.index)[1]
+      },
+      get amount() {
+        return handler.getData(this.index)[2]
+      },
       toBuy: ref(0),
       refs: {
         bought: ref(bought),
       },
+      get price() {
+        return new Decimal(handler.getData(this.index)[4])
+      },
       get bought() {
         return player.market.exchange[this.index][3]
+      },
+      get storage() {
+        return this.amount - this.bought
       },
       set bought(value: number) {
         player.market.exchange[this.index][3] = value
         this.refs.bought.value = value
       },
       canBuy(toBuy): boolean {
+        if (!toBuy) {
+          return false
+        }
+        if (toBuy > this.storage) {
+          return false
+        }
         return Money.amount.gte(this.price.mul(toBuy))
       },
       canSell(toBuy): boolean {
+        if (!toBuy) {
+          return false
+        }
         return Resource(this.resource).amount.gte(toBuy)
       },
       buy(toBuy) {
         if (!this.canBuy(toBuy)) return
 
         this.bought += toBuy
-        Resource(this.resource).amount.toAdd(toBuy)
+        Resource(this.resource).directProduce(toBuy)
         Money.spend(this.price.mul(toBuy))
       },
       sell(toBuy) {
         if (!this.canSell(toBuy)) return
 
-        Resource(this.resource).amount.toSub(toBuy)
+        Resource(this.resource).directCost(toBuy)
         Money.earn(this.price.mul(toBuy))
       }
 
@@ -248,6 +268,9 @@ export const ExchangeHandler = {
     }
     this.all = v
     player.market.exchange = v
+    if (v.length == 0) {
+      this.generate()
+    }
     this.refresh()
   },
   refresh() {
@@ -256,9 +279,6 @@ export const ExchangeHandler = {
   },
   fromPlayer() {
     this.all = player.market.exchange
-    this.refresh()
-  }
+    this.onUpdate.value = true
+  },
 }
-ui.init.wait(
-  () => ExchangeHandler.fromPlayer()
-)

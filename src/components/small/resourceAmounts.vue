@@ -26,8 +26,8 @@ const v = divs()
 </script>
 
 <template>
-  <div class="flex-row flex-nowrap space-around"
-       style="color: #b8dcee;margin-bottom: 5px;border-bottom: #7cdcf4 1px solid">
+  <div class="flex-row flex-nowrap space-around border1-bottom style-border-color"
+       style="color: #b8dcee;margin-bottom: 5px">
     <div v-for="res in v">
       {{ res.name }}:{{ res.amount.value.toResourceAmount() }}
       ({{ res.change.value.toSecondChange(res.maximum.value)  }})

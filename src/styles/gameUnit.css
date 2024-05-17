@@ -1,11 +1,7 @@
 .gameUnit {
   position: relative;
-  margin: 5px 5px 0 5px;
   padding: 2px;
   color: #b8dcee;
-  max-height: max-content;
-  min-width: 250px;
-  max-width: 350px;
 }
 
 .medium-size {
@@ -28,27 +24,57 @@
   padding: 4px;
   pointer-events: none;
 }
+
 .gameUnit:hover > .gameUnit-popout {
   opacity: 1;
   pointer-events: all;
 }
+@media (min-width: 1600px) {
+  .gameUnit-contain {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+@media (min-width: 1200px) and (max-width: 1600px) {
+  .gameUnit-contain {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 1199px) {
+  .gameUnit-contain {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
 .gameUnit-contain {
-  display: flex;
-  width: 90%;
-  left: 5%;
-  border:none;
+  display: grid;
+  grid-gap: 5px;
+  padding: 2px;
+
+}
+
+.gameUnit-contain > .gameUnit {
+  width: calc(100% - 10px);
+  min-height: 10vh;
 }
 
 .border1-top {
-  border-top: 1px solid #7cdcf4;
+  border-top: 1px solid var(--border-color);
 }
+
+.border1-bottom {
+  border-bottom: 1px solid var(--border-color);
+}
+
 .border2-top {
-  border-top: 2px solid #7cdcf4;
+  border-top: 2px solid var(--border-color);
 }
 
 .btn {
   cursor: pointer;
 }
+
 .btn-disabled {
   cursor: not-allowed;
 }

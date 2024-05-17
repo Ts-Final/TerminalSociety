@@ -10,12 +10,16 @@ import {Numbers} from "../utils/Numbers.ts";
 import {ref} from "vue";
 import {Modal, props} from "../utils/modal.ts";
 import {Async} from "../utils/async-utils.ts";
-import {EventHub, GameEvent} from "../eventHub.ts";
+import {EventHub} from "../eventHub.ts";
 import {gameIntervals} from "./gameIntervals.ts";
 import {Optional} from "../constants";
 import {deepClone} from "../utils/deepClone.ts";
 import {Decimal} from "../utils/break_infinity.ts";
 import {different} from "../utils/different.ts";
+import {Upgrades} from "../GameDataBase/market/upgrade.ts";
+import {nextDay} from "../utils/utils.ts";
+import {Market} from "../GameDataBase/market";
+import {How2Play} from "../GameDataBase/how2play.ts";
 
 /**
  * @param diff passed milliseconds
@@ -63,8 +67,7 @@ export function simulateTime(diff: number, fast: boolean = false) {
       sleepTime: 1,
       asyncExit() {
         gameIntervals.gameLoop.start()
-        EventHub.ui.dispatch(GameEvent.CLOSE_MODAL)
-
+        EventHub.dispatch('closeModal')
       },
       asyncEntry() {
         Modal.OfflineModal.show(dict)
@@ -89,19 +92,24 @@ export function gameLoop() {
   if (diff > 60 * 1e3) {
     simulateTime(diff)
   }
-  gameUpdate(diff)
   player.lastUpdate = Date.now()
+  gameUpdate(diff)
+  checkNewDay()
 }
 
 function gameUpdate(passDiff: number) {
-  const speed = passDiff / 1000
+  const speed = player.gameSpeed * passDiff / 1000
   Resource.all.forEach(x => x.updateLogic())
   Task.all.forEach(x => x.updateLogic(speed))
   Research.all.forEach(x => x.updateLogic(speed))
-  Tab.all.forEach(x => x.updateLogic())
-  Employee.all.forEach(x => x.updateLogic())
+
   Company.all.forEach(x => x.updateLogic())
+  Upgrades.all.forEach(x => x.updateLogic())
+  Employee.all.forEach(x => x.updateLogic())
+
   StoryMain.all.forEach(x => x.updateLogic())
+  Tab.all.forEach(x => x.updateLogic())
+  How2Play.all.forEach(x => x.updateLogic())
 }
 
 window.dev.offline = {
@@ -145,9 +153,17 @@ export const OfflineProgress = {
         }
       }
     }
+    EventHub.dispatch('closeModal')
     if (different(x, {})) {
       Modal.OfflineProgressModal.show(x)
     }
     this.initial = undefined
+  }
+}
+
+export function checkNewDay() {
+  if (player.saveTime > player.dailyFreshTime) {
+    player.dailyFreshTime = nextDay()
+    Market.generate()
   }
 }

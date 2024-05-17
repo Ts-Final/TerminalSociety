@@ -50,10 +50,22 @@ export function researchToEffect(r: Research, lv: number): effect {
     effects: e
   }
 }
-
+const counter = Numbers.counter(0,1)
 export const Researches: ResearchData[] = [
   {
-    id: 0,
+    id: counter.next(),
+    name:"欢迎来到研究室",
+    des: "当然这里还没有什么东西。",
+    itl: "我的意思是——存在的存在依赖于存在。",
+    effect: [],
+    cost: [],
+    time: 5,
+    maxLevel: 1,
+    condition: () => true,
+    timePow: 1,
+  },
+  {
+    id: counter.next(),
     name: '电板扩建',
     des: '加几块太阳能板，也许可以让发电更多一点',
     itl: '楼顶一片黑。下面的人看了都说好，太阳是照不到了。不过也看不见阳光了。',
@@ -61,11 +73,11 @@ export const Researches: ResearchData[] = [
     cost: [['iron', 10]],
     time: 10,
     maxLevel: 2,
-    unlock: () => true,
+    condition: () => true,
     timePow: 1.5
   },
   {
-    id: 1,
+    id: counter.next(),
     name: '气象观测 1',
     des: '气象在有些时候还是很重要的',
     itl: '如果天下起了大雨，那么人们也许会陷入哀伤。如果天下起了大鱼……谁知道呢？',
@@ -73,7 +85,7 @@ export const Researches: ResearchData[] = [
     cost: [],
     time: 15,
     maxLevel: 1,
-    unlock() {
+    condition() {
       return Resource.air.max_record.gt(10)
     },
     timePow: 1,
@@ -91,7 +103,7 @@ interface ResearchData extends GameDataInterface {
   maxLevel: number
   timePow: number
 
-  unlock(): boolean
+  condition(): boolean
 }
 
 export class ResearchClass
@@ -127,7 +139,7 @@ export class ResearchClass
     this.timePow = data.timePow
 
     if (player.research[this.id] === undefined) {
-      player.research[this.id] = [false, false,new Decimal(0), 0]
+      player.research[this.id] = [false, false, new Decimal(0), 0]
     }
 
     this.refs = {
@@ -181,7 +193,7 @@ export class ResearchClass
   }
 
   get maxed() {
-    return this.level>= this.maxLevel
+    return this.level >= this.maxLevel
   }
 
   get percent() {
@@ -199,7 +211,7 @@ export class ResearchClass
     return Effect.researchProgress.value
   }
 
-  static createAccessor(...data: ResearchData[]): Accessor<ResearchClass>{
+  static createAccessor(...data: ResearchData[]): Accessor<ResearchClass> {
     this.all = data.map((x) => new this(x))
     const accessor = (id: number) => noEmpty(this.all.find(x => x.id === id))
     accessor.all = this.all
@@ -209,6 +221,7 @@ export class ResearchClass
   toEffect() {
     return this.levelEffect(this.level)
   }
+
   nextEffect() {
     return this.levelEffect(this.level + 1)
   }
@@ -238,11 +251,10 @@ export class ResearchClass
     }
   }
 
-  updateLogic(speed=1) {
+  updateLogic(speed = 1) {
     this.cheatGuard()
     if (!this.unlocked) {
-      this.unlocked = this.unlock()
-      if (this.unlocked) {
+      if (this.tryUnlock()) {
         notify.success("解锁研究：" + this.name, 1000)
       }
       return
@@ -253,14 +265,17 @@ export class ResearchClass
 
     let canProduce = true
     this.cost.forEach((x) => {
-      canProduce &&= Resource(x[0]).canCost(x[1]*speed)
+      canProduce &&= Resource(x[0]).canEffectCost(x[1] * speed)
     })
     if (!canProduce) return
 
     this.nextSecond(speed)
+    this.cost.forEach(x => {
+      Resource(x[0]).effectCost(x[1] * speed)
+    })
     if (this.levelCheck()) {
       if (!this.maxed) {
-        notify.success("研究升级" + this.name + "Lv." + this.level, 1000)
+        notify.success("研究升级" + this.name + "Lv." + this.level + 1, 1000)
       } else {
         notify.success("研究完成：" + this.name, 1000)
         this.activated = false
@@ -269,10 +284,8 @@ export class ResearchClass
     }
   }
 
-  nextSecond(speed=1) {
-    this.started.toAdd(this.secondaryProgress * speed)
-    this.started.referToRef(this.refs.started)
-    this.refs.percent.value = this.percent
+  nextSecond(speed = 1) {
+    this.started = this.started.add(this.secondaryProgress * speed)
   }
 
   levelCheck() {
@@ -292,7 +305,7 @@ export class ResearchClass
   }
 
   updateRef() {
-    this.refs.unlocked.value = this.unlocked
+    this.refs.unlocked.value = this.unlocked && Research(0).maxed
     this.refs.percent.value = this.percent
     this.refs.started.value = this.started
     this.refs.level.value = this.level
@@ -300,12 +313,12 @@ export class ResearchClass
     this.refs.activated.value = this.activated
   }
 
-
   trigger() {
     this.activated = !this.activated
   }
+
   cheatGuard() {
-    this.level = Math.min(this.level,this.maxLevel)
+    this.level = Math.min(this.level, this.maxLevel)
   }
 }
 
