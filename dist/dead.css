@@ -1,0 +1,5 @@
+body, :root, #app {
+  background-image: linear-gradient(60deg, #0d1418 0%, #11161b 100%);
+  margin: 0;
+  overflow: hidden;
+}

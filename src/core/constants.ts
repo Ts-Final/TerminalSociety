@@ -52,4 +52,5 @@ export type effectTarget = ResourceTypes | "research"
 export type exchangeShort = [number, ResourceTypes, number, number, Decimal]
 
 export type Optional<T> = T | undefined
-export type Accessor<T> = { (id:number): T, all:T[], class?: T}
+export interface Accessor<T> { (id:number): T, all:T[]}
+export type callAble = () => any
