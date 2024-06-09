@@ -3,7 +3,7 @@ import {ui} from "../../core/game-mechanics/ui.ts";
 </script>
 
 <template>
-  <div class="right-tab">
+  <div class="right-tab" v-if="ui.init.ref.value">
     <component
         :is="ui.tabs.current"
         v-if="ui.tabs.refs.current.value"

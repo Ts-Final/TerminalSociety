@@ -7,15 +7,15 @@ const change = defineProps<props.offlineChange>()
 
 <template>
   <ModalBase>
-    <div class="self-center size-1.25rem">
+    <template v-slot:header>
       离线进度计算
-    </div>
+    </template>
     <div class="flex-col full-w align-center">
       <div>欢迎回来！这段时间大概有人在干活，虽然可能不多，以下是你不在的时间发生的东西：</div>
       <template v-if="change.resource">
         <br>
         <br>
-        <div class="size-1.25rem">资源生产</div>
+        <div class="size-1.25rem margin-top-2rem">资源生产</div>
         <div class="full-w flex-row flex-wrap justify-center">
           <div v-for="res in change.resource" style="width: 33%" class="center-text">
             {{ res[0] }}: {{ res[1].toFullChange() }}

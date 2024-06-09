@@ -1,6 +1,6 @@
 import {Resource} from "./resource.ts";
 import {player} from "../player";
-import {Effect, effect, effectData, effectShort} from "../game-mechanics/effect.ts";
+import {Effect, effectData, effectShort} from "../game-mechanics/effect.ts";
 import {Numbers} from ".././utils/Numbers.ts";
 import {GameDataClass, GameDataInterface} from "./baseData.ts";
 import {ref, Ref} from "vue";
@@ -24,37 +24,11 @@ export interface Research {
   get unlock(): boolean
 }
 
-/**
- * 将Research变成Effect
- * @param r
- * @param lv
- */
-export function researchToEffect(r: Research, lv: number): effect {
-  let e: effectShort[] = []
-  for (const eff of r.effect) {
-    if (eff.length == 2) {
-      e.push({
-        target: eff[0],
-        factor: Numbers.round(eff[1] * (lv / r.maxLevel), 4)
-      })
-    } else if (eff.length == 3) {
-      e.push({
-        target: eff[0], type: eff[1],
-        factor: Numbers.round(eff[2] * (lv / r.maxLevel), 4)
-      })
-    }
-  }
-  return {
-    source: "research",
-    id: r.id,
-    effects: e
-  }
-}
-const counter = Numbers.counter(0,1)
+const counter = Numbers.counter(0, 1)
 export const Researches: ResearchData[] = [
   {
     id: counter.next(),
-    name:"欢迎来到研究室",
+    name: "欢迎来到研究室",
     des: "当然这里还没有什么东西。",
     itl: "我的意思是——存在的存在依赖于存在。",
     effect: [],
@@ -139,7 +113,13 @@ export class ResearchClass
     this.timePow = data.timePow
 
     if (player.research[this.id] === undefined) {
-      player.research[this.id] = [false, false, new Decimal(0), 0]
+      player.research[this.id] = {
+        unlocked:false,
+        activated:false,
+        started:new Decimal(0),
+        level: 0,
+      }
+       // [false, false, new Decimal(0), 0]
     }
 
     this.refs = {
@@ -156,39 +136,39 @@ export class ResearchClass
   }
 
   get unlocked() {
-    return player.research[this.id][0]
+    return player.research[this.id].unlocked
   }
 
   set unlocked(value) {
-    player.research[this.id][0] = value
+    player.research[this.id].unlocked = value
     this.refs.unlocked.value = value
   }
 
   get activated() {
-    return player.research[this.id][1]
+    return player.research[this.id].activated
   }
 
   set activated(value) {
-    player.research[this.id] [1] = value
+    player.research[this.id].activated = value
     this.refs.activated.value = value
   }
 
   get started() {
-    return player.research[this.id][2]
+    return player.research[this.id].started
   }
 
   set started(value) {
-    player.research[this.id][2] = value
+    player.research[this.id].started = value
     this.refs.started.value = value
     this.refs.percent.value = this.percent
   }
 
   get level() {
-    return player.research[this.id][3]
+    return player.research[this.id].level
   }
 
   set level(value) {
-    player.research[this.id][3] = value
+    player.research[this.id].level = value
     this.refs.level.value = value
   }
 
@@ -201,8 +181,6 @@ export class ResearchClass
   }
 
   get timeToUpg() {
-    // return Numbers.round(
-    //   this.time * (this.timePow ** this.level) / this.secondaryProgress, 2)
     const totalTime = new Decimal(this.time).pow(this.timePow ** this.level)
     return totalTime.div(this.secondaryProgress)
   }
@@ -226,33 +204,35 @@ export class ResearchClass
     return this.levelEffect(this.level + 1)
   }
 
-  levelEffect(level: number): effect {
+  levelEffect(level: number): effectShort[] {
     if (level > this.maxLevel) {
       throw new Error(`level cant greater than max(${this.maxLevel}):Lv.${level}`)
     }
-    let e: effectShort[] = []
+    const e: effectShort[] = []
+    const source = "research", id = this.id
     for (const eff of this.effect) {
       if (eff.length == 2) {
         e.push({
           target: eff[0],
-          factor: Numbers.round(eff[1] * (level / this.maxLevel), 4)
+          // factor: Numbers.round(eff[1] * (level / this.maxLevel), 4)
+          factor: new Decimal(eff[1]).mul(level).div(this.maxLevel),
+          source, id
         })
       } else if (eff.length == 3) {
         e.push({
           target: eff[0], type: eff[1],
-          factor: Numbers.round(eff[2] * (level / this.maxLevel), 4)
+          // factor: Numbers.round(eff[2] * (level / this.maxLevel), 4)
+          factor: new Decimal(eff[2]).mul(level).div(this.maxLevel),
+          source, id
         })
       }
     }
-    return {
-      source: "research",
-      id: this.id,
-      effects: e
-    }
+    return e
   }
 
   updateLogic(speed = 1) {
     this.cheatGuard()
+    this.updateRef()
     if (!this.unlocked) {
       if (this.tryUnlock()) {
         notify.success("解锁研究：" + this.name, 1000)
@@ -274,22 +254,22 @@ export class ResearchClass
       Resource(x[0]).effectCost(x[1] * speed)
     })
     if (this.levelCheck()) {
+      this.upgrade()
       if (!this.maxed) {
         notify.success("研究升级" + this.name + "Lv." + this.level + 1, 1000)
       } else {
         notify.success("研究完成：" + this.name, 1000)
         this.activated = false
       }
-      this.upgrade()
     }
   }
 
   nextSecond(speed = 1) {
-    this.started = this.started.add(this.secondaryProgress * speed)
+    this.started = this.started.add(this.secondaryProgress.mul(speed))
   }
 
   levelCheck() {
-    return this.started.gte(this.timeToUpg)
+    return this.started.minus(0.2).gte(this.timeToUpg)
   }
 
   upgrade() {
@@ -300,7 +280,7 @@ export class ResearchClass
   registerEffect() {
     Effect.deleteEffect('research', this.id)
     if (this.level > 0) {
-      Effect.registerEffect(this.toEffect())
+      Effect.registerEffect(...this.toEffect())
     }
   }
 

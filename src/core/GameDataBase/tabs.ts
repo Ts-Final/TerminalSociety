@@ -1,6 +1,6 @@
 import {player} from "../player";
 import {GameDataClass, GameDataInterface} from "./baseData.ts";
-import {Component, ref, Ref} from "vue";
+import {Component, ref, Ref, toValue} from "vue";
 import {EventHub} from "../eventHub.ts";
 import {Resource} from "./resource.ts";
 import {noEmpty} from ".././utils/noEmpty.ts";
@@ -35,10 +35,11 @@ interface TabDataInterface extends GameDataInterface {
   condition(): boolean
 }
 
-function repeat(length: number, value: boolean) {
-  let v: boolean[] = []
+/* value can be a function here, as we dont have a deepClone in the function*/
+function repeat<T>(length: number, value: T | (() => T)): T[] {
+  const v: T[] = []
   while (v.length < length) {
-    v.push(value)
+    v.push(toValue(value))
   }
   return v
 }
@@ -46,17 +47,16 @@ function repeat(length: number, value: boolean) {
 export class TabClass extends GameDataClass implements TabDataInterface {
   static all: TabClass[] = []
   static display = ref(player.display)
-  declare refs: {
+  refs: {
     unlocked: Ref<boolean>,
-    hide: Ref<boolean[]>,
     chosen: Ref<boolean>,
-    unlocks: Ref<boolean[]>,
-    hidden: Ref<boolean>,
+    show: Ref<boolean>,
+    sub: [Ref<boolean>, Ref<boolean>][]
   }
   subTabs?: { name: string; row: number; condition(): boolean; component: Component; }[]
   component?: Component
   hideable: boolean
-  hasSubTab: boolean = false
+  hasSubTab = false
 
   constructor(data: TabDataInterface) {
     super({
@@ -64,13 +64,6 @@ export class TabClass extends GameDataClass implements TabDataInterface {
       id: data.id,
       condition: data.condition,
     });
-    this.refs = {
-      unlocked: ref(false),
-      chosen: ref(false),
-      hide: ref(data.subTabs ? repeat(data.subTabs.length, false) : [false]),
-      unlocks: ref(data.subTabs ? repeat(data.subTabs.length, false) : [false]),
-      hidden: ref(false)
-    }
     this.hideable = data.hideable
     if (data.subTabs) {
       this.subTabs = data.subTabs
@@ -82,10 +75,18 @@ export class TabClass extends GameDataClass implements TabDataInterface {
 
     if (player.tabs[this.id] == undefined) {
       player.tabs[this.id] = {
-        unlocks: repeat(data.subTabs ? data.subTabs.length + 1 : 1, false),
-        show: repeat(data.subTabs ? data.subTabs.length + 1 : 1, true),
+        unlocked: false,
         lastOpen: 0,
+        show: true,
+        sub: repeat(this.subTabs ? this.subTabs.length : 0, [false, false])
       }
+    }
+    this.refs = {
+      unlocked: ref(false),
+      chosen: ref(false),
+      show: ref(true),
+      sub: repeat(this.subTabs ? this.subTabs.length : 0,
+        () => [ref(false), ref(true)])
     }
 
     this.onLogic()
@@ -95,16 +96,15 @@ export class TabClass extends GameDataClass implements TabDataInterface {
   }
 
   get unlocked() {
-    return player.tabs[this.id].unlocks[0]
+    return player.tabs[this.id].unlocked
   }
 
   set unlocked(value: boolean) {
-    player.tabs[this.id].unlocks.fill(value)
     this.refs.unlocked.value = value
   }
 
   get shown() {
-    return player.tabs[this.id].show.includes(true)
+    return player.tabs[this.id].show
   }
 
   get chosen() {
@@ -119,24 +119,9 @@ export class TabClass extends GameDataClass implements TabDataInterface {
     player.tabs[this.id].lastOpen = value
   }
 
-  get unlocks() {
-    return player.tabs[this.id].unlocks
+  get sub() {
+    return player.tabs[this.id].sub
   }
-
-  set unlocks(value) {
-    player.tabs[this.id].unlocks = value
-    this.refs.unlocked.value = this.unlocked
-    this.refs.unlocks.value = value
-  }
-
-  get hide() {
-    return player.tabs[this.id].show
-  }
-
-  get hidden() {
-    return !this.hide.includes(false)
-  }
-
 
   static createAccessor(...data: TabDataInterface[]): {
     (id: number): TabClass,
@@ -156,31 +141,37 @@ export class TabClass extends GameDataClass implements TabDataInterface {
     if (!tab) throw new Error(`WTF tab column index ${col}`)
     tab.show(row)
   }
+
   static updateDisplay() {
     this.display.value = player.display
   }
 
   updateRef() {
-    this.refs.hide.value = this.hide
     this.refs.unlocked.value = this.unlocked
     this.refs.chosen.value = this.chosen
-    this.refs.unlocks.value = this.unlocks
-    this.refs.hidden.value = this.hidden
+    this.updateSub()
+  }
+  updateSub() {
+    this.refs.sub.map((value, index) => {
+      value[0].value = this.sub[index][0]
+      value[1].value = this.sub[index][1]
+    })
+
   }
 
   updateLogic() {
+    if (!this.unlocked) {
+      super.tryUnlock()
+      return
+    }
     if (this.subTabs) {
       for (const subTab of this.subTabs) {
-        this.unlocks[subTab.row + 1] ||= this.subTabs[subTab.row].condition()
-        this.unlocks[0] ||= this.condition()
+        const [unlocked, shown] = this.sub[subTab.row]
+        this.sub[subTab.row] = [unlocked || subTab.condition(), shown]
 
       }
-    } else {
-      this.unlocks = [this.condition()]
     }
-    // This small piece of shit sits here because if i dont do that it won't
-    // trigger the changing of this.refs.unlocks and may cause stupid bugs.
-    this.unlocks = this.unlocks
+    this.updateSub()
   }
 
   show(row?: number) {
@@ -308,16 +299,16 @@ const TabData: TabDataInterface[] = [
     ]
   },
   {
-    name:"故事",
-    id:counter.next(),
+    name: "故事",
+    id: counter.next(),
     hideable: true,
     condition(): boolean {
       return Resource.energy.max_record.gt(10)
     },
     subTabs: [
       {
-        row:0,
-        name:"主线",
+        row: 0,
+        name: "主线",
         condition(): boolean {
           return true
         },

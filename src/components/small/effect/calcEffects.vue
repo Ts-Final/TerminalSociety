@@ -1,33 +1,31 @@
 <script setup lang="ts">
 
 import {Effect} from "../../../core/game-mechanics/effect.ts";
-import {Numbers} from "../../../core/./utils/Numbers.ts";
+import {Decimal} from "../../../core/utils/break_infinity.ts";
 
-const {effects} = defineProps<{ effects: { [p: string]: number } }>()
+const {effects} = defineProps<{ effects: { [p: string]: Decimal } }>()
 
-let research = 0
-let resource = {} as { [p: string]: { [x: string]: number } }
+let research = new Decimal(0)
+let resource = {} as { [p: string]: { [x: string]: Decimal } }
 
-(function () {
-  for (const [key, value] of Object.entries(effects)) {
-    if (key.includes(',')) {
-      let resKey = key.split(',')[0]
-      let type = key.split(',')[1]
-      if (resKey in resource) {
-        if (type in resource[resKey]) {
-          resource[resKey][type] = Numbers.round(value + resource[resKey][type])
-        } else {
-          resource[resKey][type] = value
-        }
+for (const [key, value] of Object.entries(effects)) {
+  if (key.includes(',')) {
+    let resKey = key.split(',')[0]
+    let type = key.split(',')[1]
+    if (resKey in resource) {
+      if (type in resource[resKey]) {
+        resource[resKey][type] = value.add(resource[resKey][type])
       } else {
-        resource[resKey] = {}
         resource[resKey][type] = value
       }
-    } else if (key == 'research') {
-      research = Numbers.round(research + value)
+    } else {
+      resource[resKey] = {}
+      resource[resKey][type] = value
     }
+  } else if (key == 'research') {
+    research = research.add(value)
   }
-})()
+}
 </script>
 
 <template>
@@ -37,14 +35,17 @@ let resource = {} as { [p: string]: { [x: string]: number } }
       <div class="flex-col">
         <div v-for="type in Object.keys(resource[key])" class="flex-row">
           <div>{{ Effect.parseType(type) }}</div>
-          <div> {{ Numbers.formatInt(resource[key][type], ['maxMult', 'pro'].includes(type)) }}
+          <div>{{
+              type !== 'maxAdd' ?
+                  resource[key][type].toPercent() : resource[key][type].toResourceAmount()
+            }}
           </div>
         </div>
       </div>
     </div>
-    <div v-if="research > 0" class="flex-avg flex-row space-around center-text">
+    <div v-if="research.gt(0)" class="flex-avg flex-row space-around center-text">
       <div>研究</div>
-      <div>+{{ Numbers.formatInt(research, true) }}</div>
+      <div>+{{ research.toPercent() }}</div>
     </div>
 
   </div>

@@ -48,27 +48,24 @@ export function parseResourceName(key: ResourceTypes) {
 function toLazy(name: ResourceTypes) {
   function getter() {
     const dict = {
-      pro: {source: [] as [string, number][], total: new Decimal(0)},
-      maxMult: {source: [] as [string, number][], total: new Decimal(0)},
-      consume: {source: [] as [string, number][], total: new Decimal(0)},
-      maxAdd: {source: [] as [string, number][], total: new Decimal(0)},
+      pro: {source: [] as [string, Decimal][], total: new Decimal(0)},
+      maxMult: {source: [] as [string, Decimal][], total: new Decimal(0)},
+      consume: {source: [] as [string, Decimal][], total: new Decimal(0)},
+      maxAdd: {source: [] as [string, Decimal][], total: new Decimal(0)},
     }
     const effects = Effect.effects.filter(
-      x => x.effects.filter(
-        x => x.target == name
-      ).length > 0
+      x => x.target == name
     )
     for (const eff of effects) {
       const effName = Effect.effToName(eff);
 
-      for (const short of eff.effects) {
-        if (short.target !== name) continue
-        if (!short.type) continue
-        dict[short.type].total.add(short.factor)
-        dict[short.type].source.push(
-          [effName, short.factor]
-        )
-      }
+      if (eff.target !== name) continue
+      if (!eff.type) continue
+      dict[eff.type].total.add(eff.factor)
+      dict[eff.type].source.push(
+        [effName, new Decimal(eff.factor)]
+      )
+
 
     }
     return dict
@@ -227,7 +224,7 @@ export class ResourceClass
   } {
     this.all = []
     for (const resType of ResourceTypeList) {
-      let ins = new this(_(resType))
+      const ins = new this(_(resType))
       this.all.push(ins)
       this[resType] = ins
     }
@@ -269,6 +266,7 @@ export class ResourceClass
   }
 
   updateLogic() {
+    this.cheatGuard()
     this.updateEffect()
     this.change = 0
   }
@@ -329,6 +327,10 @@ export class ResourceClass
 
   _cost(value: DecimalSource) {
     this.amount = this.amount.sub(value)
+  }
+
+  cheatGuard() {
+    this.amount = Decimal.min(this.amount, this.maximum)
   }
 
 }

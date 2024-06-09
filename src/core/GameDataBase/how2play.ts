@@ -16,8 +16,8 @@ export interface how2play extends GameDataInterface{
 export const versionCount = 15 + LatestVersion
 export const version = Version(LatestVersion).id
 
-let setUpDate = new Date(2022, 5, 28)
-let passedDays = Math.floor((Date.now() - setUpDate.getTime()) / (1000 * 60 * 60 * 24))
+const setUpDate = new Date(2022, 5, 28)
+const passedDays = Math.floor((Date.now() - setUpDate.getTime()) / (1000 * 60 * 60 * 24))
 
 export const How2PlayData: how2play[] = [
   {
@@ -68,7 +68,7 @@ export const How2PlayData: how2play[] = [
     </div>
     <p class="small-title size-1.5rem rainbow-text">Thank for your playing!</p>
     `,
-    condition: () => false,
+    condition: () => player.dev,
   },
   {
     id: 1,
@@ -153,7 +153,7 @@ export class How2PlayClass extends GameDataClass{
   }
 
   static sorted() {
-    let v: How2PlayClass[] = this.all
+    const v: How2PlayClass[] = this.all
     return v.sort((a, b) => a.id - b.id)
   }
 
@@ -185,7 +185,7 @@ export class How2PlayClass extends GameDataClass{
   }
 
   static updateRef() {
-    let results :number[] = []
+    const results :number[] = []
     for (const h2p of this.all) {
       if (h2p.unlocked) results.push(h2p.id)
     }

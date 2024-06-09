@@ -81,7 +81,7 @@ export const NewsHandler = new (class NewsHandler {
     id: Ref,
   }
   recent: number[]
-  recentMax: number = 2
+  recentMax = 2
 
   constructor() {
     this.data = News
@@ -131,7 +131,7 @@ export const NewsHandler = new (class NewsHandler {
   }
 
   setSeen(id: number) {
-    let index = Math.floor((id - 1) / 20)
+    const index = Math.floor((id - 1) / 20)
     this.seen[index] |= 2 ** (id - index * 20)
   }
 

@@ -1,12 +1,8 @@
 import {exchangeShort, ResourceTypes} from "../../constants.ts";
 import {ref, Ref} from "vue";
 import {player} from "../../player.ts";
-import {Company} from "./company.ts";
-import {Resource} from "../resource.ts";
-import {Money} from "./money.ts";
-import {noEmpty} from "../.././utils/noEmpty.ts";
-import {ui} from "../../game-mechanics/ui.ts";
 import {Decimal} from "../../utils/break_infinity.ts";
+import {Company} from "./company.ts";
 
 /*
 export class ExchangeClass extends GameDataClass{
@@ -174,111 +170,33 @@ export interface ExchangeObject {
   sell(toBuy: number): void,
 }
 
+
 export const ExchangeHandler = {
-  get all() {
-    return player.market.exchange
+  _maxIndex: 0,
+  ref: ref(0),
+  get maxIndex() {
+    return this._maxIndex
   },
-  set all(value) {
-    player.market.exchange = value
-    this.allRef.value = value
+  set maxIndex(value: number) {
+    this._maxIndex = value
+    this.ref.value = value
   },
-  allRef: ref([]) as Ref<exchangeShort[]>,
-  getData(index: number): exchangeShort {
-    return noEmpty(this.all[index])
+  fromPlayer() {
+    this.maxIndex = player.market.exchange.length
   },
-  allObjects() {
-    const Handler = this;
-    const f = function () {
-      Handler.fromPlayer()
-      Handler.refresh()
-    };
-    if (!ui.init.value) {
-      ui.init.wait(f)
+  range(max: number) {
+    const v: number[] = []
+    for (let i = 0; i < max; i++) {
+      v.push(i)
     }
-    return this.all.map((_, index) => this.toObject(index))
-  },
-  onUpdate: ref(true),
-  toObject(index: number): ExchangeObject {
-    const [, , , bought,] = this.getData(index)
-    const handler = this
-
-    return {
-      index: index,
-      get company() {
-        return handler.getData(this.index)[0]
-      },
-      get resource() {
-        return handler.getData(this.index)[1]
-      },
-      get amount() {
-        return handler.getData(this.index)[2]
-      },
-      toBuy: ref(0),
-      refs: {
-        bought: ref(bought),
-      },
-      get price() {
-        return new Decimal(handler.getData(this.index)[4])
-      },
-      get bought() {
-        return player.market.exchange[this.index][3]
-      },
-      get storage() {
-        return this.amount - this.bought
-      },
-      set bought(value: number) {
-        player.market.exchange[this.index][3] = value
-        this.refs.bought.value = value
-      },
-      canBuy(toBuy): boolean {
-        if (!toBuy) {
-          return false
-        }
-        if (toBuy > this.storage) {
-          return false
-        }
-        return Money.amount.gte(this.price.mul(toBuy))
-      },
-      canSell(toBuy): boolean {
-        if (!toBuy) {
-          return false
-        }
-        return Resource(this.resource).amount.gte(toBuy)
-      },
-      buy(toBuy) {
-        if (!this.canBuy(toBuy)) return
-
-        this.bought += toBuy
-        Resource(this.resource).directProduce(toBuy)
-        Money.spend(this.price.mul(toBuy))
-      },
-      sell(toBuy) {
-        if (!this.canSell(toBuy)) return
-
-        Resource(this.resource).directCost(toBuy)
-        Money.earn(this.price.mul(toBuy))
-      }
-
-    }
+    return v
   },
   generate() {
-    let v: exchangeShort[] = []
+    const v: exchangeShort[] = []
     for (const c of Company.all) {
       v.push(...c.generateExchange())
     }
-    this.all = v
     player.market.exchange = v
-    if (v.length == 0) {
-      this.generate()
-    }
-    this.refresh()
-  },
-  refresh() {
-    this.onUpdate.value = false
-    setTimeout(() => this.onUpdate.value = true, 20)
-  },
-  fromPlayer() {
-    this.all = player.market.exchange
-    this.onUpdate.value = true
-  },
+    this.fromPlayer()
+  }
 }

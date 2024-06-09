@@ -4,6 +4,7 @@ import {Resource} from "../resource.ts";
 import {notify} from "../.././utils/notify.ts";
 import {Money} from "./money.ts";
 import {ExchangeHandler} from "./exchange.ts";
+import {Progress} from "../../game-mechanics/progress.ts";
 
 export const Market = {
   Upgrades,
@@ -11,8 +12,10 @@ export const Market = {
   Money,
   ExchangeHandler,
   generate() {
-    this.ExchangeHandler.generate()
     Resource.class.generateBasePrice()
-    notify.normal("市场交易已刷新！", 1000)
+    this.ExchangeHandler.generate()
+    if (Progress.market.unlocked) {
+      notify.normal("市场交易已刷新！", 1000)
+    }
   }
 }

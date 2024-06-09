@@ -1,6 +1,6 @@
 import {Modal} from ".././utils/modal.ts";
 import {Component, Ref, ref} from "vue";
-import {Optional} from "../constants.ts";
+import {callable, Optional} from "../constants.ts";
 
 const initialize = {
   _value: false,
@@ -12,11 +12,11 @@ const initialize = {
     this.ref.value = v
   },
   ref: ref(false),
-  waitInitialize: [] as Function[],
+  waitInitialize: [] as callable[],
 
   // Add the function to the list and wait for initialize,
   // if the game is already initialized will call it immediately.
-  wait(func: Function) {
+  wait(func: callable) {
     if (this.value) {
       func()
       return
@@ -60,7 +60,7 @@ const view = {
     },
 
   },
-  handlers: [] as Function[]
+  handlers: [] as callable[]
 }
 const curtain = {
   _value: false,
@@ -72,7 +72,7 @@ const curtain = {
     this._value = v
     this.ref.value = v
   },
-  show(config?: Partial<StyleSheet>) {
+  show(config?: Partial<CSSStyleDeclaration>) {
     this.setStyle(config ?? {})
     this.value = true
   },
@@ -81,7 +81,7 @@ const curtain = {
   },
 
   style: ref({}),
-  setStyle(config: Partial<StyleSheet>) {
+  setStyle(config: Partial<CSSStyleDeclaration>) {
     this.style.value = config
   },
 }
@@ -91,3 +91,4 @@ export const ui = {
   tabs,
   curtain
 }
+window.dev.ui = ui

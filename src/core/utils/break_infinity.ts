@@ -9,8 +9,8 @@ import {Ref} from "vue";
 function fillTo(str: string, maxLength: number, fill?: string): string {
   if (str == null || maxLength == null) throw new Error()
 
-  let result = String(str)
-  let targetLen = maxLength
+  const result = String(str)
+  const targetLen = maxLength
   if (isNaN(targetLen) || !isFinite(targetLen)) return result
 
   const length = result.length
@@ -18,17 +18,17 @@ function fillTo(str: string, maxLength: number, fill?: string): string {
   if (length >= targetLen) return result
 
   let filled = fill ? ' ' : String(fill)
-  let fillLength = targetLen - length
+  const fillLength = targetLen - length
 
   while (filled.length < fillLength) filled += filled
 
   // Check if the filled string is too long
-  let truncated = filled.length > fillLength ? filled.substring(0, fillLength) : filled
+  const truncated = filled.length > fillLength ? filled.substring(0, fillLength) : filled
 
   return result + truncated
 }
 
-let ME = function ME(mantissa: number, exponent: number) {
+const ME = function ME(mantissa: number, exponent: number) {
   return new Decimal().fromMantissaExponent(mantissa, exponent);
 };
 
@@ -74,7 +74,7 @@ const NUMBER_EXP_MAX = 308
 const NUMBER_EXP_MIN = -324
 const ROUND_TOLERANCE = 1e-10
 const powerOf10 = (function () {
-  let powers: number[] = []
+  const powers: number[] = []
 
   for (let i = NUMBER_EXP_MIN + 1; i <= MAX_SIGNIFICANT_DIGITS; i++) {
     powers.push(Number("1e" + i))
@@ -612,17 +612,19 @@ export class Decimal {
   * parsed to string instead.
   * */
   static transfer(target: any) {
-    if (!(typeof target == 'object')) {
-      throw new Error()
+    if (typeof target !== "object") {
+      return
+    } else if (target === null) {
+      return
     }
     for (const key in target) {
-      if (typeof target[key] == "object") {
-        if ("mantissa" in target[key] && "exponent" in target[key])
+      if (typeof target[key] === "object" && target[key]) {
+        if ("mantissa" in target[key] && "exponent" in target[key]) {
           target[key] =
             new Decimal(target[key]["mantissa"] + "e" + target[key]["exponent"])
-
-        else Decimal.transfer(target[key])
-      } else if (typeof target[key] == "string") {
+        } else Decimal.transfer(target[key])
+      }
+      else if (typeof target[key] == "string") {
         target[key] = Decimal.DecimalLikeString(target[key])
       }
     }
@@ -1613,7 +1615,7 @@ export class Decimal {
   }
 
   toSecondChange(max: DecimalSource) {
-    if (this.gt(max)) {
+    if (this.minus(0.1).gte(max)) {
       return this.toResourceAmount() + " (MAX)"
     } else {
       return this.toResourceAmount() + "/s"

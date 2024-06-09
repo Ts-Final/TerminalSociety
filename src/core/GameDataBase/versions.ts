@@ -1,7 +1,7 @@
 import {noEmpty} from "../utils/noEmpty.ts";
 
 function toDate(y: number, month: number, d: number, h = 0, m = 0, s = 0) {
-  let date = new Date()
+  const date = new Date()
   date.setFullYear(y, month, d)
   // though we dont use the hours, just define it for possible bugs.
   date.setHours(h, m, s)
@@ -96,6 +96,12 @@ export const Versions: VersionDataInterface[] = [
       "修复bug：研究update时不消耗物资，市场-交易无法加载",
       "修改了部分ui。"
     ]
+  },
+  {
+    id:14,
+    name:"Pre-dev 12.2",
+    date: toDate(2024, 5, 19),
+    description: []
   }
 ]
 

@@ -10,7 +10,7 @@ export class Lazy<T = any> {
   invalidate() {
     this._value = undefined
   }
-  get value() {
+  get value(): T {
     if (this._value == undefined) {
       this._value = this.getValue()
     }
@@ -40,5 +40,10 @@ export class LazyCollection {
   }
   push(ins:Lazy) {
     this.all.push(ins)
+  }
+  lazy<T>(getter: () => T) {
+    const x = new Lazy(getter)
+    this.all.push(x)
+    return x
   }
 }

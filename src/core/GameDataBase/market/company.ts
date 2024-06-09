@@ -7,7 +7,7 @@ import {Numbers} from "../.././utils/Numbers.ts";
 import {Resource} from "../resource.ts";
 import {noEmpty} from "../.././utils/noEmpty.ts";
 
-export interface company extends GameDataInterface{
+export interface company extends GameDataInterface {
   id: number
   name: string // 名字
   des: string // 描述
@@ -16,9 +16,10 @@ export interface company extends GameDataInterface{
   advPow: [number, number] // adv售卖量的浮动
   allResource: ResourceTypes[]
   baseAmount: number // 售卖数量基础
+  generate?(): exchangeShort[]
 }
 
-const counter = Numbers.counter(1,1)
+const counter = Numbers.counter(0, 1)
 
 export const CompanyData: company[] = [
   {
@@ -42,6 +43,20 @@ export const CompanyData: company[] = [
     baseAmount: 1e3,
     allResource: ["energy", "water", "coal", "iron", "copper"],
     condition: () => true,
+    generate() {
+      const x: exchangeShort[] = []
+      const id = this.id
+      for (const str of this.allResource) {
+        x.push({
+          company: id,
+          resource: str,
+          stock: 1e3,
+          bought: 0,
+          price: Resource(str).basePrice.mul(0.8)
+        })
+      }
+      return x
+    },
   },
 
 ]
@@ -65,23 +80,27 @@ export class CompanyClass extends GameDataClass {
     this.allResource = data.allResource
 
     if (player.market.company[this.id] == undefined) {
-      player.market.company[this.id] = [false, 0]
+      player.market.company[this.id] = {
+        unlocked: true,
+        relation: 0
+      }
     }
+    if (data.generate) this.generateExchange = data.generate
     this.onLogic()
   }
 
   get unlocked() {
-    return player.market.company[this.id][0]
+    return player.market.company[this.id].unlocked
   }
 
   set unlocked(value) {
-    player.market.company[this.id][0] = value
+    player.market.company[this.id].unlocked = value
     this.refs.unlocked.value = value
   }
 
   get allResourceString() {
     return this.allResource.map((x) => {
-      let name = Resource(x).parsed
+      const name = Resource(x).parsed
       return name in this.advantage ? `<span style="color: #f7f12c;">${name}</span>` : name
     })
   }
@@ -104,19 +123,26 @@ export class CompanyClass extends GameDataClass {
 
 
   generateExchange() {
-    let v: exchangeShort[] = []
-    let resources = randomElements(this.allResource)
+    const v: exchangeShort[] = []
+    const resources = randomElements(this.allResource)
+    const id = this.id
     for (const res of resources) {
       if (res === undefined) {
         continue
       }
-      let pow = res in this.advantage ?
+      const pow = res in this.advantage ?
         randomNumber(...this.advPow, 2) : randomNumber(0.9, 1.05)
       let amount = this.baseAmount * pow
       amount = Numbers.round(amount, 0)
       let price = Resource(res).basePrice
       price = price.mul(randomNumber(0.9, 1.05, 2))
-      v.push([this.id, res, amount, 0, price])
+      v.push({
+        price: price,
+        company: id,
+        resource: res,
+        bought: 0,
+        stock: amount
+      })
     }
 
     return v

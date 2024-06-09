@@ -10,11 +10,11 @@ export function randomElement<T>(array:T[]): T{
  * @param array1
  */
 export function randomElements<T>(array1:T[]): T[] {
-  let array = deepClone(array1)
+  const array = deepClone(array1)
   const times = Math.floor(Math.random() * array.length)
-  let value: T[] = []
+  const value: T[] = []
   for (let i = 0; i < times; i++) {
-    let v = randomElement(array)
+    const v = randomElement(array)
     array.splice(array.indexOf(v),1)
     value.push(v)
   }
@@ -22,7 +22,7 @@ export function randomElements<T>(array1:T[]): T[] {
 }
 
 /**
- * [min, max) 运气上大概取不到端点
+ * [min, max)
  * @param min
  * @param max
  * @param places
@@ -30,7 +30,7 @@ export function randomElements<T>(array1:T[]): T[] {
  */
 export function randomNumber(min:number,max:number,places=2) {
   let randomV = Math.random() // [0,1)
-  let length = max-min
+  const length = max-min
   if (length < 0) {throw new Error(`WTF random number ${min}, ${max}`)}
   randomV *= length
   return Math.floor((randomV + min) * (10^places)) / (10^places)

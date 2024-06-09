@@ -1,10 +1,7 @@
 <script setup lang="ts">
-import {EventHub} from "../../core/eventHub.ts";
 import ModalCloseButton from "./ModalCloseButton.vue";
 
-function closeModal() {
-  EventHub.dispatch('closeModal')
-}
+import {closeModal} from "../../core/utils/modal.ts";
 </script>
 
 <template>
@@ -28,6 +25,20 @@ function closeModal() {
   text-align: center;
 }
 
+
+.modal-wrapper {
+  max-width: 60vw;
+  max-height: 75vh;
+  min-width: 20vw;
+  min-height: 30vh;
+  position: relative;
+  border: 2px solid #7cdcf4;
+  padding: 4px;
+  background-image: var(--bgi);
+}
+</style>
+<style>
+
 .modal-title {
   display: inline-block;
   align-self: center;
@@ -36,16 +47,5 @@ function closeModal() {
   font-size: 1.6rem;
   font-weight: bold;
   padding: 0;
-}
-
-.modal-wrapper {
-  max-width: 60vw;
-  max-height: 75vh;
-  min-width: 40vw;
-  min-height: 50vh;
-  position: relative;
-  border: 2px solid #7cdcf4;
-  padding: 4px;
-  background-image: var(--bgi);
 }
 </style>

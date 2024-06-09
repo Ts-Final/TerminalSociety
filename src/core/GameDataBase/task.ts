@@ -73,7 +73,7 @@ export const TaskData: TaskDataInterface[] = [
     produce: [['iron', 10], ['copper', 10], ["coal", 20]],
     cost: [['energy', 100], ['water', 5]],
     condition() {
-      return Upgrades(0).unlocked
+      return Upgrades(0).bought
     },
   },
   {
@@ -84,7 +84,7 @@ export const TaskData: TaskDataInterface[] = [
     produce: [['water', 10]],
     cost: [['energy', 10]],
     condition() {
-      return Upgrades(0).unlocked
+      return Upgrades(0).bought
     },
   },
 ]
@@ -113,26 +113,29 @@ export class TaskClass
       activated: ref(false),
     }
     if (player.task[this.id] == undefined) {
-      player.task[this.id] = [false, false]
+      player.task[this.id] = {
+        unlocked: false,
+        activated: false
+      }
     }
     this.onLogic()
   }
 
   get unlocked(): boolean {
-    return player.task[this.id][0]
+    return player.task[this.id].unlocked
   }
 
   set unlocked(value: boolean) {
-    player.task[this.id][0] = value
+    player.task[this.id].unlocked = value
     this.refs.unlocked.value = value
   }
 
   get activated(): boolean {
-    return player.task[this.id][1]
+    return player.task[this.id].activated
   }
 
   set activated(value: boolean) {
-    player.task[this.id][1] = value
+    player.task[this.id].activated = value
     this.refs.activated.value = value
   }
 
@@ -152,7 +155,7 @@ export class TaskClass
     this.refs.unlocked.value = this.unlocked
   }
 
-  updateLogic(speed: number = 1) {
+  updateLogic(speed = 1) {
     if (!this.unlocked) {
       if (this.tryUnlock()) {
         notify.success(`解锁生产：${this.name}`, 1000)
@@ -172,10 +175,10 @@ export class TaskClass
       .includes(false)) return
 
 
-    for (let [resKey, value] of this.produce) {
+    for (const [resKey, value] of this.produce) {
       Resource(resKey).effectProduce(value * speed)
     }
-    for (let [resKey, value] of this.cost) {
+    for (const [resKey, value] of this.cost) {
       Resource(resKey).effectCost(value * speed)
     }
   }

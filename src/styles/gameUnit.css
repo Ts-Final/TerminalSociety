@@ -49,7 +49,7 @@
 
 .gameUnit-contain {
   display: grid;
-  grid-gap: 5px;
+  gap: 5px;
   padding: 2px;
 
 }
@@ -74,7 +74,15 @@
 .btn {
   cursor: pointer;
 }
+.btn-good {
+  cursor: pointer;
+  background-color: var(--color-good);
+}
 
 .btn-disabled {
   cursor: not-allowed;
+}
+.max-modal {
+  width: 60vw;
+  height: 70vh;
 }

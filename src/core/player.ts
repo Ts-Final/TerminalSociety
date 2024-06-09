@@ -1,5 +1,6 @@
 import {exchangeShort, ResourceTypes} from "./constants.ts";
 import {Decimal} from "./utils/break_infinity.ts";
+import {deepmergeAll} from "./utils/deepmerge.ts";
 
 /*
 * For most of the values we dont set its values here, and in different
@@ -8,22 +9,20 @@ import {Decimal} from "./utils/break_infinity.ts";
 * The object (player) should only be used in DataClasses or other
 * functional Objects, anyway dont use its value directly
 * */
-export const player = {
-  resource: {} as {
-    [key: string]: {
-      amount: Decimal,
-      maximum: Decimal,
-      change: Decimal,
-      max_record: Decimal,
-      affects: {
-        pro: { source: [string, Decimal][], total: Decimal },
-        consume: { source: [string, Decimal][], total: Decimal },
-        maxAdd: { source: [string, Decimal][], total: Decimal },
-        maxMult: { source: [string,Decimal][], total: Decimal },
-      },
-    }
-  },
-  task: [] as [boolean, boolean][],
+export let player = {
+  resource: {} as Record<string, {
+    amount: Decimal,
+    maximum: Decimal,
+    change: Decimal,
+    max_record: Decimal,
+    affects: {
+      pro: { source: [string, Decimal][], total: Decimal },
+      consume: { source: [string, Decimal][], total: Decimal },
+      maxAdd: { source: [string, Decimal][], total: Decimal },
+      maxMult: { source: [string, Decimal][], total: Decimal },
+    },
+  }>,
+  task: [] as { unlocked: boolean, activated: boolean }[],
   /**
    * ```
    * {
@@ -34,7 +33,7 @@ export const player = {
    * }
    * ```
    */
-  research: [] as [boolean, boolean, Decimal, number][],
+  research: [] as { unlocked: boolean, activated: boolean, started: Decimal, level: number }[],
   market: {
     affect: 0,
     /**
@@ -43,7 +42,7 @@ export const player = {
      *   1: bought,
      * }
      */
-    upgrades: [] as [boolean, boolean][],
+    upgrades: [] as { unlocked: boolean, bought: boolean }[],
 
     /**
      * ```
@@ -53,7 +52,7 @@ export const player = {
      * }
      * ```
      */
-    company: [] as [boolean, number][],
+    company: [] as { unlocked: boolean, relation: number }[],
 
     /**
      * ```
@@ -80,7 +79,14 @@ export const player = {
    *   4: join-time
    * }
    */
-  employee: [] as [boolean, boolean, number, number, number][],
+  employee: [] as {
+    unlocked: boolean,
+    equipped: boolean,
+    level: number,
+    exp: number,
+    joinTime: number,
+    regain:number,
+  }[],
 
   // country: __player_country,
   display: [0, 0] as [number, number],
@@ -100,18 +106,13 @@ export const player = {
     news: true,
     autoStory: false,
   },
-  /**
-   * {
-   *   0: unlocks
-   * }
-   * */
-  tabs: {} as {
-    [x: number]: {
-      unlocks: boolean[],
-      show: boolean[],
-      lastOpen: number
-    }
-  },
+  tabs: {} as Record<number, {
+    unlocked: boolean,
+    show: boolean,
+    lastOpen: number,
+    /*unlocked/shown*/
+    sub: [boolean, boolean][]
+  }>,
   news: {
     seen: [] as number[],
     totalSeen: 0,
@@ -119,7 +120,7 @@ export const player = {
       clicks: 0,
     }
   },
-  story: {} as { [key: string]: [boolean,boolean] },
+  story: {} as Record<string, [boolean, boolean]>,
   customName: "",
   lastUpdate: Date.now(),
   gameSpeed: 1,
@@ -137,3 +138,15 @@ declare global {
 
 window.player = player
 window.Decimal = Decimal
+
+export type PlayerType = typeof player
+export const Player = {
+  defaultStart: deepmergeAll<PlayerType>([{}, player]),
+  set(value: PlayerType) {
+    player = value
+  },
+  get player() {
+    return player
+  },
+
+}

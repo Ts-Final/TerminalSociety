@@ -9,7 +9,6 @@ import {ui} from "./core/game-mechanics/ui.ts";
 
 <template>
   <div class="full app-wrapper">
-
     <template v-if="ui.init.ref.value">
       <News/>
       <RightTab/>
@@ -53,12 +52,12 @@ body, :root, #app {
   --news-height: 2rem;
   --medium-width: 220px;
   --text-color: #7cdcf4;
+  --light-text-color: #b8dcee;
   --background-base: #000000;
   --border-width: 2px;
-  --border-radius: 2px
-}
+  --border-radius: 2px;
 
-:root {
+
   /* Don't change this instance of --color-text or any of its values in other themes to not be hex; it's parsed as hex
     elsewhere to provide theme-dependent color gradients */
   --color-text: #7cdcf4;

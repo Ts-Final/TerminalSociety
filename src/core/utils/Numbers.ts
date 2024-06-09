@@ -3,7 +3,7 @@ export const Numbers = {
     const factor = Math.pow(10, pl);
     return Math.round(x * factor) / factor;
   },
-  formatInt(v:number,percentage=false,fD:number=0) {
+  formatInt(v:number,percentage=false,fD=0) {
     if (v >= 1e7) {
       return v.toExponential(fD)
     } else if (percentage) {

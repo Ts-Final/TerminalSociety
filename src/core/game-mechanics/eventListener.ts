@@ -1,13 +1,12 @@
-import {GameStorage} from "./GameStorage.ts";
+import {GameStorage} from "./storage/GameStorage.ts";
 import {notify} from ".././utils/notify.ts";
 import {EventHub} from "../eventHub.ts";
 import {Market} from "../GameDataBase/market";
 import {Modal} from "../utils/modal.ts";
-import {isLocal} from "../init.ts";
 
 export function initListener() {
   document.addEventListener('keydown', function (e) {
-    // console.log(e.code)
+      // console.log(e.code)
       if (e.code === "KeyS" && e.ctrlKey) {
         GameStorage.save()
         e.preventDefault()
@@ -30,8 +29,9 @@ export function initListener() {
   )
 }
 
+/*
 if (isLocal()) {
   window.onerror = function () {
     GameStorage.clearSave()
   }
-}
+}*/

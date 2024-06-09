@@ -44,8 +44,11 @@ export abstract class GameDataClass implements GameDataInterface {
 
   abstract updateLogic(): void
 
-  updateRef(): void {
 
+  /**
+  * @abstract */
+  updateRef(): void {
+    // the function here is empty because otherwise it will be bugged in constructor
   }
 
   onUnlock?(): void

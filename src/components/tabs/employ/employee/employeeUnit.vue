@@ -2,71 +2,90 @@
 
 import {EmployeeWorkClass} from "../../../../core/GameDataBase/employee/work.ts";
 import EffectLines from "../../../small/effect/EffectLines.vue";
+import {Decimal} from "../../../../core/utils/break_infinity.ts";
 
 const {employee} = defineProps<{ employee: EmployeeWorkClass }>()
-
-/*const eff = employeeWorkSkillToAffect(employee, Progress.employee(employee.id).level)
-
-const unlocked = ref(false)
-const level = ref(0)
-const letters = ref(0)
-const req = ref(0)
-
-function update() {
-  let employ = Progress.employee(employee.id)
-  unlocked.value = employ.unlocked
-  level.value = employ.level
-  letters.value = employ.letters
-  req.value = Employee.upgradeRequire(employ.level)
+const isClicked = [false]
+function onClick() {
+  if (isClicked[0]) {
+    employee.check()
+  } else {
+    isClicked[0] = true
+    setTimeout(() => isClicked[0] = false, 250)
+  }
 }
-
-
-gameLoop.displayHandlers[displayEnum.employWork].push(update)*/
 function onDragStart(e: DragEvent) {
   if (e.dataTransfer) {
     e.dataTransfer.setData('employ/employWork', employee.id.toString())
     e.dataTransfer.dropEffect = "copy"
-  } else {
-    setTimeout(() => onDragStart(e), 50)
   }
 }
 
-const {exp, level, unlocked, req, eff} = employee.refs
+const {exp, level, unlocked, req} = employee.refs
 </script>
 
 <template>
-  <div class="gameUnit flex-col medium-size" style="border: 2px solid"
-       v-if="unlocked" draggable="true" :class="`rarity-${employee.rarity}`"
+  <div class="employee-unit" draggable="true"
+       @click="onClick"
+       :class="'rarity-' + employee.rarity"
        @dragstart="onDragStart">
-    <div class="flex-row space-around">
-      <div v-html="employee.name"/>
-      <div v-if="employee.name2" v-html="employee.name2" class="op0.5"/>
+    <div class="employee-advantages">
+      <span v-for="i in employee.advantages" v-html="i"></span>
     </div>
-    <div class="border1-top flex-row space-around">
-      <div>Lv.{{ level }}</div>
-      <div>({{ exp }}/{{ req }})</div>
-      <div v-if="exp >= req" class="employ-unit-btn"
-           @click="employee.upgrade()">升级
-      </div>
+    <div class="employee-exp">
+      <span style="font-size: 1.5rem">{{level}}</span>
+      <span style="font-size: 0.75rem">{{Decimal.div(exp, req).toPercent()}}</span>
     </div>
-    <div class="gameUnit-popout" style="border: 2px solid;">
-      <div>
-        {{ employee.des }}
-      </div>
-      <br>
-      <div class="flex-col">
-        <EffectLines :eff="eff"/>
-      </div>
-      <div class="op0.5">于{{ employee.dateString }}加入</div>
+    <div class="employee-name">
+      <span class="op0.7" style="font-size: 0.7rem" v-html="employee.name2"/>
+      <span v-html="employee.name" />
     </div>
-
   </div>
 </template>
 
 <style scoped>
-.employ-unit-btn {
-  cursor: pointer;
-  animation: a-employ-level-up 2s infinite ease-in-out;
+.employee-name {
+  position: absolute;
+  right: 5%;
+  bottom: 5%;
+  display: flex;
+  flex-direction: column;
+  text-align: right;
+}
+.employee-unit {
+  height: 40vh;
+  width: 22.8vh;
+  margin-right: 50px;
+  position: relative;
+  border: 2px solid;
+
+  background-image: url("/400-700.webp");
+  background-size: 100%;
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-color: transparent;
+}
+.employee-advantages {
+  width: 90%;
+  left: 5%;
+  top: 5px;
+  position: absolute;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 2px;
+}
+
+.employee-exp {
+  position: absolute;
+  display: flex;
+  justify-items: center;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  flex-direction: column;
+  left: 5%;
+  bottom: 5px;
 }
 
 @keyframes a-employ-level-up {
@@ -99,10 +118,6 @@ const {exp, level, unlocked, req, eff} = employee.refs
 
 .rarity-5 {
   animation: a-rarity-5 4s infinite linear;
-}
-
-.rarity-5 > .gameUnit-popout {
-  animation: inherit;
 }
 
 @keyframes a-rarity-5 {

@@ -1,12 +1,13 @@
 import {player} from "../../player";
 import {notify} from "../.././utils/notify.ts";
-import {deepSet} from "../.././utils/deepSet.ts";
 import {Base64} from "../.././utils/base64.ts";
 import {ui} from ".././ui.ts";
 import {NewGame} from "./../newGame.ts";
 import {Decimal} from "../../utils/break_infinity.ts";
 import {LatestVersion} from "../../GameDataBase/versions.ts";
 import {Modal} from "../../utils/modal.ts";
+import {Migrations} from "./migrations.ts";
+import {deepSet} from "../../utils/deepSet.ts";
 
 const Key = 'TerminalSociety'
 
@@ -91,13 +92,9 @@ export const GameStorage = {
   load(isLocal = false) {
     const str = localStorage.getItem('TerminalSociety')
     if (str != null) {
-      /*try {
-        obj = JSON.parse(str) // 向上兼容没有serial的版本
-      } catch (e) {
-        obj = JSON.parse(this.serialize(str))
-        兼容（）（），不兼容了。到这个时候估计没什么用了（笑
-      } */
-      deepSet(JSON.parse(this.serialize(str)), player)
+      const obj = JSON.parse(this.serialize(str))
+      deepSet(obj, player)
+      Migrations.patch(player, LatestVersion)
       if (player.customName == "") ui.init.wait(NewGame)
       if (player.version !== LatestVersion) {
         ui.init.wait(() => Modal.VersionModal.show({}))
@@ -105,7 +102,6 @@ export const GameStorage = {
     } else {
       ui.init.wait(NewGame)
     }
-
     Decimal.transfer(player)
     player.dev = isLocal
   },

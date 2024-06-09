@@ -48,6 +48,8 @@ export const EventHub = new eventHub()
 export {GameEvent}
 
 */
+import {callable} from "./constants.ts";
+
 export const GameEvents = {
   update: 'update',
   /*use this event here to separate ui-related things from logic*/
@@ -65,7 +67,7 @@ export type Events = typeof GameEvents[keyof typeof GameEvents]
 
 
 export const EventHub = {
-  _handlers: {} as { [key in Events]: { fn: Function, target: any }[] },
+  _handlers: {} as { [key in Events]: { fn: callable, target: any }[] },
   dispatch(event: Events) {
     const handlers = this._handlers[event]
     if (handlers === undefined) return
@@ -73,7 +75,7 @@ export const EventHub = {
       handler.fn()
     }
   },
-  on(e: Events, fn: Function, target: any) {
+  on(e: Events, fn: callable, target: any) {
     const handler = this._handlers[e]
     if (!handler) {
       this._handlers[e] = []
@@ -82,7 +84,7 @@ export const EventHub = {
   },
   offAll(target: any) {
     for (const handlers in this._handlers) {
-      let key = <Events>handlers
+      const key = handlers as Events
       this._handlers[key] = this._handlers[key].filter(x => x.target !== target)
     }
   }

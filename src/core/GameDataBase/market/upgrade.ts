@@ -57,7 +57,7 @@ export class UpgradeClass extends GameDataClass {
     this.price = data.price;
 
     if (player.market.upgrades[this.id] == undefined) {
-      player.market.upgrades[this.id] = [false, false];
+      player.market.upgrades[this.id] = {unlocked: false, bought:false};
     }
     this.refs = {
       unlocked: ref(false),
@@ -67,20 +67,20 @@ export class UpgradeClass extends GameDataClass {
   }
 
   get unlocked() {
-    return player.market.upgrades[this.id][0];
+    return player.market.upgrades[this.id].unlocked
   }
 
   set unlocked(value: boolean) {
-    player.market.upgrades[this.id][0] = value;
+    player.market.upgrades[this.id].unlocked = value;
     this.refs.unlocked.value = value
   }
 
   get bought() {
-    return player.market.upgrades[this.id][1];
+    return player.market.upgrades[this.id].bought
   }
 
   set bought(value: boolean) {
-    player.market.upgrades[this.id][1] = value;
+    player.market.upgrades[this.id].bought = value;
     this.refs.bought.value = value
   }
 

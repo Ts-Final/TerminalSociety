@@ -5,7 +5,8 @@ import {ref} from "vue";
 import {EventHub} from "../../core/eventHub.ts";
 import {player} from "../../core/player.ts";
 import {ui} from "../../core/game-mechanics/ui.ts";
-import {GameStorage} from "../../core/game-mechanics/GameStorage.ts";
+import {GameStorage} from "../../core/game-mechanics/storage/GameStorage.ts";
+
 
 const name = ref(player.customName)
 const fading = ref(false)
@@ -25,7 +26,7 @@ ui.curtain.show({})
 </script>
 
 <template>
-  <ModalBase class="your-name-modal" :class="{fading:fading}">
+  <ModalBase class="your-name-modal max-modal" :class="{fading:fading}">
     <div>
       你回来了。
       <br>

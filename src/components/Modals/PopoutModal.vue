@@ -23,7 +23,7 @@ function updatePositionStyles() {
 }
 
 function hide() {
-  if (!modal.isOpen) return;
+  if (!Modal.isOpen) return;
   Modal.hide();
 }
 
@@ -62,9 +62,7 @@ EventHub.on("update", updatePositionStyles, Modal)
   position: fixed;
   color: var(--color-text);
   max-height: 80vh;
-  min-height: 60vh;
   max-width: 70vw;
-  min-width: 60vw;
   pointer-events: auto;
   padding: 5px;
   z-index: var(--z-modal);

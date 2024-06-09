@@ -20,12 +20,13 @@ import {Upgrades} from "../GameDataBase/market/upgrade.ts";
 import {nextDay} from "../utils/utils.ts";
 import {Market} from "../GameDataBase/market";
 import {How2Play} from "../GameDataBase/how2play.ts";
+import {PerformanceStats} from "./PerformanceStats.ts";
 
 /**
  * @param diff passed milliseconds
  * @param fast should it be called immediately
  * */
-export function simulateTime(diff: number, fast: boolean = false) {
+export function simulateTime(diff: number, fast = false) {
   const seconds = Math.round(diff / 1000)
   if (seconds <= 20 || fast) {
     for (let i = 0; i < seconds; ++i) {
@@ -76,13 +77,12 @@ export function simulateTime(diff: number, fast: boolean = false) {
       then() {
         OfflineProgress.end()
       },
-
     }
   )
-
 }
 
 export function gameLoop() {
+  PerformanceStats.start('gameLoop')
   const now = Date.now()
   const diff = now - player.lastUpdate
   /*
@@ -95,6 +95,7 @@ export function gameLoop() {
   player.lastUpdate = Date.now()
   gameUpdate(diff)
   checkNewDay()
+  PerformanceStats.end('gameLoop')
 }
 
 function gameUpdate(passDiff: number) {
@@ -144,12 +145,12 @@ export const OfflineProgress = {
       }
     }
     for (const rch of Research.all) {
-      if (rch.level !== initial.research[rch.id][3]) {
+      if (rch.level !== initial.research[rch.id].level) {
         if (!x.research) x.research = []
         if (rch.maxed) {
           x.research.push([rch.name, true])
         } else {
-          x.research.push([rch.name, rch.level - initial.research[rch.id][3]])
+          x.research.push([rch.name, rch.level - initial.research[rch.id].level])
         }
       }
     }

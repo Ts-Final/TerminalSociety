@@ -49,8 +49,20 @@ export type effectTarget = ResourceTypes | "research"
  *   4: price
  * }
  */
-export type exchangeShort = [number, ResourceTypes, number, number, Decimal]
+export interface exchangeShort {
+  company: number,
+  resource: ResourceTypes,
+  stock: number,
+  bought: number,
+  price: Decimal
+}
 
 export type Optional<T> = T | undefined
-export interface Accessor<T> { (id:number): T, all:T[]}
-export type callAble = () => any
+
+export interface Accessor<T> {
+  all: T[]
+
+  (id: number): T,
+}
+
+export type callable = () => any

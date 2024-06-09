@@ -1,10 +1,12 @@
 import {EventHub} from "../eventHub.ts";
 import {player} from "../player";
-import {GameStorage} from "./GameStorage.ts";
+import {GameStorage} from "./storage/GameStorage.ts";
+
 import {ui} from "./ui.ts";
 import {gameLoop} from "./simulateTime.ts";
+import {callable} from "../constants.ts";
 
-type intervalObj = {
+interface intervalObj {
   start(): void,
   stop(): void,
   restart(): void,
@@ -12,14 +14,14 @@ type intervalObj = {
 
 export const gameIntervals = (function () {
   const all: intervalObj[] = []
-  const interval = (fn: Function, timeout: number | (() => number)) => {
+  const interval = (fn: callable, timeout: number | (() => number)) => {
     let id = -1
-    let i: intervalObj = {
+    const i: intervalObj = {
       start() {
         if (id != -1) {
           throw new Error("A same Interval has already started.")
         } else {
-          id = setInterval(fn, typeof timeout == 'function' ? timeout() : timeout)
+          id = Number(setInterval(fn, typeof timeout == 'function' ? timeout() : timeout))
         }
       },
       stop() {

@@ -58,7 +58,9 @@ export class CountryClass extends GameDataClass {
   }
 
   updateLogic(): void {
+    // do nothing currently
   }
+
 
 }
 
